@@ -1,3 +1,11 @@
+---
+title: Polecenia CLI
+description: Lista poleceń CLI wysyłanych do repeaterów, room serverów i sensorów MeshCore.
+sourceUrl: https://docs.meshcore.io/cli_commands
+createdAt: 2026-08-22
+order: 2
+---
+
 # Polecenia CLI
 
 Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów, room serverów i sensorów MeshCore.
@@ -802,25 +810,25 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 **Limity:** repeater przez port szeregowy akceptuje jedną linię do **160 znaków**. Dla większych drzew podziel na wiele poleceń `region def`; kursor resetuje się do `*` między poleceniami, więc rozpocznij kolejne polecenie od `child|ancestor`, aby ustawić go ponownie. Każdy token dzieli się co najwyżej raz na znaku `|` - `region def a|b|c|d` nie jest skrótem płaskiej listy; patrz przykład płaskiej listy poniżej.
 
 **Przykład - łańcuch liniowy** (każdy token staje się dzieckiem poprzedniego):
-```
+```mccli
 region def a b c d e
 region save
 ```
 
 **Przykład - rozgałęzione drzewo** (odpowiednik `region put a`, `region put b a`, `region put c b`, `region put d c`, `region put e b`, `region put f e`):
-```
+```mccli
 region def a b c d|b e f
 region save
 ```
 
 **Przykład - błąd i stan częściowy:**
-```
+```mccli
 region def a b c|nope d
 ```
 Odpowiedź to `Err - unknown jump: nope`. `a`, `b` i `c` zostały umieszczone przed błędem; `d` nie. Uruchom `region`, aby sprawdzić stan, a następnie uruchom ponownie z poprawionym `jump` lub napraw za pomocą `region remove` / `region put`.
 
 **Przykład - płaska lista** (każdy region jako dziecko `*`). Użyj `|*` po każdym tokenie, aby cofnąć kursor do korzenia przed kolejnym tokenem:
-```
+```mccli
 region def a|* b|* c|* d|* e|* f
 region save
 ```
@@ -862,7 +870,7 @@ region save
 ### Przykłady regionów
 
 **Przykład 1: użycie flagi F z nazwanym regionem publicznym**
-```
+```mccli
 region load
 #Europe F
 <blank line to end region load>
@@ -876,7 +884,7 @@ region save
 ---
 
 **Przykład 2: użycie wildcard z flagą F**
-```
+```mccli
 region load 
 * F
 <blank line to end region load>
@@ -891,7 +899,7 @@ region save
 ---
 
 **Przykład 3: użycie wildcard bez flagi F**
-```
+```mccli
 region load 
 *
 <blank line to end region load>
@@ -905,7 +913,7 @@ region save
 ---
 
 **Przykład 4: zagnieżdżony region publiczny z flagą F**
-```
+```mccli
 region load 
 #Europe F
   #UK
@@ -926,7 +934,7 @@ region save
 ---
 
 **Przykład 5: wildcard z zagnieżdżonymi regionami publicznymi**
-```
+```mccli
 region load 
 * F
   #NorthAmerica

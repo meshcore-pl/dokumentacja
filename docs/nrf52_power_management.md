@@ -1,3 +1,11 @@
+---
+title: Zarządzanie zasilaniem nRF52
+description: Funkcje ochrony baterii i zarządzania zasilaniem w module nRF52 MeshCore.
+sourceUrl: https://docs.meshcore.io/nrf52_power_management
+createdAt: 2026-08-22
+order: 10
+---
+
 # Zarządzanie zasilaniem nRF52
 
 ## Przegląd
@@ -25,35 +33,35 @@ Moduł zarządzania zasilaniem nRF52 zapewnia funkcje ochrony baterii, które za
 ### Śledzenie powodu wyłączenia
 Kody powodu wyłączenia (zapisywane w GPREGRET2):
 
-| Kod  | Nazwa        | Opis                                        |
-|------|--------------|----------------------------------------------|
-| 0x00 | NONE         | Normalny rozruch / brak wcześniejszego wyłączenia |
+| Kod  | Nazwa        | Opis                                                 |
+|------|--------------|------------------------------------------------------|
+| 0x00 | NONE         | Normalny rozruch / brak wcześniejszego wyłączenia    |
 | 0x4C | LOW_VOLTAGE  | Osiągnięto próg niskiego napięcia w czasie działania |
-| 0x55 | USER         | Użytkownik zażądał powerOff()                |
-| 0x42 | BOOT_PROTECT | Zadziałała ochrona napięcia przy starcie     |
+| 0x55 | USER         | Użytkownik zażądał powerOff()                        |
+| 0x42 | BOOT_PROTECT | Zadziałała ochrona napięcia przy starcie             |
 
 ## Obsługiwane płytki
 
-| Płytka                                     | Zaimplementowane | Wybudzanie LPCOMP | Wybudzanie VBUS |
-|---------------------------------------------|-------------------|---------------------|--------------------|
-| Seeed Studio XIAO nRF52840 (`xiao_nrf52`)    | Tak               | Tak                 | Tak                |
-| RAK4631 (`rak4631`)                          | Tak               | Tak                 | Tak                |
-| Heltec T114 (`heltec_t114`)                  | Tak               | Tak                 | Tak                |
-| GAT562 Mesh Watch13                          | Tak               | Tak                 | Tak                |
-| Promicro nRF52840                            | Nie               | Nie                 | Nie                |
-| RAK WisMesh Tag                              | Nie               | Nie                 | Nie                |
-| Heltec Mesh Solar                            | Nie               | Nie                 | Nie                |
-| LilyGo T-Echo / T-Echo Lite                  | Nie               | Nie                 | Nie                |
-| SenseCAP Solar                               | Tak               | Tak                 | Tak                |
-| WIO Tracker L1 / L1 E-Ink                    | Nie               | Nie                 | Nie                |
-| WIO WM1110                                   | Nie               | Nie                 | Nie                |
-| Mesh Pocket                                  | Nie               | Nie                 | Nie                |
-| Nano G2 Ultra                                | Nie               | Nie                 | Nie                |
-| ThinkNode M1/M3/M6                           | Nie               | Nie                 | Nie                |
-| T1000-E                                      | Nie               | Nie                 | Nie                |
-| Ikoka Nano/Stick/Handheld (nRF)              | Nie               | Nie                 | Nie                |
-| Keepteen LT1                                 | Nie               | Nie                 | Nie                |
-| Minewsemi ME25LS01                           | Nie               | Nie                 | Nie                |
+| Płytka                                    | Zaimplementowane | Wybudzanie LPCOMP | Wybudzanie VBUS |
+|-------------------------------------------|------------------|-------------------|-----------------|
+| Seeed Studio XIAO nRF52840 (`xiao_nrf52`) | Tak              | Tak               | Tak             |
+| RAK4631 (`rak4631`)                       | Tak              | Tak               | Tak             |
+| Heltec T114 (`heltec_t114`)               | Tak              | Tak               | Tak             |
+| GAT562 Mesh Watch13                       | Tak              | Tak               | Tak             |
+| Promicro nRF52840                         | Nie              | Nie               | Nie             |
+| RAK WisMesh Tag                           | Nie              | Nie               | Nie             |
+| Heltec Mesh Solar                         | Nie              | Nie               | Nie             |
+| LilyGo T-Echo / T-Echo Lite               | Nie              | Nie               | Nie             |
+| SenseCAP Solar                            | Tak              | Tak               | Tak             |
+| WIO Tracker L1 / L1 E-Ink                 | Nie              | Nie               | Nie             |
+| WIO WM1110                                | Nie              | Nie               | Nie             |
+| Mesh Pocket                               | Nie              | Nie               | Nie             |
+| Nano G2 Ultra                             | Nie              | Nie               | Nie             |
+| ThinkNode M1/M3/M6                        | Nie              | Nie               | Nie             |
+| T1000-E                                   | Nie              | Nie               | Nie             |
+| Ikoka Nano/Stick/Handheld (nRF)           | Nie              | Nie               | Nie             |
+| Keepteen LT1                              | Nie              | Nie               | Nie             |
+| Minewsemi ME25LS01                        | Nie              | Nie               | Nie             |
 
 Uwagi:
 - „Zaimplementowane” odnosi się do Fazy 1 (blokada rozruchu + odczyt powodu wyłączenia).
@@ -144,24 +152,24 @@ Wybudzanie VBUS jest włączane za pomocą zdarzenia USBDETECTED peryferium POWE
 
 **Wybór referencji LPCOMP (PWRMGT_LPCOMP_REFSEL)**:
 
-| REFSEL | Ułamek   | VBAT przy dzielniku 1M/1M (VDD=3,0-3,3) | VBAT przy dzielniku 1,5M/1M (VDD=3,0-3,3) |
-|--------|----------|-------------------------------------------|-----------------------------------------------|
-| 0      | 1/8      | 0,75-0,82 V                                | 0,94-1,03 V                                    |
-| 1      | 2/8      | 1,50-1,65 V                                | 1,88-2,06 V                                    |
-| 2      | 3/8      | 2,25-2,47 V                                | 2,81-3,09 V                                    |
-| 3      | 4/8      | 3,00-3,30 V                                | 3,75-4,12 V                                    |
-| 4      | 5/8      | 3,75-4,12 V                                | 4,69-5,16 V                                    |
-| 5      | 6/8      | 4,50-4,95 V                                | 5,62-6,19 V                                    |
-| 6      | 7/8      | 5,25-5,77 V                                | 6,56-7,22 V                                    |
-| 7      | ARef     | -                                          | -                                              |
-| 8      | 1/16     | 0,38-0,41 V                                | 0,47-0,52 V                                    |
-| 9      | 3/16     | 1,12-1,24 V                                | 1,41-1,55 V                                    |
-| 10     | 5/16     | 1,88-2,06 V                                | 2,34-2,58 V                                    |
-| 11     | 7/16     | 2,62-2,89 V                                | 3,28-3,61 V                                    |
-| 12     | 9/16     | 3,38-3,71 V                                | 4,22-4,64 V                                    |
-| 13     | 11/16    | 4,12-4,54 V                                | 5,16-5,67 V                                    |
-| 14     | 13/16    | 4,88-5,36 V                                | 6,09-6,70 V                                    |
-| 15     | 15/16    | 5,62-6,19 V                                | 7,03-7,73 V                                    |
+| REFSEL | Ułamek | VBAT przy dzielniku 1M/1M (VDD=3,0-3,3) | VBAT przy dzielniku 1,5M/1M (VDD=3,0-3,3) |
+|--------|--------|-----------------------------------------|-------------------------------------------|
+| 0      | 1/8    | 0,75-0,82 V                             | 0,94-1,03 V                               |
+| 1      | 2/8    | 1,50-1,65 V                             | 1,88-2,06 V                               |
+| 2      | 3/8    | 2,25-2,47 V                             | 2,81-3,09 V                               |
+| 3      | 4/8    | 3,00-3,30 V                             | 3,75-4,12 V                               |
+| 4      | 5/8    | 3,75-4,12 V                             | 4,69-5,16 V                               |
+| 5      | 6/8    | 4,50-4,95 V                             | 5,62-6,19 V                               |
+| 6      | 7/8    | 5,25-5,77 V                             | 6,56-7,22 V                               |
+| 7      | ARef   | -                                       | -                                         |
+| 8      | 1/16   | 0,38-0,41 V                             | 0,47-0,52 V                               |
+| 9      | 3/16   | 1,12-1,24 V                             | 1,41-1,55 V                               |
+| 10     | 5/16   | 1,88-2,06 V                             | 2,34-2,58 V                               |
+| 11     | 7/16   | 2,62-2,89 V                             | 3,28-3,61 V                               |
+| 12     | 9/16   | 3,38-3,71 V                             | 4,22-4,64 V                               |
+| 13     | 11/16  | 4,12-4,54 V                             | 5,16-5,67 V                               |
+| 14     | 13/16  | 4,88-5,36 V                             | 6,09-6,70 V                               |
+| 15     | 15/16  | 5,62-6,19 V                             | 7,03-7,73 V                               |
 
 **Ważne**: dla płytek z dzielnikiem napięcia na pinie pomiaru baterii, LPCOMP mierzy napięcie po podziale. Użyj:
 `VBAT_threshold ≈ (VDD * fraction) * divider_scale`, gdzie `divider_scale = (Rtop + Rbottom) / Rbottom` (np. 2,0 dla 1M/1M, 2,5 dla 1,5M/1M, 3,0 dla XIAO).
@@ -178,12 +186,12 @@ Zapewnia to kompatybilność niezależnie od stanu stosu BLE.
 
 Status zarządzania zasilaniem można sprawdzić za pomocą CLI:
 
-| Polecenie                | Opis                                                                    |
-|---------------------------|-----------------------------------------------------------------------|
-| `get pwrmgt.support`      | Zwraca „supported” lub „unsupported”                                  |
-| `get pwrmgt.source`       | Zwraca aktualne źródło zasilania - „battery” lub „external” (5V/USB)  |
-| `get pwrmgt.bootreason`   | Zwraca opis powodu resetu i wyłączenia                                |
-| `get pwrmgt.bootmv`       | Zwraca napięcie przy starcie w miliwoltach                            |
+| Polecenie               | Opis                                                                 |
+|-------------------------|----------------------------------------------------------------------|
+| `get pwrmgt.support`    | Zwraca „supported” lub „unsupported”                                 |
+| `get pwrmgt.source`     | Zwraca aktualne źródło zasilania - „battery” lub „external” (5V/USB) |
+| `get pwrmgt.bootreason` | Zwraca opis powodu resetu i wyłączenia                               |
+| `get pwrmgt.bootmv`     | Zwraca napięcie przy starcie w miliwoltach                           |
 
 Na płytkach bez włączonego zarządzania zasilaniem wszystkie polecenia oprócz `get pwrmgt.support` zwracają:
 ```

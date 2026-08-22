@@ -1,3 +1,11 @@
+---
+title: Alokacje numerów
+description: Lista unikalnych numerów i identyfikatorów używanych w payloadach protokołu MeshCore.
+sourceUrl: https://docs.meshcore.io/number_allocations
+createdAt: 2026-08-22
+order: 8
+---
+
 # Alokacje numerów
 
 Ten dokument zawiera listę unikalnych numerów/identyfikatorów używanych w różnych payloadach protokołu MeshCore.
@@ -12,11 +20,11 @@ UWAGA: zakres FF00 - FFFF jest przeznaczony do użytku podczas developmentu, two
 
 Gdy masz już działającą aplikację/projekt, musisz być w stanie wykazać, że istnieje/działa, a DOPIERO WTEDY poprosić o identyfikatory typu. Dlatego po prostu korzystaj z zakresu testowego/deweloperskiego podczas tworzenia, a o identyfikatory poproś przed przejściem do publikacji swojego projektu.
 
-| Zakres typu danych | Nazwa aplikacji              | Kontakt                                                          |
-|---------------------|------------------------------|--------------------------------------------------------------------|
-| 0000 - 00FF          | -zarezerwowane do użytku wewnętrznego- |                                                            |
-| 0100                 | MeshCore Open                | zsylvester@monitormx.com - https://github.com/zjs81/meshcore-open |
-| 0110 - 011F          | Ripple                        | ripple_biz@protonmail.com - https://buymeacoffee.com/ripplebiz    |
-| FF00 - FFFF          | -zarezerwowane do testów/developmentu- |                                                            |
+| Zakres typu danych | Nazwa aplikacji                        | Kontakt                                                           |
+|--------------------|----------------------------------------|-------------------------------------------------------------------|
+| 0000 - 00FF        | -zarezerwowane do użytku wewnętrznego- |                                                                   |
+| 0100               | MeshCore Open                          | zsylvester@monitormx.com - https://github.com/zjs81/meshcore-open |
+| 0110 - 011F        | Ripple                                 | ripple_biz@protonmail.com - https://buymeacoffee.com/ripplebiz    |
+| FF00 - FFFF        | -zarezerwowane do testów/developmentu- |                                                                   |
 
 (dodawaj wiersze w zakresie 0100 - FEFF dla własnych aplikacji)

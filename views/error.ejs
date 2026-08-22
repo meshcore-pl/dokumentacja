@@ -1,0 +1,12 @@
+<%- include('includes/header.ejs', {
+	title: `Błąd ${status} | MeshCore Docs`,
+	description: message
+}) %>
+
+<main id="error-page">
+	<p id="error-page__code"><%= status %></p>
+	<p id="error-page__message"><%= message %></p>
+	<a href="/" class="btn">Wróć na stronę główną</a>
+</main>
+
+<%- include('includes/footer.ejs') %>

@@ -1,3 +1,12 @@
+---
+title: Protokół Companion
+description: Przewodnik po komunikacji z urządzeniami MeshCore przez Bluetooth Low Energy (BLE).
+sourceUrl: https://docs.meshcore.io/companion_protocol
+createdAt: 2026-08-22
+order: 4
+updatedAt: 2026-03-08
+---
+
 # Protokół Companion
 
 - **Ostatnia aktualizacja**: 2026-03-08
@@ -320,13 +329,13 @@ Remaining bytes:                Binary payload (variable length)
 
 `data_type` jest **identyfikatorem aplikacji**, a nie identyfikatorem formatu payloadu. Każda zarejestrowana wartość identyfikuje aplikację, która posiada własne, wewnętrzne schematy payloadu. Firmware nie sprawdza zawartości payloadu - `data_type` jest przesyłany w sposób nieprzezroczysty (opaque).
 
-| Wartość         | Stała                | Przeznaczenie                                                                          |
-|-----------------|----------------------|-----------------------------------------------------------------------------------------|
-| 0x0000          | `DATA_TYPE_RESERVED` | Zarezerwowane; nieprawidłowe przy wysyłaniu                                             |
-| 0x0001 – 0x00FF | —                    | Zarezerwowane do użytku wewnętrznego                                                     |
+| Wartość         | Stała                | Przeznaczenie                                                                                     |
+|-----------------|----------------------|---------------------------------------------------------------------------------------------------|
+| 0x0000          | `DATA_TYPE_RESERVED` | Zarezerwowane; nieprawidłowe przy wysyłaniu                                                       |
+| 0x0001 – 0x00FF | —                    | Zarezerwowane do użytku wewnętrznego                                                              |
 | 0x0100 – 0xFEFF | —                    | Zarejestrowane przestrzenie nazw aplikacji (patrz [number_allocations.md](number_allocations.md)) |
-| 0xFF00 – 0xFFFE | —                    | Testy/development; rejestracja niewymagana                                              |
-| 0xFFFF          | `DATA_TYPE_DEV`      | Przestrzeń deweloperska/eksperymentalna                                                  |
+| 0xFF00 – 0xFFFE | —                    | Testy/development; rejestracja niewymagana                                                        |
+| 0xFFFF          | `DATA_TYPE_DEV`      | Przestrzeń deweloperska/eksperymentalna                                                           |
 
 Aby zarejestrować nową aplikację, zgłoś PR dodający wiersz do tabeli w [docs/number_allocations.md](number_allocations.md). Wewnętrzne podformaty w ramach przydzielonego ID aplikacji należą do tej aplikacji i nie są śledzone w firmware MeshCore ani w tym dokumencie.
 
@@ -352,10 +361,10 @@ Bytes 9 .. 8+data_len:  Payload
 
 **Znaczenie Path Length różni się między wysyłaniem a odbieraniem**:
 
-| Kierunek   | `path_len = 0xFF`                    | `path_len ≠ 0xFF`                                                                                                                             |
-|------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| Wysyłanie  | Zalej sieć (flood)                     | Trasa bezpośrednia; następuje zakodowana ścieżka (dolne 6 bitów = liczba hashy, górne 2 bity + 1 = rozmiar hasha; liczba bajtów na łączu = `hash_count × hash_size`) |
-| Odbieranie | Pakiet dotarł trasą bezpośrednią       | Pakiet został zalany (flood); to zakodowane pole `pkt->path_len` w takiej postaci, w jakiej zostało zaobserwowane (bez następujących bajtów ścieżki)  |
+| Kierunek   | `path_len = 0xFF`                | `path_len ≠ 0xFF`                                                                                                                                                    |
+|------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Wysyłanie  | Zalej sieć (flood)               | Trasa bezpośrednia; następuje zakodowana ścieżka (dolne 6 bitów = liczba hashy, górne 2 bity + 1 = rozmiar hasha; liczba bajtów na łączu = `hash_count × hash_size`) |
+| Odbieranie | Pakiet dotarł trasą bezpośrednią | Pakiet został zalany (flood); to zakodowane pole `pkt->path_len` w takiej postaci, w jakiej zostało zaobserwowane (bez następujących bajtów ścieżki)                 |
 
 Innymi słowy, znaczenie `0xFF` jest odwrócone między obydwoma kierunkami, a przy odbiorze to pole niesie wyłącznie metadane - nigdy ścieżkę nadającą się do routingu. `path_len` to zakodowany bajt (patrz `Packet::isValidPathLen` / `Packet::writePath` w `src/Packet.cpp`), a nie surowa liczba bajtów.
 
@@ -617,29 +626,29 @@ Wartości bajtowe są rozstrzygające; nazwy są aliasami. Czytając kod źród�
 
 ### Typy pakietów
 
-| Wartość | Nazwa                       | Opis                                    |
-|---------|------------------------------|------------------------------------------|
-| 0x00    | PACKET_OK                    | Polecenie zakończone sukcesem            |
-| 0x01    | PACKET_ERROR                 | Polecenie zakończone niepowodzeniem      |
-| 0x02    | PACKET_CONTACT_START         | Początek listy kontaktów                  |
-| 0x03    | PACKET_CONTACT               | Informacje o kontakcie                    |
-| 0x04    | PACKET_CONTACT_END           | Koniec listy kontaktów                    |
-| 0x05    | PACKET_SELF_INFO              | Informacje o samym urządzeniu             |
-| 0x06    | PACKET_MSG_SENT               | Potwierdzenie wysłania wiadomości         |
-| 0x07    | PACKET_CONTACT_MSG_RECV       | Wiadomość od kontaktu (standardowa)       |
-| 0x08    | PACKET_CHANNEL_MSG_RECV       | Wiadomość kanałowa (standardowa)          |
-| 0x09    | PACKET_CURRENT_TIME           | Odpowiedź z aktualnym czasem              |
-| 0x0A    | PACKET_NO_MORE_MSGS           | Brak dostępnych kolejnych wiadomości      |
-| 0x0C    | PACKET_BATTERY                | Poziom baterii                            |
-| 0x0D    | PACKET_DEVICE_INFO             | Informacje o urządzeniu                   |
-| 0x10    | PACKET_CONTACT_MSG_RECV_V3    | Wiadomość od kontaktu (V3 z SNR)          |
-| 0x11    | PACKET_CHANNEL_MSG_RECV_V3    | Wiadomość kanałowa (V3 z SNR)             |
-| 0x12    | PACKET_CHANNEL_INFO            | Informacje o kanale                       |
-| 0x1B    | PACKET_CHANNEL_DATA_RECV       | Datagram danych kanału                    |
-| 0x80    | PACKET_ADVERTISEMENT           | Pakiet advertu                            |
-| 0x82    | PACKET_ACK                     | Potwierdzenie                             |
-| 0x83    | PACKET_MESSAGES_WAITING        | Powiadomienie o oczekujących wiadomościach|
-| 0x88    | PACKET_LOG_DATA                | Dane logu RF (można zignorować)           |
+| Wartość | Nazwa                      | Opis                                       |
+|---------|----------------------------|--------------------------------------------|
+| 0x00    | PACKET_OK                  | Polecenie zakończone sukcesem              |
+| 0x01    | PACKET_ERROR               | Polecenie zakończone niepowodzeniem        |
+| 0x02    | PACKET_CONTACT_START       | Początek listy kontaktów                   |
+| 0x03    | PACKET_CONTACT             | Informacje o kontakcie                     |
+| 0x04    | PACKET_CONTACT_END         | Koniec listy kontaktów                     |
+| 0x05    | PACKET_SELF_INFO           | Informacje o samym urządzeniu              |
+| 0x06    | PACKET_MSG_SENT            | Potwierdzenie wysłania wiadomości          |
+| 0x07    | PACKET_CONTACT_MSG_RECV    | Wiadomość od kontaktu (standardowa)        |
+| 0x08    | PACKET_CHANNEL_MSG_RECV    | Wiadomość kanałowa (standardowa)           |
+| 0x09    | PACKET_CURRENT_TIME        | Odpowiedź z aktualnym czasem               |
+| 0x0A    | PACKET_NO_MORE_MSGS        | Brak dostępnych kolejnych wiadomości       |
+| 0x0C    | PACKET_BATTERY             | Poziom baterii                             |
+| 0x0D    | PACKET_DEVICE_INFO         | Informacje o urządzeniu                    |
+| 0x10    | PACKET_CONTACT_MSG_RECV_V3 | Wiadomość od kontaktu (V3 z SNR)           |
+| 0x11    | PACKET_CHANNEL_MSG_RECV_V3 | Wiadomość kanałowa (V3 z SNR)              |
+| 0x12    | PACKET_CHANNEL_INFO        | Informacje o kanale                        |
+| 0x1B    | PACKET_CHANNEL_DATA_RECV   | Datagram danych kanału                     |
+| 0x80    | PACKET_ADVERTISEMENT       | Pakiet advertu                             |
+| 0x82    | PACKET_ACK                 | Potwierdzenie                              |
+| 0x83    | PACKET_MESSAGES_WAITING    | Powiadomienie o oczekujących wiadomościach |
+| 0x88    | PACKET_LOG_DATA            | Dane logu RF (można zignorować)            |
 
 ### Parsowanie odpowiedzi
 
@@ -809,14 +818,14 @@ Bytes 1-6: ACK Code (6 bytes, hex)
 
 `PACKET_ERROR` (0x01) niesie jednobajtowy kod błędu w bajcie 1. Wartości odpowiadają stałym `ERR_CODE_*` zdefiniowanym w `examples/companion_radio/MyMesh.cpp`:
 
-| Kod | Stała (firmware)            | Opis                                                                          |
-|-----|------------------------------|--------------------------------------------------------------------------------|
-| 1   | `ERR_CODE_UNSUPPORTED_CMD`   | Nieznany lub nieobsługiwany bajt polecenia / subpolecenie                       |
-| 2   | `ERR_CODE_NOT_FOUND`         | Cel nie znaleziony (kanał, kontakt, wiadomość itd.)                             |
-| 3   | `ERR_CODE_TABLE_FULL`        | Wewnętrzna kolejka lub tabela jest pełna - spróbuj ponownie później             |
-| 4   | `ERR_CODE_BAD_STATE`         | Operacja nieprawidłowa w bieżącym stanie urządzenia (np. iterator już działa)   |
-| 5   | `ERR_CODE_FILE_IO_ERROR`     | Błąd operacji wejścia/wyjścia systemu plików lub pamięci                       |
-| 6   | `ERR_CODE_ILLEGAL_ARG`       | Nieprawidłowy argument (zła długość, wartość poza zakresem, zarezerwowane pole itd.) |
+| Kod | Stała (firmware)           | Opis                                                                                 |
+|-----|----------------------------|--------------------------------------------------------------------------------------|
+| 1   | `ERR_CODE_UNSUPPORTED_CMD` | Nieznany lub nieobsługiwany bajt polecenia / subpolecenie                            |
+| 2   | `ERR_CODE_NOT_FOUND`       | Cel nie znaleziony (kanał, kontakt, wiadomość itd.)                                  |
+| 3   | `ERR_CODE_TABLE_FULL`      | Wewnętrzna kolejka lub tabela jest pełna - spróbuj ponownie później                  |
+| 4   | `ERR_CODE_BAD_STATE`       | Operacja nieprawidłowa w bieżącym stanie urządzenia (np. iterator już działa)        |
+| 5   | `ERR_CODE_FILE_IO_ERROR`   | Błąd operacji wejścia/wyjścia systemu plików lub pamięci                             |
+| 6   | `ERR_CODE_ILLEGAL_ARG`     | Nieprawidłowy argument (zła długość, wartość poza zakresem, zarezerwowane pole itd.) |
 
 **Uwaga**: kody błędów mogą się różnić w zależności od wersji firmware. Zawsze sprawdzaj bajt 1 odpowiedzi `PACKET_ERROR` i traktuj nieznane kody jako błędy ogólne.
 

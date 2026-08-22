@@ -1,3 +1,11 @@
+---
+title: Kody QR
+description: Formaty kodów QR do udostępniania kanałów i kontaktów w aplikacji mobilnej MeshCore.
+sourceUrl: https://docs.meshcore.io/qr_codes
+createdAt: 2026-08-22
+order: 11
+---
+
 # Kody QR
 
 Ten dokument zawiera przegląd formatów kodów QR, które można wykorzystać do udostępniania kanałów i kontaktów MeshCore. Poniżej opisane formaty są obsługiwane przez aplikację mobilną MeshCore.

@@ -1,12 +1,20 @@
+---
+title: Struktury binarnych ramek statystyk
+description: Struktury binarnych ramek dla poleceń statystyk radia companiona MeshCore.
+sourceUrl: https://docs.meshcore.io/stats_binary_frames
+createdAt: 2026-08-22
+order: 9
+---
+
 # Struktury binarnych ramek statystyk
 
 Struktury binarnych ramek dla poleceń statystyk radia companiona. Wszystkie wielobajtowe liczby całkowite używają kolejności bajtów little-endian.
 
 ## Kody poleceń
 
-| Polecenie        | Kod  | Opis                                                     |
-|------------------|------|-----------------------------------------------------------|
-| `CMD_GET_STATS`  | 56   | Pobierz statystyki (polecenie 2-bajtowe: kod + subtyp)     |
+| Polecenie       | Kod | Opis                                                   |
+|-----------------|-----|--------------------------------------------------------|
+| `CMD_GET_STATS` | 56  | Pobierz statystyki (polecenie 2-bajtowe: kod + subtyp) |
 
 ### Subtypy statystyk
 
@@ -19,9 +27,9 @@ Polecenie `CMD_GET_STATS` używa 2-bajtowej struktury ramki:
 
 ## Kody odpowiedzi
 
-| Odpowiedź          | Kod  | Opis                                                        |
-|--------------------|------|--------------------------------------------------------------|
-| `RESP_CODE_STATS`  | 24   | Odpowiedź ze statystykami (odpowiedź 2-bajtowa: kod + subtyp) |
+| Odpowiedź         | Kod | Opis                                                          |
+|-------------------|-----|---------------------------------------------------------------|
+| `RESP_CODE_STATS` | 24  | Odpowiedź ze statystykami (odpowiedź 2-bajtowa: kod + subtyp) |
 
 ### Subtypy odpowiedzi statystyk
 
@@ -38,14 +46,14 @@ Odpowiedź `RESP_CODE_STATS` używa 2-bajtowej struktury nagłówka:
 
 **Całkowity rozmiar ramki:** 11 bajtów
 
-| Offset | Rozmiar | Typ      | Nazwa pola     | Opis                             | Zakres/Uwagi       |
-|--------|---------|----------|----------------|-------------------------------------|--------------------|
-| 0      | 1       | uint8_t  | response_code  | Zawsze `0x18` (24)                  | -                  |
-| 1      | 1       | uint8_t  | stats_type     | Zawsze `0x00` (STATS_TYPE_CORE)     | -                  |
-| 2      | 2       | uint16_t | battery_mv     | Napięcie baterii w miliwoltach      | 0 - 65 535         |
-| 4      | 4       | uint32_t | uptime_secs    | Czas działania urządzenia w sekundach | 0 - 4 294 967 295 |
-| 8      | 2       | uint16_t | errors         | Maska bitowa flag błędów            | -                  |
-| 10     | 1       | uint8_t  | queue_len      | Długość kolejki pakietów wychodzących | 0 - 255          |
+| Offset | Rozmiar | Typ      | Nazwa pola    | Opis                                  | Zakres/Uwagi      |
+|--------|---------|----------|---------------|---------------------------------------|-------------------|
+| 0      | 1       | uint8_t  | response_code | Zawsze `0x18` (24)                    | -                 |
+| 1      | 1       | uint8_t  | stats_type    | Zawsze `0x00` (STATS_TYPE_CORE)       | -                 |
+| 2      | 2       | uint16_t | battery_mv    | Napięcie baterii w miliwoltach        | 0 - 65 535        |
+| 4      | 4       | uint32_t | uptime_secs   | Czas działania urządzenia w sekundach | 0 - 4 294 967 295 |
+| 8      | 2       | uint16_t | errors        | Maska bitowa flag błędów              | -                 |
+| 10     | 1       | uint8_t  | queue_len     | Długość kolejki pakietów wychodzących | 0 - 255           |
 
 ### Przykładowa struktura (C/C++)
 
@@ -66,15 +74,15 @@ struct StatsCore {
 
 **Całkowity rozmiar ramki:** 14 bajtów
 
-| Offset | Rozmiar | Typ      | Nazwa pola     | Opis                                    | Zakres/Uwagi          |
-|--------|---------|----------|----------------|---------------------------------------------|------------------------|
-| 0      | 1       | uint8_t  | response_code  | Zawsze `0x18` (24)                          | -                      |
-| 1      | 1       | uint8_t  | stats_type     | Zawsze `0x01` (STATS_TYPE_RADIO)            | -                      |
-| 2      | 2       | int16_t  | noise_floor    | Poziom szumu radia w dBm                     | od -140 do +10          |
-| 4      | 1       | int8_t   | last_rssi      | Ostatnia siła odbieranego sygnału w dBm      | od -128 do +127         |
-| 5      | 1       | int8_t   | last_snr       | SNR przeskalowane przez 4                    | podziel przez 4,0, aby uzyskać dB |
-| 6      | 4       | uint32_t | tx_air_secs    | Skumulowany czas nadawania w sekundach       | 0 - 4 294 967 295       |
-| 10     | 4       | uint32_t | rx_air_secs    | Skumulowany czas odbioru w sekundach         | 0 - 4 294 967 295       |
+| Offset | Rozmiar | Typ      | Nazwa pola    | Opis                                    | Zakres/Uwagi                      |
+|--------|---------|----------|---------------|-----------------------------------------|-----------------------------------|
+| 0      | 1       | uint8_t  | response_code | Zawsze `0x18` (24)                      | -                                 |
+| 1      | 1       | uint8_t  | stats_type    | Zawsze `0x01` (STATS_TYPE_RADIO)        | -                                 |
+| 2      | 2       | int16_t  | noise_floor   | Poziom szumu radia w dBm                | od -140 do +10                    |
+| 4      | 1       | int8_t   | last_rssi     | Ostatnia siła odbieranego sygnału w dBm | od -128 do +127                   |
+| 5      | 1       | int8_t   | last_snr      | SNR przeskalowane przez 4               | podziel przez 4,0, aby uzyskać dB |
+| 6      | 4       | uint32_t | tx_air_secs   | Skumulowany czas nadawania w sekundach  | 0 - 4 294 967 295                 |
+| 10     | 4       | uint32_t | rx_air_secs   | Skumulowany czas odbioru w sekundach    | 0 - 4 294 967 295                 |
 
 ### Przykładowa struktura (C/C++)
 
@@ -96,17 +104,17 @@ struct StatsRadio {
 
 **Całkowity rozmiar ramki:** 26 bajtów (wersja starsza) lub 30 bajtów (zawiera `recv_errors`)
 
-| Offset | Rozmiar | Typ      | Nazwa pola     | Opis                                                                | Zakres/Uwagi       |
-|--------|---------|----------|----------------|--------------------------------------------------------------------------|--------------------|
-| 0      | 1       | uint8_t  | response_code  | Zawsze `0x18` (24)                                                        | -                  |
-| 1      | 1       | uint8_t  | stats_type     | Zawsze `0x02` (STATS_TYPE_PACKETS)                                        | -                  |
-| 2      | 4       | uint32_t | recv           | Łączna liczba odebranych pakietów                                          | 0 - 4 294 967 295  |
-| 6      | 4       | uint32_t | sent           | Łączna liczba wysłanych pakietów                                           | 0 - 4 294 967 295  |
-| 10     | 4       | uint32_t | flood_tx       | Pakiety wysłane przez routing zalewowy (flood)                            | 0 - 4 294 967 295  |
-| 14     | 4       | uint32_t | direct_tx      | Pakiety wysłane przez routing bezpośredni (direct)                        | 0 - 4 294 967 295  |
-| 18     | 4       | uint32_t | flood_rx       | Pakiety odebrane przez routing zalewowy (flood)                           | 0 - 4 294 967 295  |
-| 22     | 4       | uint32_t | direct_rx      | Pakiety odebrane przez routing bezpośredni (direct)                       | 0 - 4 294 967 295  |
-| 26     | 4       | uint32_t | recv_errors    | Błędy odbioru/CRC (RadioLib); obecne wyłącznie w 30-bajtowej ramce         | 0 - 4 294 967 295  |
+| Offset | Rozmiar | Typ      | Nazwa pola    | Opis                                                               | Zakres/Uwagi      |
+|--------|---------|----------|---------------|--------------------------------------------------------------------|-------------------|
+| 0      | 1       | uint8_t  | response_code | Zawsze `0x18` (24)                                                 | -                 |
+| 1      | 1       | uint8_t  | stats_type    | Zawsze `0x02` (STATS_TYPE_PACKETS)                                 | -                 |
+| 2      | 4       | uint32_t | recv          | Łączna liczba odebranych pakietów                                  | 0 - 4 294 967 295 |
+| 6      | 4       | uint32_t | sent          | Łączna liczba wysłanych pakietów                                   | 0 - 4 294 967 295 |
+| 10     | 4       | uint32_t | flood_tx      | Pakiety wysłane przez routing zalewowy (flood)                     | 0 - 4 294 967 295 |
+| 14     | 4       | uint32_t | direct_tx     | Pakiety wysłane przez routing bezpośredni (direct)                 | 0 - 4 294 967 295 |
+| 18     | 4       | uint32_t | flood_rx      | Pakiety odebrane przez routing zalewowy (flood)                    | 0 - 4 294 967 295 |
+| 22     | 4       | uint32_t | direct_rx     | Pakiety odebrane przez routing bezpośredni (direct)                | 0 - 4 294 967 295 |
+| 26     | 4       | uint32_t | recv_errors   | Błędy odbioru/CRC (RadioLib); obecne wyłącznie w 30-bajtowej ramce | 0 - 4 294 967 295 |
 
 ### Uwagi
 

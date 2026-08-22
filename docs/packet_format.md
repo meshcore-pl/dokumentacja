@@ -1,3 +1,11 @@
+---
+title: Format pakietu
+description: Opis formatu pakietu protokołu MeshCore.
+sourceUrl: https://docs.meshcore.io/packet_format
+createdAt: 2026-08-22
+order: 6
+---
+
 # Format pakietu
 
 Ten dokument opisuje format pakietu MeshCore.
@@ -67,13 +75,13 @@ To jest struktura pakietu na poziomie protokołu, używana w firmware MeshCore v
 
 ### Format pakietu
 
-| Pole             | Rozmiar (bajty)                  | Opis                                                                |
-|------------------|-----------------------------------|----------------------------------------------------------------------|
-| header           | 1                                  | Zawiera typ trasowania, typ payloadu i wersję payloadu               |
-| transport_codes  | 4 (opcjonalnie)                    | 2x 16-bitowe kody transportu (jeśli ROUTE_TYPE_TRANSPORT_*)          |
-| path_length      | 1                                  | Koduje rozmiar hasha ścieżki w bitach 6-7 oraz liczbę hopów w bitach 0-5 |
-| path             | do 64 (`MAX_PATH_SIZE`)            | Przechowuje `hop_count * hash_size` bajtów danych ścieżki, jeśli dotyczy |
-| payload          | do 184 (`MAX_PACKET_PAYLOAD`)      | Dane dla podanego Payload Type                                       |
+| Pole            | Rozmiar (bajty)               | Opis                                                                     |
+|-----------------|-------------------------------|--------------------------------------------------------------------------|
+| header          | 1                             | Zawiera typ trasowania, typ payloadu i wersję payloadu                   |
+| transport_codes | 4 (opcjonalnie)               | 2x 16-bitowe kody transportu (jeśli ROUTE_TYPE_TRANSPORT_*)              |
+| path_length     | 1                             | Koduje rozmiar hasha ścieżki w bitach 6-7 oraz liczbę hopów w bitach 0-5 |
+| path            | do 64 (`MAX_PATH_SIZE`)       | Przechowuje `hop_count * hash_size` bajtów danych ścieżki, jeśli dotyczy |
+| payload         | do 184 (`MAX_PACKET_PAYLOAD`) | Dane dla podanego Payload Type                                           |
 
 > UWAGA: więcej informacji o zawartości poszczególnych typów payloadów znajdziesz w dokumentacji [Payloads](./payloads.md).
 
@@ -81,38 +89,38 @@ To jest struktura pakietu na poziomie protokołu, używana w firmware MeshCore v
 
 Bit 0 oznacza najniższy bit (miejsce jedności)
 
-| Bity | Maska  | Pole             | Opis                              |
-|------|--------|------------------|-------------------------------------|
-| 0-1  | `0x03` | Route Type       | Flood, Direct itd.                 |
-| 2-5  | `0x3C` | Payload Type     | Request, Response, ACK itd.        |
-| 6-7  | `0xC0` | Payload Version  | Wersjonowanie formatu payloadu     |
+| Bity | Maska  | Pole            | Opis                           |
+|------|--------|-----------------|--------------------------------|
+| 0-1  | `0x03` | Route Type      | Flood, Direct itd.             |
+| 2-5  | `0x3C` | Payload Type    | Request, Response, ACK itd.    |
+| 6-7  | `0xC0` | Payload Version | Wersjonowanie formatu payloadu |
 
 ### Typy trasowania
 
-| Wartość | Nazwa                          | Opis                              |
-|---------|--------------------------------|--------------------------------------|
-| `0x00`  | `ROUTE_TYPE_TRANSPORT_FLOOD`   | Routing zalewowy (Flood) + kody transportu |
-| `0x01`  | `ROUTE_TYPE_FLOOD`             | Routing zalewowy (Flood)           |
-| `0x02`  | `ROUTE_TYPE_DIRECT`            | Routing bezpośredni (Direct)       |
-| `0x03`  | `ROUTE_TYPE_TRANSPORT_DIRECT`  | Routing bezpośredni (Direct) + kody transportu |
+| Wartość | Nazwa                         | Opis                                           |
+|---------|-------------------------------|------------------------------------------------|
+| `0x00`  | `ROUTE_TYPE_TRANSPORT_FLOOD`  | Routing zalewowy (Flood) + kody transportu     |
+| `0x01`  | `ROUTE_TYPE_FLOOD`            | Routing zalewowy (Flood)                       |
+| `0x02`  | `ROUTE_TYPE_DIRECT`           | Routing bezpośredni (Direct)                   |
+| `0x03`  | `ROUTE_TYPE_TRANSPORT_DIRECT` | Routing bezpośredni (Direct) + kody transportu |
 
 ### Kodowanie długości ścieżki (Path Length)
 
 `path_length` nie jest surową liczbą bajtów. Zawiera w sobie zarówno rozmiar hasha, jak i liczbę hopów:
 
-| Bity | Pole                | Znaczenie                        |
-|------|---------------------|-------------------------------------|
-| 0-5  | Liczba hopów        | Liczba hashy ścieżki (`0-63`)      |
-| 6-7  | Kod rozmiaru hasha  | Przechowywany jako `hash_size - 1` |
+| Bity | Pole               | Znaczenie                          |
+|------|--------------------|------------------------------------|
+| 0-5  | Liczba hopów       | Liczba hashy ścieżki (`0-63`)      |
+| 6-7  | Kod rozmiaru hasha | Przechowywany jako `hash_size - 1` |
 
 Kody rozmiaru hasha:
 
-| Bity 6-7 | Rozmiar hasha | Uwagi                            |
-|----------|----------------|--------------------------------------|
-| `0b00`   | 1 bajt         | Tryb starszy / domyślny             |
-| `0b01`   | 2 bajty        | Obsługiwane w obecnym firmware      |
-| `0b10`   | 3 bajty        | Obsługiwane w obecnym firmware      |
-| `0b11`   | 4 bajty        | Zarezerwowane / nieprawidłowe        |
+| Bity 6-7 | Rozmiar hasha | Uwagi                          |
+|----------|---------------|--------------------------------|
+| `0b00`   | 1 bajt        | Tryb starszy / domyślny        |
+| `0b01`   | 2 bajty       | Obsługiwane w obecnym firmware |
+| `0b10`   | 3 bajty       | Obsługiwane w obecnym firmware |
+| `0b11`   | 4 bajty       | Zarezerwowane / nieprawidłowe  |
 
 Przykłady:
 
@@ -123,30 +131,30 @@ Przykłady:
 
 ### Typy payload
 
-| Wartość | Nazwa                      | Opis                                          |
-|---------|-----------------------------|--------------------------------------------------|
-| `0x00`  | `PAYLOAD_TYPE_REQ`          | Żądanie (hashe celu/źródła + MAC)                |
-| `0x01`  | `PAYLOAD_TYPE_RESPONSE`     | Odpowiedź na `REQ` lub `ANON_REQ`                |
-| `0x02`  | `PAYLOAD_TYPE_TXT_MSG`      | Zwykła wiadomość tekstowa                        |
-| `0x03`  | `PAYLOAD_TYPE_ACK`          | Potwierdzenie                                    |
-| `0x04`  | `PAYLOAD_TYPE_ADVERT`       | Advert węzła                                     |
-| `0x05`  | `PAYLOAD_TYPE_GRP_TXT`      | Grupowa wiadomość tekstowa (niezweryfikowana)    |
-| `0x06`  | `PAYLOAD_TYPE_GRP_DATA`     | Grupowy datagram (niezweryfikowany)              |
-| `0x07`  | `PAYLOAD_TYPE_ANON_REQ`     | Żądanie anonimowe                                |
-| `0x08`  | `PAYLOAD_TYPE_PATH`         | Zwrócona ścieżka                                 |
-| `0x09`  | `PAYLOAD_TYPE_TRACE`        | Trasowanie ścieżki, zbierające SNR dla każdego hopa |
-| `0x0A`  | `PAYLOAD_TYPE_MULTIPART`    | Pakiet jest częścią sekwencji pakietów           |
-| `0x0B`  | `PAYLOAD_TYPE_CONTROL`      | Dane pakietu kontrolnego (nieszyfrowane)         |
-| `0x0C`  | zarezerwowane                | zarezerwowane                                    |
-| `0x0D`  | zarezerwowane                | zarezerwowane                                    |
-| `0x0E`  | zarezerwowane                | zarezerwowane                                    |
-| `0x0F`  | `PAYLOAD_TYPE_RAW_CUSTOM`   | Pakiet niestandardowy (surowe bajty, niestandardowe szyfrowanie) |
+| Wartość | Nazwa                     | Opis                                                             |
+|---------|---------------------------|------------------------------------------------------------------|
+| `0x00`  | `PAYLOAD_TYPE_REQ`        | Żądanie (hashe celu/źródła + MAC)                                |
+| `0x01`  | `PAYLOAD_TYPE_RESPONSE`   | Odpowiedź na `REQ` lub `ANON_REQ`                                |
+| `0x02`  | `PAYLOAD_TYPE_TXT_MSG`    | Zwykła wiadomość tekstowa                                        |
+| `0x03`  | `PAYLOAD_TYPE_ACK`        | Potwierdzenie                                                    |
+| `0x04`  | `PAYLOAD_TYPE_ADVERT`     | Advert węzła                                                     |
+| `0x05`  | `PAYLOAD_TYPE_GRP_TXT`    | Grupowa wiadomość tekstowa (niezweryfikowana)                    |
+| `0x06`  | `PAYLOAD_TYPE_GRP_DATA`   | Grupowy datagram (niezweryfikowany)                              |
+| `0x07`  | `PAYLOAD_TYPE_ANON_REQ`   | Żądanie anonimowe                                                |
+| `0x08`  | `PAYLOAD_TYPE_PATH`       | Zwrócona ścieżka                                                 |
+| `0x09`  | `PAYLOAD_TYPE_TRACE`      | Trasowanie ścieżki, zbierające SNR dla każdego hopa              |
+| `0x0A`  | `PAYLOAD_TYPE_MULTIPART`  | Pakiet jest częścią sekwencji pakietów                           |
+| `0x0B`  | `PAYLOAD_TYPE_CONTROL`    | Dane pakietu kontrolnego (nieszyfrowane)                         |
+| `0x0C`  | zarezerwowane             | zarezerwowane                                                    |
+| `0x0D`  | zarezerwowane             | zarezerwowane                                                    |
+| `0x0E`  | zarezerwowane             | zarezerwowane                                                    |
+| `0x0F`  | `PAYLOAD_TYPE_RAW_CUSTOM` | Pakiet niestandardowy (surowe bajty, niestandardowe szyfrowanie) |
 
 ### Wersje payload
 
-| Wartość | Wersja | Opis                                              |
-|---------|--------|-------------------------------------------------------|
-| `0x00`  | 1      | 1-bajtowe hashe src/dest, 2-bajtowy MAC               |
-| `0x01`  | 2      | Przyszła wersja (np. 2-bajtowe hashe, 4-bajtowy MAC)  |
-| `0x02`  | 3      | Przyszła wersja                                        |
-| `0x03`  | 4      | Przyszła wersja                                        |
+| Wartość | Wersja | Opis                                                 |
+|---------|--------|------------------------------------------------------|
+| `0x00`  | 1      | 1-bajtowe hashe src/dest, 2-bajtowy MAC              |
+| `0x01`  | 2      | Przyszła wersja (np. 2-bajtowe hashe, 4-bajtowy MAC) |
+| `0x02`  | 3      | Przyszła wersja                                      |
+| `0x03`  | 4      | Przyszła wersja                                      |

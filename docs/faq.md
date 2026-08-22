@@ -1,3 +1,11 @@
+---
+title: FAQ
+description: Najczęściej zadawane pytania i odpowiedzi dotyczące sieci MeshCore.
+sourceUrl: https://docs.meshcore.io/faq
+createdAt: 2026-08-22
+order: 1
+---
+
 # Najczęściej zadawane pytania
 
 Lista najczęściej zadawanych pytań i odpowiedzi dotyczących MeshCore
@@ -407,7 +415,7 @@ Strona odblokowania: <https://buymeacoffee.com/ripplebiz/e/249834>
 Znaczenie packet-type znajdziesz tutaj:
 <https://github.com/meshcore-dev/MeshCore/blob/main/src/Packet.h#L19>
 
-```
+```c
 #define PAYLOAD_TYPE_REQ 0x00 // request (prefixed with dest/src hashes, MAC) (enc data: timestamp, blob)
 #define PAYLOAD_TYPE_RESPONSE 0x01 // response to REQ or ANON_REQ (prefixed with dest/src hashes, MAC) (enc data: timestamp, blob)
 #define PAYLOAD_TYPE_TXT_MSG 0x02 // a plain text message (prefixed with dest/src hashes, MAC) (enc data: timestamp, text)
@@ -526,7 +534,7 @@ Instrukcje budowania MeshCore:
 Dla Windows, najpierw zainstaluj WSL oraz Python+pip za pomocą: <https://plainenglish.io/blog/setting-up-python-on-windows-subsystem-for-linux-wsl-26510f1b2d80>
 
 (Linux, Windows+WSL) W terminalu/powłoce:
-```
+```bash
 sudo apt update
 sudo apt install libpython3-dev
 sudo apt install python3-venv
@@ -534,7 +542,7 @@ sudo apt install python3-venv
 Mac: python3 powinien być już zainstalowany.
 
 Następnie kroki są takie same dla wszystkich platform:
-```
+```bash
 python3 -m venv meshcore
 cd meshcore && source bin/activate
 pip install -U platformio
@@ -543,7 +551,7 @@ cd MeshCore
 ```
 otwórz platformio.ini i w `[arduino_base]` zmień `LORA_FREQ=867.5`
 zapisz, a następnie uruchom:
-```
+```bash
 pio run -e RAK_4631_Repeater
 ```
 następnie znajdziesz `firmware.zip` w `.pio/build/RAK_4631_Repeater`

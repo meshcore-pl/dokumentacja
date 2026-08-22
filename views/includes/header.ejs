@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title><%= title %></title>
+
+	<!-- Primary meta -->
+	<% if (locals.description) { %><meta name="description" content="<%= description %>"><% } %>
+	<% if (locals.canonical) { %><link rel="canonical" href="<%= domain %><%= canonical %>"><% } %>
+	<meta name="theme-color" content="#0a0c11">
+	<meta name="color-scheme" content="dark">
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="MeshCore Docs">
+	<meta property="og:locale" content="pl_PL">
+	<meta property="og:title" content="<%= title %>">
+	<% if (locals.description) { %><meta property="og:description" content="<%= description %>"><% } %>
+	<% if (locals.canonical) { %><meta property="og:url" content="<%= domain %><%= canonical %>"><% } %>
+
+	<!-- JavaScript -->
+	<script src="https://cdn.sefinek.net/js/progressbar.js" defer></script>
+
+	<!-- Icons & manifest -->
+	<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128 256x256">
+	<link rel="icon" href="/logo/android-chrome-192x192.png" type="image/png" sizes="192x192">
+	<link rel="apple-touch-icon" href="/logo/apple-touch-icon.png" sizes="180x180">
+	<link rel="manifest" href="/manifest.json">
+
+	<!-- Stylesheets -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+	<link rel="stylesheet" href="https://cdn.sefinek.net/css/code-viewer.css">
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/navbar.css">
+</head>
+<body>
+<header id="topbar">
+	<div id="topbar__inner">
+		<a href="/" id="brand">
+			<img id="brand__mark" src="/logo/favicon-64x64.png" alt="" width="26" height="26">
+			<span>MeshCore <span id="brand__sub">Polska</span></span>
+		</a>
+		<span id="brand__version">v<%= version %></span>
+		<div id="topbar__divider"></div>
+		<nav id="topbar__nav" aria-label="Menu główne">
+			<a href="https://meshcorepolska.org" target="_blank" rel="noopener dofollow">Strona główna</a>
+			<a href="/" class="active">Dokumentacja</a>
+			<a href="https://mapa.meshcorepolska.org" target="_blank" rel="noopener dofollow">Mapa węzłów</a>
+			<a href="https://flasher.meshcore.io" target="_blank" rel="noopener nofollow">Flasher</a>
+		</nav>
+		<div id="topbar__spacer"></div>
+		<div id="topbar__right">
+			<div id="topbar__search">
+				<span id="topbar__search-icon" aria-hidden="true">
+					<svg width="20" height="20"><use href="/icons.svg#icon-search"></use></svg>
+				</span>
+				<input type="search" id="search-input" placeholder="Szukaj w dokumentacji…" autocomplete="off" spellcheck="false" aria-label="Szukaj w dokumentacji" role="combobox" aria-expanded="false" aria-controls="topbar__search-results" aria-autocomplete="list" aria-haspopup="listbox">
+				<span id="topbar__search-key" aria-hidden="true">/</span>
+				<div id="topbar__search-results" role="listbox" aria-label="Wyniki wyszukiwania" hidden></div>
+				<p id="topbar__search-status" class="sr-only" role="status" aria-live="polite"></p>
+			</div>
+			<button type="button" id="topbar__search-toggle" aria-expanded="false" aria-controls="topbar__search" aria-label="Szukaj">
+				<svg class="icon-search" width="19" height="19" aria-hidden="true"><use href="/icons.svg#icon-search"></use></svg>
+				<svg class="icon-close" width="17" height="17" aria-hidden="true"><use href="/icons.svg#icon-close"></use></svg>
+			</button>
+			<a href="https://github.com/meshcore-pl/docs" id="topbar__github" target="_blank" rel="noopener">
+				<svg width="20" height="20" aria-hidden="true"><use href="/icons.svg#icon-github"></use></svg>
+				<span>Repozytorium</span>
+			</a>
+			<a href="https://discord.com/invite/evq32hatT3" id="topbar__discord" target="_blank" rel="noopener">
+				<svg width="20" height="20" aria-hidden="true"><use href="/icons.svg#icon-discord"></use></svg>
+				<span>Discord</span>
+			</a>
+			<button type="button" id="sidebar-toggle" aria-expanded="false" aria-controls="docs-sidebar" aria-label="Pokaż spis stron">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><use href="/icons.svg#icon-hamburger"></use></svg>
+			</button>
+		</div>
+	</div>
+</header>

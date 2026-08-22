@@ -1,0 +1,66 @@
+<%- include('includes/header.ejs', {
+	title: `${page.title} | MeshCore Docs`,
+	description: page.description || `${page.title} - dokumentacja MeshCore.`,
+	canonical: page.slug ? `/${page.slug}` : '/'
+}) %>
+
+<div id="docs-layout" class="<%= page.toc.length > 1 ? '' : 'docs-layout--no-toc' %>">
+	<aside id="docs-sidebar">
+		<div id="docs-sidebar__inner">
+			<nav id="docs-nav" aria-label="Strony dokumentacji">
+				<ul>
+					<% navPages.forEach(p => { %>
+					<li><a href="/<%= p.slug %>"<%- p.slug === page.slug ? ' class="active" aria-current="page"' : '' %>><%= p.title %></a></li>
+					<% }) %>
+				</ul>
+			</nav>
+			<nav id="mobile-site-nav" aria-label="Menu główne">
+				<a href="https://meshcorepolska.org" target="_blank" rel="noopener dofollow">Strona główna</a>
+				<a href="https://mapa.meshcorepolska.org" target="_blank" rel="noopener dofollow">Mapa węzłów</a>
+				<a href="https://flasher.meshcore.io" target="_blank" rel="noopener nofollow">Flasher</a>
+			</nav>
+		</div>
+	</aside>
+	<div id="sidebar-backdrop"></div>
+
+	<main id="docs-content" tabindex="-1">
+		<div class="prose">
+			<%- page.html %>
+		</div>
+
+		<div id="docs-footer">
+			<nav id="docs-pagination" aria-label="Nawigacja stron">
+				<% if (prev) { %>
+				<a href="/<%= prev.slug %>" class="docs-pagination__link docs-pagination__link--prev">
+					<span>&larr; Poprzednia</span>
+					<strong><%= prev.title %></strong>
+				</a>
+				<% } else { %><span></span><% } %>
+
+				<% if (next) { %>
+				<a href="/<%= next.slug %>" class="docs-pagination__link docs-pagination__link--next">
+					<span>Następna &rarr;</span>
+					<strong><%= next.title %></strong>
+				</a>
+				<% } else { %><span></span><% } %>
+			</nav>
+
+			<% if (page.updatedAt) { %><p id="docs-meta">Ostatnia aktualizacja: <%= page.updatedAt %></p><% } %>
+		</div>
+	</main>
+
+	<% if (page.toc.length > 1) { %>
+	<nav id="docs-toc" aria-label="Na tej stronie">
+		<div id="docs-toc__inner">
+			<p class="docs-toc__title">Na tej stronie</p>
+			<ul class="docs-toc__list">
+				<% page.toc.forEach(item => { %>
+				<li><a href="#<%= item.id %>"<%- item.level === 1 ? ' class="docs-toc__link--h1"' : item.level === 3 ? ' class="docs-toc__link--h3"' : '' %>><%= item.text %></a></li>
+				<% }) %>
+			</ul>
+		</div>
+	</nav>
+	<% } %>
+</div>
+
+<%- include('includes/footer.ejs') %>

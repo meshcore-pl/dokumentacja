@@ -1,3 +1,11 @@
+---
+title: Protokół modemu KISS
+description: Standardowy firmware TNC KISS dla radiów LoRa MeshCore, kompatybilny z klientami KISS.
+sourceUrl: https://docs.meshcore.io/kiss_modem_protocol
+createdAt: 2026-08-22
+order: 5
+---
+
 # Protokół modemu KISS MeshCore
 
 Standardowy firmware TNC KISS dla radiów LoRa MeshCore. Kompatybilny z każdym klientem KISS (Direwolf, APRSdroid, YAAC itd.) do wysyłania i odbierania surowych pakietów. Rozszerzenia specyficzne dla MeshCore (kryptografia, konfiguracja radia, telemetria) są dostępne za pomocą standardowego polecenia SetHardware (0x06).
@@ -10,28 +18,25 @@ Standardowy firmware TNC KISS dla radiów LoRa MeshCore. Kompatybilny z każdym 
 
 Standardowe ramkowanie KISS zgodnie ze specyfikacją KA9Q/K3MC.
 
-| Bajt   | Nazwa | Opis                                |
-|--------|-------|--------------------------------------|
-| `0xC0` | FEND  | Ogranicznik ramki                    |
-| `0xDB` | FESC  | Znak ucieczki (escape)               |
+| Bajt   | Nazwa | Opis                                  |
+|--------|-------|---------------------------------------|
+| `0xC0` | FEND  | Ogranicznik ramki                     |
+| `0xDB` | FESC  | Znak ucieczki (escape)                |
 | `0xDC` | TFEND | Zakodowany FEND (FESC + TFEND = 0xC0) |
 | `0xDD` | TFESC | Zakodowany FESC (FESC + TFESC = 0xDB) |
 
-```
-┌──────┬───────────┬──────────────┬──────┐
-│ FEND │ Type Byte │ Data (escaped)│ FEND │
-│ 0xC0 │  1 byte   │ 0-510 bytes  │ 0xC0 │
-└──────┴───────────┴──────────────┴──────┘
-```
+| FEND | Type Byte | Data (escaped) | FEND |
+|------|-----------|----------------|------|
+| 0xC0 | 1 byte    | 0-510 bytes    | 0xC0 |
 
 ### Bajt typu (Type Byte)
 
 Bajt typu jest podzielony na dwie połówki (nibble):
 
-| Bity | Pole    | Opis                                    |
-|------|---------|---------------------------------------------|
-| 7-4  | Port    | Numer portu (0 dla TNC jednoportowego)      |
-| 3-0  | Command | Numer polecenia                              |
+| Bity | Pole    | Opis                                   |
+|------|---------|----------------------------------------|
+| 7-4  | Port    | Numer portu (0 dla TNC jednoportowego) |
+| 3-0  | Command | Numer polecenia                        |
 
 Maksymalny rozmiar niezakodowanej ramki: 512 bajtów.
 
@@ -75,12 +80,9 @@ Funkcjonalność specyficzna dla MeshCore wykorzystuje standardowe polecenie KIS
 
 ### Format ramki
 
-```
-┌──────┬──────┬─────────────┬──────────────┬──────┐
-│ FEND │ 0x06 │ Sub-command  │ Data (escaped)│ FEND │
-│ 0xC0 │      │   1 byte    │   variable   │ 0xC0 │
-└──────┴──────┴─────────────┴──────────────┴──────┘
-```
+| FEND | 0x06 | Sub-command | Data (escaped) | FEND |
+|------|------|-------------|-----------------|------|
+| 0xC0 | | 1 byte | variable | 0xC0 |
 
 ### Subpolecenia żądań (Host do TNC)
 
