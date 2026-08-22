@@ -14,6 +14,7 @@ const closeSidebar = () => {
 toggle?.addEventListener('click', () => {
 	const isOpen = document.body.classList.toggle('sidebar-open');
 	toggle.setAttribute('aria-expanded', String(isOpen));
+	if (isOpen) resetSearch();
 });
 backdrop?.addEventListener('click', closeSidebar);
 sidebar?.addEventListener('click', e => { if (e.target.closest('a')) closeSidebar(); });
@@ -375,12 +376,17 @@ const applyPage = (data, path, hash) => {
 	setActiveNav(data.slug);
 	setPagination(data.prev, data.next);
 	setDocsMeta(data.updatedAt);
-	setToc(data.toc);
-	initToc();
-	highlightCode();
-
 	closeSidebar();
 	resetSearch();
+
+	try {
+		setToc(data.toc);
+		initToc();
+		highlightCode();
+	} catch (err) {
+		console.error('Nie udało się przetworzyć spisu treści/podświetlenia kodu:', err);
+	}
+
 	applyScroll(hash);
 	document.getElementById('docs-content')?.focus({ preventScroll: true });
 };

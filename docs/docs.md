@@ -1,10 +1,10 @@
 ---
 title: Dokumentacja lokalna
 description: Jak zbudować i przeglądać dokumentację MeshCore lokalnie.
-sourceUrl: https://docs.meshcore.io/docs
-createdAt: 2026-08-22
 order: 999
+sourceUrl: https://docs.meshcore.io/docs
 hidden: true
+createdAt: 2026-08-22
 ---
 
 # Dokumentacja lokalna

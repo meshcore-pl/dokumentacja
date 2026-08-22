@@ -1,9 +1,9 @@
 ---
 title: Terminal Chat CLI
 description: Polecenia dostępne w klientach Terminal Chat MeshCore.
+order: 3
 sourceUrl: https://docs.meshcore.io/terminal_chat_cli
 createdAt: 2026-08-22
-order: 3
 ---
 
 # Terminal Chat CLI

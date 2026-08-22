@@ -1,9 +1,9 @@
 ---
 title: FAQ
 description: Najczęściej zadawane pytania i odpowiedzi dotyczące sieci MeshCore.
+order: 1
 sourceUrl: https://docs.meshcore.io/faq
 createdAt: 2026-08-22
-order: 1
 ---
 
 # Najczęściej zadawane pytania

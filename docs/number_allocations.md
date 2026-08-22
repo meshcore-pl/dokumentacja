@@ -1,9 +1,9 @@
 ---
 title: Alokacje numerów
 description: Lista unikalnych numerów i identyfikatorów używanych w payloadach protokołu MeshCore.
+order: 8
 sourceUrl: https://docs.meshcore.io/number_allocations
 createdAt: 2026-08-22
-order: 8
 ---
 
 # Alokacje numerów

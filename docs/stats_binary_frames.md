@@ -1,9 +1,9 @@
 ---
 title: Struktury binarnych ramek statystyk
 description: Struktury binarnych ramek dla poleceń statystyk radia companiona MeshCore.
+order: 9
 sourceUrl: https://docs.meshcore.io/stats_binary_frames
 createdAt: 2026-08-22
-order: 9
 ---
 
 # Struktury binarnych ramek statystyk

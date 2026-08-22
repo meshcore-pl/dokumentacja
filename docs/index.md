@@ -1,9 +1,9 @@
 ---
 title: Wprowadzenie
 description: Polskie tłumaczenie dokumentacji MeshCore - protokołu, CLI i narzędzi sieci mesh LoRa.
+order: 0
 sourceUrl: https://docs.meshcore.io
 createdAt: 2026-08-22
-order: 0
 ---
 
 # Wprowadzenie

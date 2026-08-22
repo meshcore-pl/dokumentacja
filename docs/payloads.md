@@ -1,9 +1,9 @@
 ---
 title: Format payloadu
 description: Typy payloadów przenoszonych wewnątrz pakietów MeshCore.
+order: 7
 sourceUrl: https://docs.meshcore.io/payloads
 createdAt: 2026-08-22
-order: 7
 ---
 
 # Format payloadu
