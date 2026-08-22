@@ -3,7 +3,7 @@ title: FAQ
 description: Najczęściej zadawane pytania i odpowiedzi dotyczące sieci MeshCore.
 order: 1
 sourceUrl: https://docs.meshcore.io/faq
-createdAt: 2026-08-22
+createdAt: 22.08.2026
 ---
 
 # Najczęściej zadawane pytania
@@ -35,12 +35,12 @@ Lista najczęściej zadawanych pytań i odpowiedzi dotyczących MeshCore
     - [3.7. P: Mój repeater może cierpieć na „głuchotę” spowodowaną silnymi zakłóceniami w pobliżu częstotliwości mojej sieci mesh, nie słyszy innych radiów MeshCore w zasięgu. Co mogę zrobić?](#37-p-mój-repeater-może-cierpieć-na-głuchotę-spowodowaną-silnymi-zakłóceniami-w-pobliżu-częstotliwości-mojej-sieci-mesh-nie-słyszy-innych-radiów-meshcore-w-zasięgu-co-mogę-zrobić)
     - [3.8. P: Jak zrobić z mojego repeatera obserwatora sieci mesh?](#38-p-jak-zrobić-z-mojego-repeatera-obserwatora-sieci-mesh)
     - [3.9. P: Czym jest obsługa multibyte? Co oznaczają adverty i wiadomości 1-, 2- i 3-bajtowe?](#39-p-czym-jest-obsługa-multibyte-co-oznaczają-adverty-i-wiadomości-1--2--i-3-bajtowe)
-    - [3.9.1. P: **Jakie rozmiary hashy ścieżki przekaże mój repeater?**](#391-p-jakie-rozmiary-hashy-ścieżki-przekaże-mój-repeater)
-    - [3.9.2. P: **Co decyduje o rozmiarze hasha ścieżki pakietu?**](#392-p-co-decyduje-o-rozmiarze-hasha-ścieżki-pakietu)
-    - [3.9.3. P: **Jak zmienić rozmiar hasha ścieżki mojego companiona?**](#393-p-jak-zmienić-rozmiar-hasha-ścieżki-mojego-companiona)
-    - [3.9.4. P: **Co robi polecenie CLI `path.hash.mode` na repeaterze?**](#394-p-co-robi-polecenie-cli-pathhashmode-na-repeaterze)
-    - [3.9.5. P: **Dlaczego stosować 2- lub 3-bajtowy hash ścieżki dla advertów?**](#395-p-dlaczego-stosować-2--lub-3-bajtowy-hash-ścieżki-dla-advertów)
-    - [3.9.6. P: **Kiedy możemy odejść od 1-bajtowego hasha ścieżki dla kanałów i wiadomości bezpośrednich?**](#396-p-kiedy-możemy-odejść-od-1-bajtowego-hasha-ścieżki-dla-kanałów-i-wiadomości-bezpośrednich)
+    - [3.9.1. P: Jakie rozmiary hashy ścieżki przekaże mój repeater?](#391-p-jakie-rozmiary-hashy-ścieżki-przekaże-mój-repeater)
+    - [3.9.2. P: Co decyduje o rozmiarze hasha ścieżki pakietu?](#392-p-co-decyduje-o-rozmiarze-hasha-ścieżki-pakietu)
+    - [3.9.3. P: Jak zmienić rozmiar hasha ścieżki mojego companiona?](#393-p-jak-zmienić-rozmiar-hasha-ścieżki-mojego-companiona)
+    - [3.9.4. P: Co robi polecenie CLI `path.hash.mode` na repeaterze?](#394-p-co-robi-polecenie-cli-pathhashmode-na-repeaterze)
+    - [3.9.5. P: Dlaczego stosować 2- lub 3-bajtowy hash ścieżki dla advertów?](#395-p-dlaczego-stosować-2--lub-3-bajtowy-hash-ścieżki-dla-advertów)
+    - [3.9.6. P: Kiedy możemy odejść od 1-bajtowego hasha ścieżki dla kanałów i wiadomości bezpośrednich?](#396-p-kiedy-możemy-odejść-od-1-bajtowego-hasha-ścieżki-dla-kanałów-i-wiadomości-bezpośrednich)
 - [4. T-Deck](#4-t-deck)
     - [4.1. P: Czy istnieje przewodnik użytkownika dla T-Deck, T-Pager, T-Watch lub T-Display Pro?](#41-p-czy-istnieje-przewodnik-użytkownika-dla-t-deck-t-pager-t-watch-lub-t-display-pro)
     - [4.2. P: Jakie są kroki, aby przełączyć T-Deck w tryb DFU (Device Firmware Update)?](#42-p-jakie-są-kroki-aby-przełączyć-t-deck-w-tryb-dfu-device-firmware-update)
@@ -304,41 +304,35 @@ Jednak przy 1 bajcie dostępnych jest tylko 254 unikalnych ID (bez 00 i FF, któ
 
 Firmware w wersji 1.14 i nowszej wprowadza możliwość rozgłaszania advertów przez repeatery z użyciem 1-, 2- lub 3-bajtowych hashy. Companiony mogą również wysyłać wiadomości kanałowe i bezpośrednie z 1-, 2- lub 3-bajtową ścieżką. Adverty i wiadomości wysłane ze ścieżką 1-bajtową są kompatybilne z firmware repeatera zarówno starszym, jak i nowszym niż 1.14. Będą podróżować do 64 hopów. Adverty i wiadomości 2-bajtowe będą podróżować do 32 hopów. Adverty i wiadomości 3-bajtowe będą podróżować do 21 hopów.
 
-### 3.9.1. P: **Jakie rozmiary hashy ścieżki przekaże mój repeater?**
+### 3.9.1. P: Jakie rozmiary hashy ścieżki przekaże mój repeater?
 Repeatery z firmware 1.14+ przekazują dalej pakiety wysłane z 1-, 2- lub 3-bajtowym hashem ścieżki. Repeatery ze starszym firmware niż 1.14 przekazują dalej wyłącznie pakiety z 1-bajtowym hashem ścieżki, a pakiety 2- i 3-bajtowe po cichu odrzucają.
 
-### 3.9.2. P: **Co decyduje o rozmiarze hasha ścieżki pakietu?**
+### 3.9.2. P: Co decyduje o rozmiarze hasha ścieżki pakietu?
 O rozmiarze hasha ścieżki decyduje pierwotny nadawca pakietu. Najczęstszym pierwotnym nadawcą jest aplikacja companion. Innym częstym pierwotnym nadawcą jest repeater, gdy rozgłasza swój advert.
 
-### 3.9.3. P: **Jak zmienić rozmiar hasha ścieżki mojego companiona?**
+### 3.9.3. P: Jak zmienić rozmiar hasha ścieżki mojego companiona?
 Od wersji firmware 1.14 i aplikacji MeshCore w wersji 1.41.0, w aplikacji MeshCore możesz ustawić rozmiar hasha ścieżki wiadomości companiona w `Ustawienia (ikona zębatki)` -> `Ustawienia eksperymentalne`.
 
 Dopóki zdecydowana większość repeaterów w Twojej regionalnej sieci mesh nie zostanie zaktualizowana do firmware 1.14+, zaleca się pozostawienie companiona przy domyślnym trybie 1-bajtowym, ponieważ repeatery ze starszym firmware niż 1.14 po cichu odrzucają wiadomości z większymi hashami ścieżki.
 
-### 3.9.4. P: **Co robi polecenie CLI `path.hash.mode` na repeaterze?**
+### 3.9.4. P: Co robi polecenie CLI `path.hash.mode` na repeaterze?
 To polecenie CLI `path.hash.mode` kontroluje *wyłącznie* rozmiar hasha ścieżki używany we własnych advertach rozgłaszanych przez repeatera. **NIE** wpływa ono na to, które pakiety repeater przekazuje dalej. Repeater z firmware 1.14+ zawsze przekazuje dalej pakiety 1-, 2- i 3-bajtowe, niezależnie od tego ustawienia.
 
 Użycie: `set path.hash.mode {0|1|2}`:
 
-```
-┌────────────────┬───────────────────────┐
-│ path.hash.mode │ Advert path hash size │
-├────────────────┼───────────────────────┤
-│ 0              │ 1 byte (default)      │
-├────────────────┼───────────────────────┤
-│ 1              │ 2 bytes               │
-├────────────────┼───────────────────────┤
-│ 2              │ 3 bytes               │
-└────────────────┴───────────────────────┘  
-```
+| `path.hash.mode` | Rozmiar hasha ścieżki advertu |
+|-------------------|-------------------------------|
+| 0                 | 1 bajt (domyślnie)             |
+| 1                 | 2 bajty                        |
+| 2                 | 3 bajty                        |
 
 Ustawienie trybu 1 lub 2 dla repeaterów z firmware 1.14+ jest bezpieczne.
 
-### 3.9.5. P: **Dlaczego stosować 2- lub 3-bajtowy hash ścieżki dla advertów?**
+### 3.9.5. P: Dlaczego stosować 2- lub 3-bajtowy hash ścieżki dla advertów?
 
 Dłuższy hash ścieżki pomaga narzędziom takim jak LetsMesh.net Analyzer i MeshMapper bardziej wiarygodnie odróżniać repeatery od siebie. Przy zaledwie 1 bajcie prawdopodobieństwo, że różne repeatery mają ten sam pierwszy bajt w swoim kluczu publicznym, jest wysokie, co utrudnia ich rozróżnienie podczas analizy sieci mesh. Ponieważ dotyczy to wyłącznie advertów, nie ma żadnych wad tego rozwiązania. Adverty 2- i 3-bajtowe nie docierają tak daleko jak adverty 1-bajtowe, ale nie jest istotne, aby węzły MeshCore słyszały advert repeatera oddalonego o 21 lub 32 hopy.
 
-### 3.9.6. P: **Kiedy możemy odejść od 1-bajtowego hasha ścieżki dla kanałów i wiadomości bezpośrednich?**
+### 3.9.6. P: Kiedy możemy odejść od 1-bajtowego hasha ścieżki dla kanałów i wiadomości bezpośrednich?
 
 Warto przejść na wysyłanie wiadomości kanałowych i bezpośrednich z hashem 2- lub 3-bajtowym, gdy zdecydowana większość repeaterów w Twojej regionalnej sieci mesh zostanie zaktualizowana do firmware w wersji 1.14 lub nowszej. Ustawienie `path.hash.mode` repeatera na 1 (dla 2-bajtowego hasha ścieżki) lub 2 (dla 3-bajtowego hasha ścieżki) już teraz pomaga społeczności ocenić, ile repeaterów zostało zaktualizowanych do 1.14+. Współpracuj ze swoją społecznością MeshCore, aby wspólnie zdecydować, kiedy przełączyć się na ścieżkę 2- lub 3-bajtową dla wiadomości kanałowych i bezpośrednich.
 

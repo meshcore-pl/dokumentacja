@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const parseFrontmatter = require('frontmatter-md');
-const { marked, assignHeadingIds, getHeadingId, createRenderer } = require('./markdown.js');
+const { marked, assignHeadingIds, getHeadingId, getTocLabel, createRenderer } = require('./markdown.js');
 
 const DOCS_DIR = path.join(__dirname, '../docs');
 const stemToSlug = stem => stem.replace(/_/g, '-');
@@ -26,11 +26,12 @@ const build = () => {
 
 		const toc = tokens
 			.filter(t => t.type === 'heading' && t.depth <= 3)
-			.map(t => ({ id: getHeadingId(t), text: t.text, level: t.depth }));
+			.map(t => ({ id: getHeadingId(t), text: getTocLabel(t), level: t.depth }));
 
 		return {
 			slug: slugOf.get(stem),
 			title: data.title || stem,
+			navTitle: data.navTitle || data.title || stem,
 			description: data.description || '',
 			order: typeof data.order === 'number' ? data.order : 999,
 			updatedAt: data.updatedAt || null,

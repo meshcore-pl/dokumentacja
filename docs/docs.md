@@ -4,7 +4,7 @@ description: Jak zbudować i przeglądać dokumentację MeshCore lokalnie.
 order: 999
 sourceUrl: https://docs.meshcore.io/docs
 hidden: true
-createdAt: 2026-08-22
+createdAt: 22.08.2026
 ---
 
 # Dokumentacja lokalna

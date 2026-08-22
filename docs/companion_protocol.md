@@ -3,8 +3,8 @@ title: Protokół Companion
 description: Przewodnik po komunikacji z urządzeniami MeshCore przez Bluetooth Low Energy (BLE).
 order: 4
 sourceUrl: https://docs.meshcore.io/companion_protocol
-createdAt: 2026-08-22
-updatedAt: 2026-03-08
+createdAt: 22.08.2026
+updatedAt: 08.03.2026
 ---
 
 # Protokół Companion

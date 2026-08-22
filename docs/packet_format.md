@@ -3,7 +3,7 @@ title: Format pakietu
 description: Opis formatu pakietu protokołu MeshCore.
 order: 6
 sourceUrl: https://docs.meshcore.io/packet_format
-createdAt: 2026-08-22
+createdAt: 22.08.2026
 ---
 
 # Format pakietu

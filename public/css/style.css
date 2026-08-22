@@ -18,9 +18,9 @@
 	--font-heading: 'Space Grotesk', system-ui, sans-serif;
 	--font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 	--font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, Consolas, monospace;
-	--topbar-h: 56px;
-	--sidebar-w: 278px;
-	--toc-w: 278px;
+	--topbar-h: 60px;
+	--sidebar-w: 300px;
+	--toc-w: 300px;
 }
 
 * {
@@ -117,7 +117,7 @@ a:hover {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
-	padding: 26px 18px 40px;
+	padding: 25px 18px;
 }
 
 #docs-nav ul {
@@ -126,7 +126,7 @@ a:hover {
 	padding: 0;
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 3px;
 }
 
 #docs-nav a {
@@ -148,6 +148,10 @@ a:hover {
 	background: var(--accent-soft);
 	color: var(--accent-strong);
 	font-weight: 600;
+}
+
+#docs-sidebar__toc {
+	display: none;
 }
 
 #mobile-site-nav {
@@ -177,7 +181,7 @@ a:hover {
 	min-width: 0;
 	height: calc(100vh - var(--topbar-h));
 	overflow-y: auto;
-	padding: 30px 36px 64px;
+	padding: 30px 30px;
 }
 
 .prose {
@@ -515,8 +519,8 @@ a:hover {
 #docs-toc__inner {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
-	padding: 30px 26px 40px;
+	gap: 10px;
+	padding: 25px 18px;
 }
 
 .docs-toc__title {
@@ -672,6 +676,13 @@ a:hover {
 
 	#docs-sidebar__inner {
 		height: 100%;
+	}
+
+	#docs-sidebar__toc {
+		display: block;
+		margin-top: 24px;
+		padding-top: 18px;
+		border-top: 1px solid var(--border-soft);
 	}
 
 	#mobile-site-nav {

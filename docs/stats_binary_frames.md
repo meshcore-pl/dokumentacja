@@ -1,12 +1,13 @@
 ---
 title: Struktury binarnych ramek statystyk
+navTitle: Ramki statystyk
 description: Struktury binarnych ramek dla poleceń statystyk radia companiona MeshCore.
 order: 9
 sourceUrl: https://docs.meshcore.io/stats_binary_frames
-createdAt: 2026-08-22
+createdAt: 22.08.2026
 ---
 
-# Struktury binarnych ramek statystyk
+# Struktury binarnych ramek statystyk {toc: Ramki statystyk}
 
 Struktury binarnych ramek dla poleceń statystyk radia companiona. Wszystkie wielobajtowe liczby całkowite używają kolejności bajtów little-endian.
 
@@ -42,7 +43,7 @@ Odpowiedź `RESP_CODE_STATS` używa 2-bajtowej struktury nagłówka:
 
 ---
 
-## RESP_CODE_STATS + STATS_TYPE_CORE (24, 0)
+## RESP_CODE_STATS + STATS_TYPE_CORE (24, 0) {toc: STATS_TYPE_CORE (24, 0)}
 
 **Całkowity rozmiar ramki:** 11 bajtów
 
@@ -70,7 +71,7 @@ struct StatsCore {
 
 ---
 
-## RESP_CODE_STATS + STATS_TYPE_RADIO (24, 1)
+## RESP_CODE_STATS + STATS_TYPE_RADIO (24, 1) {toc: STATS_TYPE_RADIO (24, 1)}
 
 **Całkowity rozmiar ramki:** 14 bajtów
 
@@ -100,7 +101,7 @@ struct StatsRadio {
 
 ---
 
-## RESP_CODE_STATS + STATS_TYPE_PACKETS (24, 2)
+## RESP_CODE_STATS + STATS_TYPE_PACKETS (24, 2) {toc: STATS_TYPE_PACKETS (24, 2)}
 
 **Całkowity rozmiar ramki:** 26 bajtów (wersja starsza) lub 30 bajtów (zawiera `recv_errors`)
 

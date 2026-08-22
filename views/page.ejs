@@ -10,10 +10,21 @@
 			<nav id="docs-nav" aria-label="Strony dokumentacji">
 				<ul>
 					<% navPages.forEach(p => { %>
-					<li><a href="/<%= p.slug %>"<%- p.slug === page.slug ? ' class="active" aria-current="page"' : '' %>><%= p.title %></a></li>
+					<li><a href="/<%= p.slug %>"<%- p.slug === page.slug ? ' class="active" aria-current="page"' : '' %>><%= p.navTitle %></a></li>
 					<% }) %>
 				</ul>
 			</nav>
+			<% if (page.toc.length > 1) { %>
+			<div id="docs-sidebar__toc">
+				<p class="docs-toc__title">Na tej stronie</p>
+				<ul class="docs-toc__list">
+					<% page.toc.forEach(item => { %>
+					<li><a href="#<%= item.id %>"<%- item.level === 1 ? ' class="docs-toc__link--h1"' : item.level === 3 ? ' class="docs-toc__link--h3"' : '' %>><%= item.text %></a></li>
+					<% }) %>
+				</ul>
+			</div>
+			<% } %>
+
 			<nav id="mobile-site-nav" aria-label="Menu główne">
 				<a href="https://meshcorepolska.org" target="_blank" rel="noopener dofollow">Strona główna</a>
 				<a href="https://mapa.meshcorepolska.org" target="_blank" rel="noopener dofollow">Mapa węzłów</a>

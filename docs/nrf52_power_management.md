@@ -3,7 +3,7 @@ title: Zarządzanie zasilaniem nRF52
 description: Funkcje ochrony baterii i zarządzania zasilaniem w module nRF52 MeshCore.
 order: 10
 sourceUrl: https://docs.meshcore.io/nrf52_power_management
-createdAt: 2026-08-22
+createdAt: 22.08.2026
 ---
 
 # Zarządzanie zasilaniem nRF52

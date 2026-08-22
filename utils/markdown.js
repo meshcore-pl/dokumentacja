@@ -7,11 +7,20 @@ const slugify = text => text.toLowerCase()
 	.replace(/[\s_]+/g, '-')
 	.replace(/(^-|-$)/g, '');
 
+const TOC_LABEL_RE = /\s*\{toc:\s*([^}]+)\}\s*$/;
+const tocLabels = new WeakMap();
+
 const headingIds = new WeakMap();
 const assignHeadingIds = tokens => {
 	const seen = new Map();
 	for (const t of tokens) {
 		if (t.type !== 'heading') continue;
+
+		const tocMatch = TOC_LABEL_RE.exec(t.text);
+		if (tocMatch) {
+			tocLabels.set(t, tocMatch[1].trim());
+			t.text = t.text.slice(0, tocMatch.index);
+		}
 
 		const base = slugify(t.text) || 'sekcja';
 		const count = seen.get(base) || 0;
@@ -20,6 +29,7 @@ const assignHeadingIds = tokens => {
 	}
 };
 const getHeadingId = token => headingIds.get(token) || slugify(token.text);
+const getTocLabel = token => tocLabels.get(token) || token.text;
 
 const MD_LINK_RE = /^\.?\/?([\w-]+)\.md(#.*)?$/;
 
@@ -59,4 +69,4 @@ const createRenderer = resolveSlug => {
 	return renderer;
 };
 
-module.exports = { marked, slugify, assignHeadingIds, getHeadingId, createRenderer };
+module.exports = { marked, slugify, assignHeadingIds, getHeadingId, getTocLabel, createRenderer };

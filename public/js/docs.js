@@ -324,38 +324,49 @@ const buildTocItem = item => {
 	return li;
 };
 
+const buildTocTitle = () => {
+	const title = document.createElement('p');
+	title.className = 'docs-toc__title';
+	title.textContent = 'Na tej stronie';
+	return title;
+};
+
 const setToc = toc => {
 	const layout = document.getElementById('docs-layout');
-	let nav = document.getElementById('docs-toc');
-
 	layout?.classList.toggle('docs-layout--no-toc', toc.length <= 1);
 
 	if (toc.length <= 1) {
-		nav?.remove();
+		document.getElementById('docs-toc')?.remove();
+		document.getElementById('docs-sidebar__toc')?.remove();
 		return;
 	}
 
-	if (!nav) {
-		nav = document.createElement('nav');
-		nav.id = 'docs-toc';
-		nav.setAttribute('aria-label', 'Na tej stronie');
+	let desktopToc = document.getElementById('docs-toc');
+	if (!desktopToc) {
+		desktopToc = document.createElement('nav');
+		desktopToc.id = 'docs-toc';
+		desktopToc.setAttribute('aria-label', 'Na tej stronie');
 
 		const inner = document.createElement('div');
 		inner.id = 'docs-toc__inner';
-
-		const title = document.createElement('p');
-		title.className = 'docs-toc__title';
-		title.textContent = 'Na tej stronie';
-
 		const list = document.createElement('ul');
 		list.className = 'docs-toc__list';
-
-		inner.append(title, list);
-		nav.append(inner);
-		layout?.append(nav);
+		inner.append(buildTocTitle(), list);
+		desktopToc.append(inner);
+		layout?.append(desktopToc);
 	}
+	desktopToc.querySelector('.docs-toc__list').replaceChildren(...toc.map(buildTocItem));
 
-	nav.querySelector('.docs-toc__list').replaceChildren(...toc.map(buildTocItem));
+	let sidebarToc = document.getElementById('docs-sidebar__toc');
+	if (!sidebarToc) {
+		sidebarToc = document.createElement('div');
+		sidebarToc.id = 'docs-sidebar__toc';
+		const list = document.createElement('ul');
+		list.className = 'docs-toc__list';
+		sidebarToc.append(buildTocTitle(), list);
+		document.getElementById('docs-nav')?.after(sidebarToc);
+	}
+	sidebarToc.querySelector('.docs-toc__list').replaceChildren(...toc.map(buildTocItem));
 };
 
 const applyScroll = hash => {
