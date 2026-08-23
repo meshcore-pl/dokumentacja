@@ -4,11 +4,11 @@
   "private": true,
   "homepage": "https://docs.meshcorepolska.org",
   "bugs": {
-    "url": "https://github.com/meshcore-pl/docs/issues"
+    "url": "https://github.com/meshcore-pl/dokumentacja/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/meshcore-pl/docs.git"
+    "url": "git+https://github.com/meshcore-pl/dokumentacjaissues.git"
   },
   "license": "MIT",
   "author": "Sefinek <contact@sefinek.net> (https://sefinek.net)",
