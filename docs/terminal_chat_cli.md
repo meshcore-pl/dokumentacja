@@ -45,12 +45,10 @@ set af {air-time-factor}
 ```
 Ustawia współczynnik czasu nadawania (air-time-factor). Przestarzałe - zamiast tego użyj `set dutycycle`.
 
-
 ```mccli
 time {epoch-secs}
 ```
 Ustawia zegar urządzenia przy użyciu sekund epoki UNIX. Przykład: time 1738242833
-
 
 ```mccli
 advert
@@ -61,7 +59,6 @@ Wysyła pakiet advertu
 clock
 ```
 Wyświetla aktualny czas według zegara urządzenia.
-
 
 ```mccli
 ver

@@ -109,9 +109,7 @@ Aby włączyć zarządzanie zasilaniem w wariancie płytki:
 
    void MyBoard::initiateShutdown(uint8_t reason) {
      // Przygotowanie do wyłączenia specyficzne dla płytki (np. wyłączenie peryferiów)
-     bool enable_lpcomp = (reason == SHUTDOWN_REASON_LOW_VOLTAGE ||
-                           reason == SHUTDOWN_REASON_BOOT_PROTECT);
-
+     bool enable_lpcomp = (reason == SHUTDOWN_REASON_LOW_VOLTAGE || reason == SHUTDOWN_REASON_BOOT_PROTECT);
      if (enable_lpcomp) {
        configureVoltageWake(power_config.lpcomp_ain_channel, power_config.lpcomp_refsel);
      }
@@ -121,7 +119,7 @@ Aby włączyć zarządzanie zasilaniem w wariancie płytki:
    #endif
 
    void MyBoard::begin() {
-     NRF52Board::begin();  // lub NRF52BoardDCDC::begin()
+     NRF52Board::begin(); // lub NRF52BoardDCDC::begin()
      // ... konfiguracja płytki ...
 
    #ifdef NRF52_POWER_MANAGEMENT

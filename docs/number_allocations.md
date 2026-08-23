@@ -10,7 +10,7 @@ createdAt: 22.08.2026
 
 Ten dokument zawiera listę unikalnych numerów/identyfikatorów używanych w różnych payloadach protokołu MeshCore.
 
-# Typy danych grupowych
+## Typy danych grupowych
 
 Payloady `PAYLOAD_TYPE_GRP_DATA` mają 16-bitowe pole typu danych, które określa, do jakiej aplikacji należy pakiet.
 

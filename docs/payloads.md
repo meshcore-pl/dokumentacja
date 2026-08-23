@@ -10,28 +10,28 @@ createdAt: 22.08.2026
 
 Wewnątrz każdego [pakietu MeshCore](./packet_format.md) znajduje się payload, identyfikowany przez typ payloadu w nagłówku pakietu. Typy payloadów to:
 
-* Advert węzła.
-* Potwierdzenie (Acknowledgment).
-* Zwrócona ścieżka.
-* Żądanie (hashe celu/źródła + MAC).
-* Odpowiedź na REQ lub ANON_REQ.
-* Zwykła wiadomość tekstowa.
-* Żądanie anonimowe.
-* Grupowa wiadomość tekstowa (niezweryfikowana).
-* Grupowy datagram (niezweryfikowany).
-* Pakiet wieloczęściowy (Multi-part).
-* Pakiet danych kontrolnych.
-* Pakiet niestandardowy (surowe bajty, niestandardowe szyfrowanie).
+- Advert węzła.
+- Potwierdzenie (Acknowledgment).
+- Zwrócona ścieżka.
+- Żądanie (hashe celu/źródła + MAC).
+- Odpowiedź na REQ lub ANON_REQ.
+- Zwykła wiadomość tekstowa.
+- Żądanie anonimowe.
+- Grupowa wiadomość tekstowa (niezweryfikowana).
+- Grupowy datagram (niezweryfikowany).
+- Pakiet wieloczęściowy (Multi-part).
+- Pakiet danych kontrolnych.
+- Pakiet niestandardowy (surowe bajty, niestandardowe szyfrowanie).
 
 Ten dokument definiuje strukturę każdego z tych typów payloadów.
 
 UWAGA: wszystkie pola liczbowe 16- i 32-bitowe są w formacie Little Endian.
 
-## Ważne pojęcia:
+## Ważne pojęcia
 
-* Hash węzła (node hash): pierwszy bajt klucza publicznego węzła
+- Hash węzła (node hash): pierwszy bajt klucza publicznego węzła
 
-# Advert węzła
+## Advert węzła
 
 Ten rodzaj payloadu informuje odbiorców o istnieniu węzła i przekazuje o nim informacje.
 
@@ -42,7 +42,7 @@ Ten rodzaj payloadu informuje odbiorców o istnieniu węzła i przekazuje o nim 
 | signature  | 64              | Podpis Ed25519 klucza publicznego, timestampu i danych appdata |
 | appdata    | reszta payloadu | opcjonalne, patrz poniżej                                      |
 
-Appdata
+### Appdata
 
 | Pole      | Rozmiar (bajty) | Opis                                                               |
 |-----------|-----------------|--------------------------------------------------------------------|
@@ -53,7 +53,7 @@ Appdata
 | feature 2 | 2 (opcjonalne)  | zarezerwowane na przyszłość                                        |
 | name      | reszta appdata  | nazwa węzła                                                        |
 
-Appdata Flags
+### Appdata Flags
 
 | Wartość | Nazwa          | Opis                                |
 |---------|----------------|-------------------------------------|
@@ -66,7 +66,7 @@ Appdata Flags
 | `0x40`  | has feature 2  | zarezerwowane na przyszłość         |
 | `0x80`  | has name       | appdata zawiera nazwę węzła         |
 
-# Potwierdzenie (Acknowledgement)
+## Potwierdzenie (Acknowledgement)
 
 Potwierdzenie, że wiadomość została odebrana. Zwróć uwagę, że w przypadku wiadomości zwróconej ścieżki, potwierdzenie może zostać wysłane w payloadzie „extra” (patrz [Zwrócona ścieżka](#zwrócona-ścieżka)) zamiast jako osobny pakiet potwierdzenia. Polecenia CLI nie powodują wysyłania odpowiedzi potwierdzających, ani osobnych, ani w formie extra.
 
@@ -74,8 +74,7 @@ Potwierdzenie, że wiadomość została odebrana. Zwróć uwagę, że w przypadk
 |----------|-----------------|------------------------------------------------------------------------------------|
 | checksum | 4               | Suma kontrolna CRC znacznika czasu wiadomości, tekstu i klucza publicznego nadawcy |
 
-
-# Zwrócona ścieżka, żądanie, odpowiedź i zwykła wiadomość tekstowa
+## Zwrócona ścieżka, żądanie, odpowiedź i zwykła wiadomość tekstowa
 
 Zwrócona ścieżka, żądanie, odpowiedź i zwykłe wiadomości tekstowe są sformatowane w ten sam sposób. Zobacz podsekcje, aby dowiedzieć się więcej o reprezentacji tekstu jawnego powiązanego z szyfrogramem.
 
@@ -86,7 +85,7 @@ Zwrócona ścieżka, żądanie, odpowiedź i zwykłe wiadomości tekstowe są sf
 | cipher MAC       | 2               | MAC dla zaszyfrowanych danych w kolejnym polu           |
 | ciphertext       | reszta payloadu | zaszyfrowana wiadomość, szczegóły w podsekcjach poniżej |
 
-## Zwrócona ścieżka
+### Zwrócona ścieżka
 
 Wiadomości zwróconej ścieżki opisują trasę, jaką pakiet przebył od pierwotnego autora. Odbiorcy wysyłają wiadomości zwróconej ścieżki do autora oryginalnej wiadomości.
 
@@ -97,7 +96,7 @@ Wiadomości zwróconej ścieżki opisują trasę, jaką pakiet przebył od pierw
 | extra type  | 1               | dodatkowy, dołączony typ payloadu, np. potwierdzenie lub odpowiedź. Te same wartości co w [formacie pakietu](./packet_format.md) |
 | extra       | reszta danych   | dodatkowa, dołączona zawartość payloadu, w tym samym formacie co główna zawartość opisana w tym dokumencie                       |
 
-## Żądanie
+### Żądanie
 
 | Pole         | Rozmiar (bajty) | Opis                                                |
 |--------------|-----------------|-----------------------------------------------------|
@@ -111,55 +110,54 @@ Dla popularnych helperów czatu/serwera w `BaseChatMesh`, obecne wartości typu 
 | `0x01`  | get stats | pobierz statystyki repeatera lub room servera         |
 | `0x02`  | keepalive | żądanie keep-alive używane dla utrzymywanych połączeń |
 
-### Get stats
+#### Get stats
 
 Pobiera informacje o węźle, potencjalnie obejmujące:
 
-* Poziom baterii (miliwolty)
-* Aktualna długość kolejki nadawania
-* Aktualna długość wolnej kolejki
-* Ostatnia wartość RSSI
-* Liczba odebranych pakietów
-* Liczba wysłanych pakietów
-* Całkowity czas nadawania (sekundy)
-* Całkowity czas działania (sekundy)
-* Liczba pakietów wysłanych jako flood
-* Liczba pakietów wysłanych bezpośrednio
-* Liczba pakietów odebranych jako flood
-* Liczba pakietów odebranych bezpośrednio
-* Flagi błędów
-* Ostatnia wartość SNR
-* Liczba duplikatów trasy bezpośredniej
-* Liczba duplikatów trasy flood
-* Number posted (?)
-* Number of post pushes (?)
+- Poziom baterii (miliwolty)
+- Aktualna długość kolejki nadawania
+- Aktualna długość wolnej kolejki
+- Ostatnia wartość RSSI
+- Liczba odebranych pakietów
+- Liczba wysłanych pakietów
+- Całkowity czas nadawania (sekundy)
+- Całkowity czas działania (sekundy)
+- Liczba pakietów wysłanych jako flood
+- Liczba pakietów wysłanych bezpośrednio
+- Liczba pakietów odebranych jako flood
+- Liczba pakietów odebranych bezpośrednio
+- Flagi błędów
+- Ostatnia wartość SNR
+- Liczba duplikatów trasy bezpośredniej
+- Liczba duplikatów trasy flood
+- Number posted (?)
+- Number of post pushes (?)
 
-### Get telemetry data
+#### Get telemetry data
 
 Niezdefiniowane w `BaseChatMesh`. Payloady żądań specyficzne dla czujników i aplikacji mogą być implementowane przez firmware wyższego poziomu.
 
-### Get Telemetry
+#### Get Telemetry
 
 Niezdefiniowane w `BaseChatMesh`.
 
-### Get Min/Max/Ave (węzły czujników)
+#### Get Min/Max/Ave (węzły czujników)
 
 Niezdefiniowane w `BaseChatMesh`.
 
-### Get Access List
+#### Get Access List
 
 Niezdefiniowane w `BaseChatMesh`.
 
-### Get Neighbors
+#### Get Neighbors
 
 Niezdefiniowane w `BaseChatMesh`.
 
-### Get Owner Info
+#### Get Owner Info
 
 Niezdefiniowane w `BaseChatMesh`.
 
-
-## Odpowiedź
+### Odpowiedź
 
 | Pole    | Rozmiar (bajty) | Opis                                          |
 |---------|-----------------|-----------------------------------------------|
@@ -167,7 +165,7 @@ Niezdefiniowane w `BaseChatMesh`.
 
 Zawartość odpowiedzi to nieprzezroczyste (opaque) dane aplikacji. Nie istnieje pojedyncza, ogólna otoczka odpowiedzi wykraczająca poza pokazany powyżej wrapper zaszyfrowanego payloadu.
 
-## Zwykła wiadomość tekstowa
+### Zwykła wiadomość tekstowa
 
 | Pole               | Rozmiar (bajty) | Opis                                                                                |
 |--------------------|-----------------|-------------------------------------------------------------------------------------|
@@ -175,7 +173,7 @@ Zawartość odpowiedzi to nieprzezroczyste (opaque) dane aplikacji. Nie istnieje
 | txt_type + attempt | 1               | górne sześć bitów to txt_type (patrz poniżej), dolne dwa bity to numer próby (0..3) |
 | message            | reszta payloadu | treść wiadomości, patrz kolejna tabela                                              |
 
-txt_type
+#### txt_type
 
 | Wartość | Opis                         | Treść wiadomości                                                                                   |
 |---------|------------------------------|----------------------------------------------------------------------------------------------------|
@@ -183,7 +181,7 @@ txt_type
 | `0x01`  | polecenie CLI                | tekst polecenia zawarty w wiadomości                                                               |
 | `0x02`  | podpisana wiadomość tekstowa | pierwsze cztery bajty to prefiks klucza publicznego nadawcy, a następnie zwykła wiadomość tekstowa |
 
-# Żądanie anonimowe
+## Żądanie anonimowe
 
 | Pole             | Rozmiar (bajty) | Opis                                              |
 |------------------|-----------------|---------------------------------------------------|
@@ -192,7 +190,7 @@ txt_type
 | cipher MAC       | 2               | MAC dla zaszyfrowanych danych w kolejnym polu     |
 | ciphertext       | reszta payloadu | zaszyfrowana wiadomość, szczegóły poniżej         |
 
-## Logowanie do room servera
+### Logowanie do room servera
 
 | Pole           | Rozmiar (bajty)   | Opis                                                  |
 |----------------|-------------------|-------------------------------------------------------|
@@ -200,14 +198,14 @@ txt_type
 | sync timestamp | 4                 | znacznik czasu nadawcy „synchronizuj wiadomości OD x” |
 | password       | reszta wiadomości | hasło do room servera                                 |
 
-## Logowanie do repeatera/sensora
+### Logowanie do repeatera/sensora
 
 | Pole      | Rozmiar (bajty)   | Opis                               |
 |-----------|-------------------|------------------------------------|
 | timestamp | 4                 | czas nadawcy (znacznik czasu unix) |
 | password  | reszta wiadomości | hasło do repeatera/sensora         |
 
-## Repeater - żądanie regionów
+### Repeater - żądanie regionów
 
 | Pole           | Rozmiar (bajty) | Opis                               |
 |----------------|-----------------|------------------------------------|
@@ -216,7 +214,7 @@ txt_type
 | reply path len | 1               | długość ścieżki odpowiedzi         |
 | reply path     | (zmienna)       | ścieżka odpowiedzi                 |
 
-## Repeater - żądanie informacji o właścicielu
+### Repeater - żądanie informacji o właścicielu
 
 | Pole           | Rozmiar (bajty) | Opis                               |
 |----------------|-----------------|------------------------------------|
@@ -225,7 +223,7 @@ txt_type
 | reply path len | 1               | długość ścieżki odpowiedzi         |
 | reply path     | (zmienna)       | ścieżka odpowiedzi                 |
 
-## Repeater - żądanie zegara i statusu
+### Repeater - żądanie zegara i statusu
 
 | Pole           | Rozmiar (bajty) | Opis                               |
 |----------------|-----------------|------------------------------------|
@@ -234,8 +232,7 @@ txt_type
 | reply path len | 1               | długość ścieżki odpowiedzi         |
 | reply path     | (zmienna)       | ścieżka odpowiedzi                 |
 
-
-# Grupowa wiadomość tekstowa
+## Grupowa wiadomość tekstowa
 
 | Pole         | Rozmiar (bajty) | Opis                                          |
 |--------------|-----------------|-----------------------------------------------|
@@ -245,7 +242,7 @@ txt_type
 
 Tekst jawny zawarty w szyfrogramie odpowiada formatowi opisanemu w [zwykłej wiadomości tekstowej](#zwykła-wiadomość-tekstowa). Konkretnie składa się z czterobajtowego znacznika czasu, bajtu flag oraz wiadomości. Bajt flag będzie zwykle miał wartość `0x00`, ponieważ jest to „zwykła wiadomość tekstowa”. Wiadomość będzie miała postać `<nazwa nadawcy>: <treść wiadomości>` (np. `user123: I'm on my way`).
 
-# Grupowy datagram
+## Grupowy datagram
 
 | Pole         | Rozmiar (bajty) | Opis                                          |
 |--------------|-----------------|-----------------------------------------------|
@@ -261,15 +258,14 @@ Dane zawarte w szyfrogramie wykorzystują poniższy format:
 | data len  | 1               | długość danych w bajtach                                |
 | data      | reszta payloadu | (zależnie od typu danych)                               |
 
-
-# Dane kontrolne (Control data)
+## Dane kontrolne (Control data)
 
 | Pole  | Rozmiar (bajty) | Opis                      |
 |-------|-----------------|---------------------------|
 | flags | 1               | górne 4 bity to sub_type  |
 | data  | reszta payloadu | zwykle dane nieszyfrowane |
 
-## DISCOVER_REQ (sub_type)
+### DISCOVER_REQ (sub_type)
 
 | Pole        | Rozmiar (bajty) | Opis                                             |
 |-------------|-----------------|--------------------------------------------------|
@@ -278,7 +274,7 @@ Dane zawarte w szyfrogramie wykorzystują poniższy format:
 | tag         | 4               | generowany losowo przez nadawcę                  |
 | since       | 4               | (opcjonalnie) znacznik czasu epoch (domyślnie 0) |
 
-## DISCOVER_RESP (sub_type)
+### DISCOVER_RESP (sub_type)
 
 | Pole   | Rozmiar (bajty) | Opis                                    |
 |--------|-----------------|-----------------------------------------|
@@ -287,7 +283,6 @@ Dane zawarte w szyfrogramie wykorzystują poniższy format:
 | tag    | 4               | odbite z powrotem z DISCOVER_REQ        |
 | pubkey | 8 lub 32        | ID węzła (lub prefiks)                  |
 
-
-# Pakiet niestandardowy
+## Pakiet niestandardowy
 
 Pakiety niestandardowe nie mają zdefiniowanego formatu.

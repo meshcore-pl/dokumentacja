@@ -33,7 +33,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ## Operacyjne
 
 ### Restart węzła
-**Użycie:** 
+**Użycie:**
 - `reboot`
 
 **Uwaga:** nie jest wysyłana żadna odpowiedź.
@@ -58,7 +58,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 ### Synchronizacja zegara ze zdalnym urządzeniem
-**Użycie:** 
+**Użycie:**
 - `clock sync`
 
 ---
@@ -70,7 +70,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 ### Ustawienie czasu na konkretny znacznik czasu
-**Użycie:** 
+**Użycie:**
 - `time <epoch_seconds>`
 
 **Parametry:**
@@ -79,7 +79,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 ### Wysłanie advertu typu flood
-**Użycie:** 
+**Użycie:**
 - `advert`
 
 ---
@@ -109,7 +109,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ## Sąsiedzi (tylko Repeater)
 
 ### Lista pobliskich sąsiadów
-**Użycie:** 
+**Użycie:**
 - `neighbors`
 
 **Uwaga:** wynik tego polecenia jest ograniczony do 8 najnowszych advertów.
@@ -119,10 +119,10 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 ### Usunięcie sąsiada
-**Użycie:** 
+**Użycie:**
 - `neighbor.remove <pubkey_prefix>`
 
-**Parametry:** 
+**Parametry:**
 - `pubkey_prefix`: klucz publiczny węzła do usunięcia z listy sąsiadów. Może to być krótki prefiks lub pełny klucz. Wszyscy sąsiedzi pasujący do podanego prefiksu zostaną usunięci.
 
 **Uwaga:** możesz usunąć wszystkich sąsiadów, wysyłając znak spacji jako prefiks. Spacja oznacza pusty prefiks, który pasuje do wszystkich istniejących sąsiadów.
@@ -131,7 +131,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ### Odkrywanie sąsiadów zero-hop
 
-**Użycie:** 
+**Użycie:**
 - `discover.neighbors`
 
 ---
@@ -144,7 +144,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 ### Statystyki systemowe - bateria, czas działania, długość kolejki i flagi debugowania
-**Użycie:** 
+**Użycie:**
 - `stats-core`
 
 **Tylko przez port szeregowy:** Tak
@@ -241,7 +241,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Zmiana parametrów radiowych na określony czas
-**Użycie:** 
+**Użycie:**
 - `tempradio <freq>,<bw>,<sf>,<cr>,<timeout_mins>`
 
 **Parametry:**
@@ -428,7 +428,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 - `powersaving on`
 - `powersaving off`
 
-**Parametry:** 
+**Parametry:**
 - `on`: włącza oszczędzanie energii
 - `off`: wyłącza oszczędzanie energii
 
@@ -462,13 +462,13 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
   - `0`: rozmiar hasha 1 bajt (256 unikalnych ID) [maks. 64 flood]
   - `1`: rozmiar hasha 2 bajty (65 536 unikalnych ID) [maks. 32 flood]
   - `2`: rozmiar hasha 3 bajty (16 777 216 unikalnych ID) [maks. 21 flood]
-  - `3`: NIE UŻYWAJ (zarezerwowane) 
+  - `3`: NIE UŻYWAJ (zarezerwowane)
 
 **Domyślnie:** `0`
 
 **Uwaga:** `path.hash.mode` ustawia niskopoziomowy rozmiar kodowania ID/hasha używany, gdy repeater rozgłasza advert. To ustawienie nie ma wpływu na to, jaki rozmiar ID/hasha pakietu ten repeater przekazuje dalej - w firmware >= 1.14 wszystkie rozmiary powinny być przekazywane. Ta funkcja została dodana w firmware 1.14
 
-**Uwaga tymczasowa:** adverty z rozmiarem ID/hasha 2 lub 3 bajty mogą mieć ograniczoną propagację flood w Twojej sieci, dopóki ta funkcja jest nowa, ponieważ firmware w wersji 1.13.0 i starszej odrzuca pakiety z wielobajtowymi ID/hashami ścieżki, obsługując wyłącznie hashe 1-bajtowe. Zanim zastosujesz większe rozmiary ID/hasha, upewnij się, że instalacja firmware >=1.14 w Twojej sieci osiągnęła masę krytyczną wystarczającą do skutecznego zalewania (flood) sieci. 
+**Uwaga tymczasowa:** adverty z rozmiarem ID/hasha 2 lub 3 bajty mogą mieć ograniczoną propagację flood w Twojej sieci, dopóki ta funkcja jest nowa, ponieważ firmware w wersji 1.13.0 i starszej odrzuca pakiety z wielobajtowymi ID/hashami ścieżki, obsługując wyłącznie hashe 1-bajtowe. Zanim zastosujesz większe rozmiary ID/hasha, upewnij się, że instalacja firmware >=1.14 w Twojej sieci osiągnęła masę krytyczną wystarczającą do skutecznego zalewania (flood) sieci.
 
 ---
 
@@ -478,17 +478,17 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 - `set loop.detect <state>`
 
 **Parametry:**
-- `state`: 
+- `state`:
   - `off`: nie jest wykonywane żadne wykrywanie pętli
   - `minimal`: pakiety są odrzucane, jeśli ID/hash repeatera pojawia się 4 lub więcej razy (1 bajt), 2 lub więcej (2 bajty), 1 lub więcej (3 bajty)
   - `moderate`: pakiety są odrzucane, jeśli ID/hash repeatera pojawia się 2 lub więcej razy (1 bajt), 1 lub więcej (2 bajty), 1 lub więcej (3 bajty)
   - `strict`: pakiety są odrzucane, jeśli ID/hash repeatera pojawia się 1 lub więcej razy (1 bajt), 1 lub więcej (2 bajty), 1 lub więcej (3 bajty)
-  
+
 **Domyślnie:** `off`
 
 **Uwaga:** gdy włączone, repeatery zaczynają odrzucać pakiety flood, które wyglądają, jakby znajdowały się w pętli. Zdarzało się to ostatnio w niektórych sieciach mesh, gdy w sieci pojawił się choć jeden repeater z „wadliwym” firmware (prawdopodobnie jakimś forkiem lub niestandardowym firmware). Jeśli payload zostanie zmodyfikowany, a następnie przekazany dalej, ten sam pakiet powoduje burzę pakietów, powtarzaną aż do maksymalnie 64 hopów. Ta funkcja została dodana w firmware 1.14
 
-**Przykład:** jeśli ustawienie to `loop.detect minimal`, a odebrany zostanie pakiet o rozmiarze ścieżki 1 bajt, repeater sprawdzi, czy jego własny ID/hash już znajduje się w ścieżce. Jeśli jest już zakodowany 4 razy, odrzuci pakiet. Jeśli pakiet używa rozmiaru ścieżki 2 bajty, a własny ID/hash repeatera jest już zakodowany 2 razy, odrzuca go. Jeśli pakiet używa rozmiaru ścieżki 3 bajty, a własny ID/hash repeatera jest już zakodowany 1 raz, odrzuca go. 
+**Przykład:** jeśli ustawienie to `loop.detect minimal`, a odebrany zostanie pakiet o rozmiarze ścieżki 1 bajt, repeater sprawdzi, czy jego własny ID/hash już znajduje się w ścieżce. Jeśli jest już zakodowany 4 razy, odrzuci pakiet. Jeśli pakiet używa rozmiaru ścieżki 2 bajty, a własny ID/hash repeatera jest już zakodowany 2 razy, odrzuca go. Jeśli pakiet używa rozmiaru ścieżki 3 bajty, a własny ID/hash repeatera jest już zakodowany 1 raz, odrzuca go.
 
 ---
 
@@ -674,12 +674,12 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ### ACL
 
 #### Dodanie, aktualizacja lub usunięcie uprawnień dla companiona
-**Użycie:** 
+**Użycie:**
 - `setperm <pubkey> <permissions>`
 
 **Parametry:**
 - `pubkey`: klucz publiczny companiona
-- `permissions`: 
+- `permissions`:
   - `0`: Gość
   - `1`: Tylko do odczytu
   - `2`: Odczyt i zapis
@@ -690,7 +690,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Podgląd aktualnej listy ACL
-**Użycie:** 
+**Użycie:**
 - `get acl`
 
 **Tylko przez port szeregowy:** Tak
@@ -712,7 +712,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ### Zarządzanie regionami (v1.10.+)
 
 #### Zbiorcze wczytywanie list regionów
-**Użycie:** 
+**Użycie:**
 - `region load`
 - `region load <name> [flood_flag]`
 
@@ -728,16 +728,16 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Zapisanie wszelkich zmian w regionach dokonanych od restartu
-**Użycie:** 
+**Użycie:**
 - `region save`
 
 ---
 
 #### Zezwolenie na region
-**Użycie:** 
+**Użycie:**
 - `region allowf <name>`
 
-**Parametry:** 
+**Parametry:**
 - `name`: nazwa regionu (lub `*` dla wildcard)
 
 **Uwaga:** ustawienie na wildcard `*` zezwala na pakiety bez kodów transportu regionu
@@ -745,10 +745,10 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Zablokowanie regionu
-**Użycie:** 
+**Użycie:**
 - `region denyf <name>`
 
-**Parametry:** 
+**Parametry:**
 - `name`: nazwa regionu (lub `*` dla wildcard)
 
 **Uwaga:** ustawienie na wildcard `*` odrzuca pakiety bez kodów transportu regionu
@@ -756,7 +756,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Pokazanie informacji o regionie
-**Użycie:** 
+**Użycie:**
 - `region get <name>`
 
 **Parametry:**
@@ -765,7 +765,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Podgląd lub zmiana regionu macierzystego (home) tego węzła
-**Użycie:** 
+**Użycie:**
 - `region home`
 - `region home <name>`
 
@@ -775,7 +775,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Podgląd lub zmiana domyślnego regionu zasięgu (scope) tego węzła
-**Użycie:** 
+**Użycie:**
 - `region default`
 - `region default {name|<null>}`
 
@@ -785,7 +785,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Utworzenie nowego regionu
-**Użycie:** 
+**Użycie:**
 - `region put <name> [parent_name]`
 
 **Parametry:**
@@ -836,18 +836,18 @@ region save
 ---
 
 #### Usunięcie regionu
-**Użycie:** 
+**Użycie:**
 - `region remove <name>`
 
 **Parametry:**
 - `name`: nazwa regionu
 
-**Uwaga:** przed usunięciem regionu należy usunąć wszystkie jego regiony podrzędne 
+**Uwaga:** przed usunięciem regionu należy usunąć wszystkie jego regiony podrzędne
 
 ---
 
 #### Podgląd wszystkich regionów
-**Użycie:** 
+**Użycie:**
 - `region list <filter>`
 
 **Tylko przez port szeregowy:** Tak
@@ -860,7 +860,7 @@ region save
 ---
 
 #### Zrzut wszystkich zdefiniowanych regionów i uprawnień flood
-**Użycie:** 
+**Użycie:**
 - `region`
 
 **Tylko przez port szeregowy:** dla firmware starszego niż 1.12.0
@@ -885,7 +885,7 @@ region save
 
 **Przykład 2: użycie wildcard z flagą F**
 ```mccli
-region load 
+region load
 * F
 <blank line to end region load>
 region save
@@ -900,7 +900,7 @@ region save
 
 **Przykład 3: użycie wildcard bez flagi F**
 ```mccli
-region load 
+region load
 *
 <blank line to end region load>
 region save
@@ -914,7 +914,7 @@ region save
 
 **Przykład 4: zagnieżdżony region publiczny z flagą F**
 ```mccli
-region load 
+region load
 #Europe F
   #UK
     #London
@@ -935,7 +935,7 @@ region save
 
 **Przykład 5: wildcard z zagnieżdżonymi regionami publicznymi**
 ```mccli
-region load 
+region load
 * F
   #NorthAmerica
     #USA
@@ -974,13 +974,13 @@ region save
 ---
 
 #### Synchronizacja zegara tego węzła z czasem GPS
-**Użycie:** 
+**Użycie:**
 - `gps sync`
 
 ---
 
 #### Ustawienie lokalizacji tego węzła na podstawie współrzędnych GPS
-**Użycie:** 
+**Użycie:**
 - `gps setloc`
 
 ---
@@ -990,8 +990,8 @@ region save
 - `gps advert`
 - `gps advert <policy>`
 
-**Parametry:** 
-- `policy`: `none`|`share`|`prefs` 
+**Parametry:**
+- `policy`: `none`|`share`|`prefs`
   - `none`: nie dołączaj lokalizacji do advertów
   - `share`: udostępniaj lokalizację GPS (z SensorManager)
   - `prefs`: lokalizacja przechowywana w ustawieniach lat i lon węzła
@@ -1013,7 +1013,7 @@ region save
 ---
 
 #### Podgląd lub zmiana wartości czujnika
-**Użycie:** 
+**Użycie:**
 - `sensor get <key>`
 - `sensor set <key> <value>`
 
@@ -1060,7 +1060,7 @@ region save
 - `set bridge.source <source>`
 
 **Parametry:**
-- `source`: 
+- `source`:
   - `logRx`: mostkuje odebrane pakiety
   - `logTx`: mostkuje wysłane pakiety
 
@@ -1091,7 +1091,7 @@ region save
 ---
 
 #### Ustawienie sekretu ESP-Now
-**Użycie:** 
+**Użycie:**
 - `get bridge.secret`
 - `set bridge.secret <secret>`
 

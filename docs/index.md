@@ -9,7 +9,7 @@ createdAt: 22.08.2026
 # Wprowadzenie
 
 MeshCore to firmware i protokół służące do budowy zdecentralizowanych, samoorganizujących się sieci mesh opartych na technologii LoRa.
-Urządzenia, takie jak repeatery, serwery pokojów i klienci (companiony), przekazują wiadomości bez dostępu do internetu i centralnej infrastruktury. 
+Urządzenia, takie jak repeatery, serwery pokojów i klienci (companiony), przekazują wiadomości bez dostępu do internetu i centralnej infrastruktury.
 Wieloskokowy routing (multi-hop) umożliwia komunikację nawet na duże odległości.
 
 > Ta strona zawiera nieoficjalne polskie tłumaczenie dokumentacji dostępnej na [docs.meshcore.io](https://docs.meshcore.io)

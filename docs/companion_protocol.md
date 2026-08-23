@@ -409,7 +409,7 @@ Byte 0: 0x0A
 0A
 ```
 
-**Odpowiedź**: 
+**Odpowiedź**:
 - `PACKET_CHANNEL_MSG_RECV` (0x08) lub `PACKET_CHANNEL_MSG_RECV_V3` (0x11) dla wiadomości kanałowych
 - `PACKET_CONTACT_MSG_RECV` (0x07) lub `PACKET_CONTACT_MSG_RECV_V3` (0x10) dla wiadomości od kontaktów
 - `PACKET_CHANNEL_DATA_RECV` (0x1B) dla datagramów danych kanału
@@ -519,29 +519,29 @@ Bytes 20+: Message Text (UTF-8)
 def parse_contact_message(data):
     packet_type = data[0]
     offset = 1
-    
+
     # Sprawdź, czy to format V3
     if packet_type == 0x10:  # V3
         snr_byte = data[offset]
         snr = ((snr_byte if snr_byte < 128 else snr_byte - 256) / 4.0)
         offset += 3  # Pomiń SNR + zarezerwowane
-    
+
     pubkey_prefix = data[offset:offset+6].hex()
     offset += 6
-    
+
     path_len = data[offset]
     txt_type = data[offset + 1]
     offset += 2
-    
+
     timestamp = int.from_bytes(data[offset:offset+4], 'little')
     offset += 4
-    
+
     # Jeśli txt_type == 2, pomiń 4-bajtowy podpis
     if txt_type == 2:
         offset += 4
-    
+
     message = data[offset:].decode('utf-8')
-    
+
     return {
         'pubkey_prefix': pubkey_prefix,
         'path_len': path_len,
@@ -581,19 +581,19 @@ Bytes 11+: Message Text (UTF-8)
 def parse_channel_message(data):
     packet_type = data[0]
     offset = 1
-    
+
     # Sprawdź, czy to format V3
     if packet_type == 0x11:  # V3
         snr_byte = data[offset]
         snr = ((snr_byte if snr_byte < 128 else snr_byte - 256) / 4.0)
         offset += 3  # Pomiń SNR + zarezerwowane
-    
+
     channel_idx = data[offset]
     path_len = data[offset + 1]
     txt_type = data[offset + 2]
     timestamp = int.from_bytes(data[offset+3:offset+7], 'little')
     message = data[offset+7:].decode('utf-8')
-    
+
     return {
         'channel_idx': channel_idx,
         'timestamp': timestamp,
@@ -606,7 +606,7 @@ def parse_channel_message(data):
 
 Użyj polecenia `SEND_CHANNEL_MESSAGE` (patrz [Polecenia](#polecenia)).
 
-**Ważne**: 
+**Ważne**:
 - Wiadomości są ograniczone do 133 znaków zgodnie ze specyfikacją MeshCore
 - Długie wiadomości powinny być dzielone na części
 - Dołącz wskaźnik części (np. „[1/3] treść wiadomości”)
@@ -696,10 +696,10 @@ Byte 81: Path hash mode (firmware v10+)
 def parse_device_info(data):
     if len(data) < 2:
         return None
-    
+
     fw_ver = data[1]
     info = {'fw_ver': fw_ver}
-    
+
     if fw_ver >= 3 and len(data) >= 80:
         info['max_contacts'] = data[2] * 2
         info['max_channels'] = data[3]
@@ -707,7 +707,7 @@ def parse_device_info(data):
         info['fw_build'] = data[8:20].decode('utf-8').rstrip('\x00').strip()
         info['model'] = data[20:60].decode('utf-8').rstrip('\x00').strip()
         info['ver'] = data[60:80].decode('utf-8').rstrip('\x00').strip()
-    
+
     return info
 ```
 
@@ -724,14 +724,14 @@ Bytes 7-10: Total Storage (32-bit little-endian, KB)
 def parse_battery(data):
     if len(data) < 3:
         return None
-    
+
     mv = int.from_bytes(data[1:3], 'little')
     info = {'battery_mv': mv}
-    
+
     if len(data) >= 11:
         info['used_kb'] = int.from_bytes(data[3:7], 'little')
         info['total_kb'] = int.from_bytes(data[7:11], 'little')
-    
+
     return info
 ```
 
@@ -760,7 +760,7 @@ Bytes 58+: Device Name (UTF-8, variable length, no null terminator required)
 def parse_self_info(data):
     if len(data) < 36:
         return None
-    
+
     offset = 1
     info = {
         'adv_type': data[offset],
@@ -769,13 +769,13 @@ def parse_self_info(data):
         'public_key': data[offset + 3:offset + 35].hex()
     }
     offset += 35
-    
+
     lat = int.from_bytes(data[offset:offset+4], 'little') / 1e6
     lon = int.from_bytes(data[offset+4:offset+8], 'little') / 1e6
     info['adv_lat'] = lat
     info['adv_lon'] = lon
     offset += 8
-    
+
     info['multi_acks'] = data[offset]
     info['adv_loc_policy'] = data[offset + 1]
     telemetry_mode = data[offset + 2]
@@ -784,7 +784,7 @@ def parse_self_info(data):
     info['telemetry_mode_base'] = telemetry_mode & 0b11
     info['manual_add_contacts'] = data[offset + 3] > 0
     offset += 4
-    
+
     freq = int.from_bytes(data[offset:offset+4], 'little') / 1000.0
     bw = int.from_bytes(data[offset+4:offset+8], 'little') / 1000.0
     info['radio_freq'] = freq
@@ -792,11 +792,11 @@ def parse_self_info(data):
     info['radio_sf'] = data[offset + 8]
     info['radio_cr'] = data[offset + 9]
     offset += 10
-    
+
     if offset < len(data):
         name_bytes = data[offset:]
         info['name'] = name_bytes.decode('utf-8').rstrip('\x00').strip()
-    
+
     return info
 ```
 
@@ -939,7 +939,7 @@ response = wait_for_response(PACKET_MSG_SENT)
 ```python
 def on_notification_received(data):
     packet_type = data[0]
-    
+
     if packet_type == PACKET_CHANNEL_MSG_RECV or packet_type == PACKET_CHANNEL_MSG_RECV_V3:
         message = parse_channel_message(data)
         handle_channel_message(message)
