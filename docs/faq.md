@@ -550,7 +550,7 @@ Aby dodać radio BLE Companion, połącz się z radiem BLE Companion z poziomu a
 
 Aby dodać repeatera lub room server do mapy, przejdź do listy kontaktów, stuknij `3 kropki` obok repeatera lub room servera, który chcesz dodać do Internet Map, stuknij `Share`, a następnie `Upload to Internet Map`.
 
-Możesz użyć tego samego companiona (tego samego klucza publicznego), którego użyłeś do dodania swoich repeaterów lub room serverów, aby usunąć je z Internet Map.
+Możesz użyć tego samego companiona (tego samego klucza publicznego), którego użyłeś do dodania swoich repeaterów lub room serwerów, aby usunąć je z Internet Map.
 
 ### 5.13. Czy mogę użyć Raspberry Pi do aktualizacji radia MeshCore?
 Tak.

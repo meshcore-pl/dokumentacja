@@ -1,6 +1,6 @@
 ---
 title: Polecenia CLI
-description: Lista poleceń CLI wysyłanych do repeaterów, room serverów i sensorów MeshCore.
+description: Lista poleceń CLI wysyłanych do repeaterów, room serwerów i sensorów MeshCore.
 order: 2
 sourceUrl: https://docs.meshcore.io/cli_commands
 createdAt: 22.08.2026
@@ -8,7 +8,7 @@ createdAt: 22.08.2026
 
 # Polecenia CLI
 
-Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów, room serverów i sensorów MeshCore.
+Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów, room serwerów i sensorów MeshCore.
 
 ## Nawigacja
 
@@ -42,8 +42,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ### Wyłączenie węzła
 **Użycie:**
-- `poweroff`, lub
-- `shutdown`
+- `poweroff` lub `shutdown`
 
 **Uwaga:** nie jest wysyłana żadna odpowiedź.
 
