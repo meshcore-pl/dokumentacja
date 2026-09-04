@@ -4,6 +4,7 @@ description: Najczęściej zadawane pytania i odpowiedzi dotyczące sieci MeshCo
 order: 1
 sourceUrl: https://docs.meshcore.io/faq
 createdAt: 22.08.2026
+updatedAt: 04.09.2026
 ---
 
 # Najczęściej zadawane pytania
@@ -657,22 +658,29 @@ Domyślny kod parowania Bluetooth to `123456`
 ### 6.6. Mój Heltec V3 ciągle rozłącza się ze smartfonem. Nie może utrzymać stabilnego połączenia Bluetooth.
 Heltec V3 ma bardzo małą antenę cewkową na płytce PCB do łączności Wi-Fi i Bluetooth. Ma ona bardzo krótki zasięg, tylko kilkadziesiąt centymetrów. Można usunąć antenę cewkową i zastąpić ją przewodem o długości 31mm. Zasięg Bluetooth znacznie poprawia się po tej modyfikacji.
 
-### 6.7. Moje urządzenie RAK/T1000-E/xiao_nRF52 wydaje się uszkodzone/zepsute, jak wyczyścić je, aby zacząć od nowa?
+### 6.7. Moje urządzenie RAK/T1000-E/xiao_nRF52/... wydaje się uszkodzone/zepsute, jak wyczyścić je, aby zacząć od nowa?
 
-1. Podłącz kabel USB-C do swojego urządzenia i zgodnie z instrukcją swojego urządzenia przełącz je w tryb flashowania:
-    - Dla RAK, kliknij przycisk reset **DWUKROTNIE**
-    - Dla T1000-e, szybko odłącz i podłącz ponownie magnetyczną stronę kabla od urządzenia **DWUKROTNIE**
-    - Dla Heltec T114, kliknij przycisk reset **DWUKROTNIE** (dolny przycisk)
-    - Dla Xiao nRF52, kliknij przycisk reset raz. Jeśli to nie zadziała, szybko kliknij dwukrotnie przycisk reset. Jeśli to nadal nie zadziała, odłącz płytkę od komputera i podłącz ją ponownie ([wiki seeed studio](https://wiki.seeedstudio.com/XIAO_BLE/#access-the-swd-pins-for-debugging-and-reflashing-bootloader))
-2. Na pulpicie Twojego komputera pojawi się nowy folder
-3. Pobierz plik `flash_erase*.uf2` dla swojego urządzenia z <https://flasher.meshcore.io>
-    - RAK WisBlock i Heltec T114: `Flash_erase-nRF32_softdevice_v6.uf2`
-    - Seeed Studio Xiao nRF52 WIO: `Flash_erase-nRF52_softdevice_v7.uf2`
-4. przeciągnij i upuść plik uf2 dla swojego urządzenia do katalogu głównego nowego folderu
-5. Poczekaj na zakończenie kopiowania. Może pojawić się okno z błędem - możesz je zignorować
-6. Wejdź na <https://flasher.meshcore.io>, kliknij `Console` i wybierz port szeregowy dla podłączonego urządzenia
-7. W konsoli wciśnij enter. Pamięć flash powinna zostać wyczyszczona
-8. Możesz teraz wgrać najnowsze firmware MeshCore na swoje urządzenie
+**A: Jeśli możesz połączyć się z urządzeniem z poziomu aplikacji MeshCore**
+1. Przejdź do ikony koła zębatego (Ustawienia) w prawym górnym rogu
+2. Kliknij przycisk `Export Settings`, wybierz `Select All` i potwierdź. To zapisze konfigurację Twojego węzła
+3. Teraz wybierz opcję `Factory Reset`
+4. Potwierdź, że chcesz zresetować urządzenie
+5. Przejdź do ustawień systemowych Bluetooth i usuń parowanie z urządzeniem, aby móc połączyć się ponownie
+6. Połącz urządzenie w aplikacji i wprowadź PIN
+7. Przejdź do ikony koła zębatego (Ustawienia) w prawym górnym rogu
+8. Kliknij `Import Settings` i wybierz plik z kroku 2, kliknij `Select All` i potwierdź
+9. Znajdź przycisk `Reboot` na liście ustawień
+
+**B: Jeśli nie możesz połączyć się z aplikacją**
+1. Podłącz kabel USB do swojego urządzenia
+2. Wejdź na https://flasher.meshcore.io
+3. Wyszukaj swoje urządzenie na liście
+4. Wybierz `Companion Bluetooth`
+5. Naciśnij przycisk `Enter DFU mode`, wybierz swoje urządzenie USB
+6. Naciśnij przycisk `Erase Flash`, ponownie wybierz urządzenie i poczekaj na zakończenie
+7. Naciśnij przycisk `Flash!` i ponownie wybierz urządzenie USB
+8. Urządzenie zostało wyczyszczone i zainstalowano najnowsze firmware
+9. Może być konieczne usunięcie parowania w ustawieniach systemowych Bluetooth, aby ponownie sparować aplikację
 
 Osobno, od wersji firmware 1.7.0, istnieje tryb ratunkowy CLI (CLI Rescue mode). Jeśli Twoje urządzenie ma przycisk użytkownika (np. niektóre modele RAK, T114), możesz aktywować tryb ratunkowy, przytrzymując przycisk użytkownika urządzenia w ciągu 8 sekund od uruchomienia. Następnie możesz użyć `Console` na <https://flasher.meshcore.io>
 
@@ -681,9 +689,9 @@ Jeśli port USB nie ma odpowiednich uprawnień do tej operacji, proces zawodzi z
 
 `NetworkError: Failed to execute 'open' on 'SerialPort': Failed to open serial port.`
 
-Nadaj uprawnienia użytkownikowi przeglądarki:
+Nadaj dostęp użytkownikowi do portu USB:
 
-`# setfacl -m u:YOUR_USER_HERE:rw /dev/ttyUSB0`
+`sudo setfacl -m u:$USER:rw /dev/ttyUSB0`
 
 ---
 
@@ -779,3 +787,26 @@ Dla radiów companion moc nadawania możesz ustawić w aplikacji na smartfona. D
 | **Ikoka Stick E22-900M33S**                                                           | Model 2W                                | 9 dBm                         | 2W                               | **NIE PRZEKRACZAJ** (ryzyko spalenia) [karta danych](https://www.cdebyte.com/pdf-down.aspx?id=4216) Sprawdź wymagania obowiązujące w Twoim kraju |
 | **Heltec V4**                                                                         | Moc standardowa                          | 10 dBm                        | 22 dBm (~0,15W)                  |                                                                                                                                                    |
 |                                                                                        | Moc podwyższona                          | 22 dBm                        | 28 dBm (~0,5W do 0,6W)           |                                                                                                                                                    |
+
+---
+
+### 7.8. Jak korzystać z Ethernetu na RAK4631?
+MeshCore obsługuje Ethernet na płytkach RAK4631 przy użyciu modułu [RAK13800](https://docs.rakwireless.com/product-categories/wisblock/rak13800/datasheet/) WisBlock Ethernet (opartego na układzie W5100S).
+
+**Wymagany sprzęt:**
+- RAK4631 WisBlock Core
+- RAK19007 lub RAK19018 WisBlock Base Board (z wolnym gniazdem IO)
+- Moduł RAK13800 WisBlock Ethernet
+- Kabel Ethernet podłączony do sieci z serwerem DHCP
+
+**Firmware:**
+Wgraj jeden z wariantów firmware z obsługą Ethernetu:
+- `RAK_4631_repeater_ethernet` - repeater z dostępem do CLI przez Ethernet
+- `RAK_4631_room_server_ethernet` - room server z dostępem do CLI przez Ethernet
+- `RAK_4631_companion_radio_ethernet` - companion radio przez Ethernet (zastępuje BLE)
+
+**Łączenie:**
+- Urządzenie automatycznie uzyskuje adres IP przez DHCP przy starcie.
+- Dla repeaterów i room serverów połącz się z urządzeniem na porcie TCP 23 dowolnym klientem TCP (np. `nc <ip> 23` lub PuTTY w trybie raw). Daje to dostęp do tego samego CLI co przez port szeregowy/USB.
+- Dla firmware companion radio interfejs Ethernet zastępuje BLE jako transport do aplikacji companion. Połącz się na porcie TCP 5000 (tak samo jak przy companion radio przez Wi-Fi).
+- Użyj polecenia CLI `eth.status`, aby sprawdzić status połączenia i zobaczyć przypisany adres IP.

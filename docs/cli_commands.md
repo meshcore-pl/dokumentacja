@@ -4,6 +4,7 @@ description: Lista poleceń CLI wysyłanych do repeaterów, room serwerów i sen
 order: 2
 sourceUrl: https://docs.meshcore.io/cli_commands
 createdAt: 22.08.2026
+updatedAt: 04.09.2026
 ---
 
 # Polecenia CLI
@@ -280,6 +281,36 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 **Domyślnie:** `on`
 
 **Uwaga tymczasowa:** jeśli zaktualizowałeś ze starszej wersji do 1.14.1 bez wymazywania pamięci flash, to ustawienie będzie miało wartość `off` z powodu [#2118](https://github.com/meshcore-dev/MeshCore/issues/2118)
+
+---
+
+#### Podgląd lub zmiana stanu wzmocnienia toru odbiorczego LoRa FEM na obsługiwanych płytkach
+**Użycie:**
+- `get radio.fem.rxgain`
+- `set radio.fem.rxgain <state>`
+
+**Parametry:**
+- `state`: `on`|`off`
+
+**Uwagi:**
+- Steruje zewnętrznym wzmacniaczem LNA toru odbiorczego LoRa FEM na płytkach, które go obsługują.
+- To ustawienie jest niezależne od `radio.rxgain`, które steruje trybem wzmocnienia odbioru samego układu radiowego.
+
+---
+
+#### Podgląd lub zmiana stanu wzmocnienia toru nadawczego LoRa FEM na obsługiwanych płytkach
+**Użycie:**
+- `get radio.fem.txgain`
+- `set radio.fem.txgain <state>`
+
+**Parametry:**
+- `state`: `on`|`off`
+
+**Uwagi:**
+- Steruje sterowanym programowo zewnętrznym wzmocnieniem nadawczym LoRa FEM na płytkach, które je obsługują.
+- Na Station G3 usuń zworkę PA PL1, aby umożliwić sterowanie programowe. `on` wybiera PA PL1 wysoko/krótko, a `off` wybiera PA PL1 nisko/otwarcie. Sprzętowa zworka PA PL2 określa, czy przełącza się między poziomami mocy 1/3 czy 2/4.
+- Wybierz poziom pracy oraz moc nadawania SX1262 zgodne z lokalnymi limitami RF i wymaganiami zasilania Station G3.
+- Ustawienie jest zapisywane natychmiast, ale na Station G3 poziom jest stosowany do sprzętu dopiero na początku kolejnej transmisji, dzięki czemu szyna zasilania PA nigdy nie jest przełączana w trakcie sterowania PA. `get` zwraca skonfigurowany stan, który może wyprzedzać sprzęt do czasu następnej transmisji węzła.
 
 ---
 
@@ -799,8 +830,8 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Parametry (tokeny):** oddzielone spacjami. Logiczny **kursor** zaczyna na wildcard `*`.
 
-- **`name`** — utwórz `name` jako dziecko bieżącego kursora (odpowiednik `region put name` z kursorem jako rodzicem). Kursor przenosi się na `name`.
-- **`name|jump`** *(lub `name,jump`)* — utwórz `name` jako dziecko bieżącego kursora, a następnie przenieś kursor na `jump` (musi już istnieć na węźle lub zostać utworzony wcześniej w tym samym poleceniu). `jump` **nie** jest rodzicem `name`; użyj tej formy, aby wrócić wyżej i rozpocząć inną gałąź.
+- **`name`** - tworzy `name` jako dziecko bieżącego kursora (odpowiednik `region put name` z kursorem jako rodzicem), a kursor przenosi się na `name`.
+- **`name|jump`** *(lub `name,jump`)* - tworzy `name` jako dziecko bieżącego kursora, a następnie przenosi kursor na `jump` (musi on już istnieć na węźle albo zostać utworzony wcześniej w tym samym poleceniu). `jump` **nie** jest rodzicem `name` - użyj tej formy, aby cofnąć kursor wyżej i rozpocząć inną gałąź.
 
 **Zachowanie:** każdy utworzony region domyślnie ma zezwolenie na flood (tak samo jak `region put`). Odpowiedzią jest wynikowe drzewo regionów (w tym samym formacie co samo `region`); przejrzyj je przed uruchomieniem `region save`, aby zapisać zmiany na stałe. W razie błędu odpowiedź to `Err - ...`, a regiony umieszczone przed wystąpieniem błędu pozostają na węźle, tak samo jak przy częściowym łańcuchu `region put`.
 
@@ -1129,5 +1160,27 @@ region save
 **Użycie:** `get pwrmgt.bootmv`
 
 **Uwaga:** zwraca błąd na płytkach bez obsługi zarządzania zasilaniem.
+
+---
+
+### Ethernet (gdy obsługa Ethernetu jest wkompilowana)
+
+Obsługa Ethernetu jest dostępna na płytkach RAK4631 z modułem RAK13800 (W5100S) Ethernet. Aby włączyć tę funkcję, użyj wariantów firmware `_ethernet` (np. `RAK_4631_repeater_ethernet`).
+
+---
+
+#### Podgląd statusu połączenia Ethernet
+**Użycie:**
+- `eth.status`
+
+**Wynik:**
+- `ETH: <ip>:<port>` gdy połączono (np. `ETH: 192.168.1.50:23`)
+- `ETH: not connected` gdy Ethernet nie jest aktywny
+
+**Uwagi:**
+- Dostępne tylko na firmware repeatera i room servera. Firmware companion radio ethernet nie udostępnia CLI.
+- Interfejs Ethernet automatycznie uzyskuje adres IP przez DHCP przy starcie.
+- Serwer TCP nasłuchuje na porcie 23 (domyślnie) dla połączeń CLI.
+- Połącz się dowolnym klientem TCP (np. `nc`, PuTTY), aby uzyskać dostęp do tego samego CLI co przez port szeregowy.
 
 ---

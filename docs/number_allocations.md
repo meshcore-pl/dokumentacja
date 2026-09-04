@@ -4,6 +4,7 @@ description: Lista unikalnych numerów i identyfikatorów używanych w payloadac
 order: 8
 sourceUrl: https://docs.meshcore.io/number_allocations
 createdAt: 22.08.2026
+updatedAt: 04.09.2026
 ---
 
 # Alokacje numerów
@@ -20,11 +21,13 @@ UWAGA: zakres FF00 - FFFF jest przeznaczony do użytku podczas developmentu, two
 
 Gdy masz już działającą aplikację/projekt, musisz być w stanie wykazać, że istnieje/działa, a DOPIERO WTEDY poprosić o identyfikatory typu. Dlatego po prostu korzystaj z zakresu testowego/deweloperskiego podczas tworzenia, a o identyfikatory poproś przed przejściem do publikacji swojego projektu.
 
-| Zakres typu danych | Nazwa aplikacji                        | Kontakt                                                           |
-|--------------------|----------------------------------------|-------------------------------------------------------------------|
-| 0000 - 00FF        | -zarezerwowane do użytku wewnętrznego- |                                                                   |
-| 0100               | MeshCore Open                          | zsylvester@monitormx.com - https://github.com/zjs81/meshcore-open |
-| 0110 - 011F        | Ripple                                 | ripple_biz@protonmail.com - https://buymeacoffee.com/ripplebiz    |
-| FF00 - FFFF        | -zarezerwowane do testów/developmentu- |                                                                   |
+| Zakres typu danych | Nazwa aplikacji                        | Kontakt                                                                          |
+|--------------------|----------------------------------------|----------------------------------------------------------------------------------|
+| 0000 - 00FF        | -zarezerwowane do użytku wewnętrznego- |                                                                                  |
+| 0100               | MeshCore Open                          | zsylvester@monitormx.com - https://github.com/zjs81/meshcore-open                |
+| 0110 - 011F        | Ripple                                 | ripple_biz@protonmail.com - https://buymeacoffee.com/ripplebiz                   |
+| 0120               | MCO Advanced                           | most.original.address@gmail.com - https://hdden.ru/MCOa/                         |
+| 0130 - 013F        | StreamSensor                           | william@housedillon.com - https://housedillon.com/blog/lora-e5-with-seeed-fusion |
+| FF00 - FFFF        | -zarezerwowane do testów/developmentu- |                                                                                  |
 
 (dodawaj wiersze w zakresie 0100 - FEFF dla własnych aplikacji)
