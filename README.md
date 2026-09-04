@@ -46,7 +46,7 @@ public/        statyczne zasoby (CSS, JS, logo)
 Pull requesty mile widziane.
 
 ## Licencja
-Kod strony: PolyForm Noncommercial 1.0.0.  
-Przetłumaczona dokumentacja: MIT (oryginał © Scott Powell / rippleradios.com).
+Kod strony: PolyForm Noncommercial 1.0.0  
+Przetłumaczona dokumentacja: MIT (oryginał © Scott Powell / rippleradios.com)
 
 Szczegóły w pliku [LICENSE](./LICENSE).
