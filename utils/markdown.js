@@ -32,6 +32,8 @@ const getHeadingId = token => headingIds.get(token) || slugify(token.text);
 const getTocLabel = token => tocLabels.get(token) || token.text;
 
 const MD_LINK_RE = /^\.?\/?([\w-]+)\.md(#.*)?$/;
+const OWN_ORIGIN_RE = /^https?:\/\/(www\.)?docs\.meshcorepolska\.org(\/|$)/i;
+const DOFOLLOW_FAMILY_RE = /^https?:\/\/([a-z0-9-]+\.)*(meshcorepolska\.org|sefinek\.net|meshcoreprofiles\.com)(\/|$)/i;
 
 // Buduje renderer marked, który potrafi zamienić wewnętrzne linki `./plik.md`
 // na docelowe slugi stron tej dokumentacji (resolveSlug(stem) -> slug | undefined).
@@ -57,7 +59,10 @@ const createRenderer = resolveSlug => {
 		}
 
 		const html = baseLink(token);
-		return (/^https?:\/\//i).test(token.href) ? html.replace('>', ' target="_blank" rel="noopener nofollow">') : html;
+		if (!(/^https?:\/\//i).test(token.href) || OWN_ORIGIN_RE.test(token.href)) return html;
+
+		const rel = DOFOLLOW_FAMILY_RE.test(token.href) ? 'noopener dofollow' : 'noopener nofollow';
+		return html.replace('>', ` target="_blank" rel="${rel}">`);
 	};
 
 	const baseTable = renderer.table.bind(renderer);
