@@ -46,7 +46,7 @@ const createRenderer = resolveSlug => {
 	};
 
 	const baseLink = renderer.link.bind(renderer);
-	renderer.link = function(token) {
+	renderer.link = token => {
 		if (token.href.startsWith('#')) return baseLink({ ...token, href: `#${slugify(decodeURIComponent(token.href.slice(1)))}` });
 
 		const match = MD_LINK_RE.exec(token.href);
