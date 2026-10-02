@@ -1,6 +1,6 @@
 {
   "name": "docs.meshcorepolska.org",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "homepage": "https://docs.meshcorepolska.org",
   "bugs": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/meshcore-pl/dokumentacjaissues.git"
+    "url": "git+https://github.com/meshcore-pl/dokumentacja.git"
   },
   "license": "MIT",
   "author": "Sefinek <contact@sefinek.net> (https://sefinek.net)",
@@ -29,11 +29,11 @@
     "marked": "^18.0.14",
     "morgan": "^1.12.1",
     "rate-limit-redis": "^6.0.1",
-    "redis": "^6.2.1"
+    "redis": "^6.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "globals": "^17.12.0"
+    "globals": "^17.13.0"
   },
   "engines": {
     "node": ">=20.19.0"

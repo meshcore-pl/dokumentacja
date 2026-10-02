@@ -8,6 +8,8 @@ const globalLimiter = rateLimit({
 	limit: 52,
 	standardHeaders: 'draft-7',
 	legacyHeaders: false,
+	skip: () => !RedisClient.isReady,
+	passOnStoreError: true,
 	store: new RedisStore({ sendCommand: (...args) => RedisClient.sendCommand(args), prefix: 'mcpl-docs:ratelimit:global:' }),
 	handler: (req, res) => HttpError(res, 429),
 });

@@ -1,13 +1,17 @@
 const router = require('express').Router();
 const HttpError = require('../utils/httpError.js');
-const docs = require('../utils/docs.js');
+const { getState } = require('../utils/docs.js');
 
-const renderPage = (req, res, page) => {
-	const navPages = docs.navPages;
-	const idx = navPages.findIndex(p => p.slug === page.slug);
-	const prev = idx > 0 ? navPages[idx - 1] : null;
-	const next = idx !== -1 && idx < navPages.length - 1 ? navPages[idx + 1] : null;
+const NO_NEIGHBOURS = { prev: null, next: null };
 
+const renderPage = (req, res, slug) => {
+	const { bySlug, navPages, neighbours } = getState();
+	const page = bySlug.get(slug);
+	if (!page || page.hidden) return HttpError(res, 404);
+
+	const { prev, next } = neighbours.get(page.slug) || NO_NEIGHBOURS;
+
+	res.vary('X-Docs-Ajax');
 	if (req.get('X-Docs-Ajax')) {
 		return res.json({
 			slug: page.slug,
@@ -16,28 +20,18 @@ const renderPage = (req, res, page) => {
 			html: page.html,
 			toc: page.toc,
 			updatedAt: page.updatedAt,
-			prev: prev ? { slug: prev.slug, title: prev.title } : null,
-			next: next ? { slug: next.slug, title: next.title } : null,
+			prev,
+			next,
 		});
 	}
 
 	res.render('page.ejs', { navPages, page, prev, next });
 };
 
-router.get('/', (req, res) => {
-	const page = docs.getPage('');
-	if (!page) return HttpError(res, 404);
-	renderPage(req, res, page);
-});
+router.get('/', (req, res) => renderPage(req, res, ''));
 
-router.get('/api/search', (req, res) => {
-	res.json(docs.navPages.map(p => ({ url: p.slug ? `/${p.slug}` : '/', title: p.title, headings: p.toc.map(h => ({ id: h.id, text: h.text })) })));
-});
+router.get('/api/search', (req, res) => res.json(getState().searchIndex));
 
-router.get('/:slug', (req, res) => {
-	const page = docs.getPage(req.params.slug);
-	if (!page || page.hidden) return HttpError(res, 404);
-	renderPage(req, res, page);
-});
+router.get('/:slug', (req, res) => renderPage(req, res, req.params.slug));
 
 module.exports = router;

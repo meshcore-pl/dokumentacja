@@ -7,33 +7,51 @@ const slugify = text => text.toLowerCase()
 	.replace(/[\s_]+/g, '-')
 	.replace(/(^-|-$)/g, '');
 
+const safeDecode = str => {
+	try {
+		return decodeURIComponent(str);
+	} catch {
+		return str;
+	}
+};
+
+const PLAIN_TOKEN_TYPES = new Set(['text', 'codespan', 'escape']);
+const toPlainText = tokens => tokens
+	.map(t => (t.tokens ? toPlainText(t.tokens) : PLAIN_TOKEN_TYPES.has(t.type) ? t.text : ''))
+	.join('');
+
 const TOC_LABEL_RE = /\s*\{toc:\s*([^}]+)\}\s*$/;
 const tocLabels = new WeakMap();
-
+const plainTexts = new WeakMap();
 const headingIds = new WeakMap();
+
 const assignHeadingIds = tokens => {
 	const seen = new Map();
-	for (const t of tokens) {
-		if (t.type !== 'heading') continue;
+	marked.walkTokens(tokens, t => {
+		if (t.type !== 'heading') return;
 
 		const tocMatch = TOC_LABEL_RE.exec(t.text);
 		if (tocMatch) {
 			tocLabels.set(t, tocMatch[1].trim());
 			t.text = t.text.slice(0, tocMatch.index);
+			t.tokens = marked.Lexer.lexInline(t.text);
 		}
 
-		const base = slugify(t.text) || 'sekcja';
+		const plain = toPlainText(t.tokens).trim();
+		plainTexts.set(t, plain);
+
+		const base = slugify(plain) || 'sekcja';
 		const count = seen.get(base) || 0;
 		seen.set(base, count + 1);
 		headingIds.set(t, count === 0 ? base : `${base}-${count + 1}`);
-	}
+	});
 };
-const getHeadingId = token => headingIds.get(token) || slugify(token.text);
-const getTocLabel = token => tocLabels.get(token) || token.text;
+const getHeadingId = token => headingIds.get(token) || slugify(toPlainText(token.tokens));
+const getTocLabel = token => tocLabels.get(token) || plainTexts.get(token) || toPlainText(token.tokens);
 
 const MD_LINK_RE = /^\.?\/?([\w-]+)\.md(#.*)?$/;
 const OWN_ORIGIN_RE = /^https?:\/\/(www\.)?docs\.meshcorepolska\.org(\/|$)/i;
-const DOFOLLOW_FAMILY_RE = /^https?:\/\/([a-z0-9-]+\.)*(meshcorepolska\.org|sefinek\.net|meshcoreprofiles\.com)(\/|$)/i;
+const FAMILY_RE = /^https?:\/\/([a-z0-9-]+\.)*(meshcorepolska\.org|sefinek\.net|meshcoreprofiles\.com)(\/|$)/i;
 
 // Buduje renderer marked, który potrafi zamienić wewnętrzne linki `./plik.md`
 // na docelowe slugi stron tej dokumentacji (resolveSlug(stem) -> slug | undefined).
@@ -42,18 +60,19 @@ const createRenderer = resolveSlug => {
 
 	renderer.heading = token => {
 		const id = getHeadingId(token);
-		return `<h${token.depth} id="${id}">${token.text}<a class="heading-anchor" href="#${id}" aria-label="Link do tej sekcji">#</a></h${token.depth}>\n`;
+		const content = renderer.parser.parseInline(token.tokens);
+		return `<h${token.depth} id="${id}">${content}<a class="heading-anchor" href="#${id}" aria-label="Link do tej sekcji">#</a></h${token.depth}>\n`;
 	};
 
 	const baseLink = renderer.link.bind(renderer);
 	renderer.link = token => {
-		if (token.href.startsWith('#')) return baseLink({ ...token, href: `#${slugify(decodeURIComponent(token.href.slice(1)))}` });
+		if (token.href.startsWith('#')) return baseLink({ ...token, href: `#${slugify(safeDecode(token.href.slice(1)))}` });
 
 		const match = MD_LINK_RE.exec(token.href);
 		if (match) {
 			const slug = resolveSlug(match[1]);
 			if (slug !== undefined) {
-				const anchor = match[2] ? `#${slugify(decodeURIComponent(match[2].slice(1)))}` : '';
+				const anchor = match[2] ? `#${slugify(safeDecode(match[2].slice(1)))}` : '';
 				return baseLink({ ...token, href: `/${slug}${anchor}` });
 			}
 		}
@@ -61,7 +80,7 @@ const createRenderer = resolveSlug => {
 		const html = baseLink(token);
 		if (!(/^https?:\/\//i).test(token.href) || OWN_ORIGIN_RE.test(token.href)) return html;
 
-		const rel = DOFOLLOW_FAMILY_RE.test(token.href) ? 'noopener dofollow' : 'noopener nofollow';
+		const rel = FAMILY_RE.test(token.href) ? 'noopener' : 'noopener nofollow';
 		return html.replace('>', ` target="_blank" rel="${rel}">`);
 	};
 

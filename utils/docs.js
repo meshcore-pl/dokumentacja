@@ -6,7 +6,7 @@ const { marked, assignHeadingIds, getHeadingId, getTocLabel, createRenderer } = 
 const DOCS_DIR = path.join(__dirname, '../docs');
 const stemToSlug = stem => stem.replace(/_/g, '-');
 
-let pages, bySlug;
+let state;
 
 const build = () => {
 	const files = fs.readdirSync(DOCS_DIR).filter(f => f.endsWith('.md'));
@@ -17,7 +17,7 @@ const build = () => {
 
 	const renderer = createRenderer(stem => slugOf.get(stem));
 
-	const list = files.map(file => {
+	const pages = files.map(file => {
 		const stem = file.slice(0, -3);
 		const raw = fs.readFileSync(path.join(DOCS_DIR, file), 'utf8');
 		const { data, content } = parseFrontmatter(raw);
@@ -41,17 +41,24 @@ const build = () => {
 		};
 	}).sort((a, b) => a.order - b.order);
 
-	pages = list;
-	bySlug = new Map(list.map(p => [p.slug, p]));
-};
+	const navPages = pages.filter(p => !p.hidden);
+	const toLink = p => (p ? { slug: p.slug, title: p.title } : null);
+	const neighbours = new Map(navPages.map((p, i) => [p.slug, { prev: toLink(navPages[i - 1]), next: toLink(navPages[i + 1]) }]));
 
-const isDev = process.env.NODE_ENV !== 'production';
-const ensureFresh = () => { if (isDev) build(); };
+	state = {
+		pages,
+		navPages,
+		bySlug: new Map(pages.map(p => [p.slug, p])),
+		neighbours,
+		searchIndex: navPages.map(p => ({ url: p.slug ? `/${p.slug}` : '/', title: p.title, headings: p.toc.map(h => ({ id: h.id, text: h.text })) })),
+	};
+};
 
 build();
 
-module.exports = {
-	get pages() { ensureFresh(); return pages; },
-	get navPages() { ensureFresh(); return pages.filter(p => !p.hidden); },
-	getPage: slug => { ensureFresh(); return bySlug.get(slug); },
+const getState = () => {
+	if (process.env.NODE_ENV !== 'production') build();
+	return state;
 };
+
+module.exports = { getState };

@@ -1,6 +1,14 @@
-import { highlightCodeBlocks } from 'https://cdn.sefinek.net/js/codeBlocks.js';
-
-const highlightCode = () => highlightCodeBlocks(document.getElementById('docs-content'));
+let codeBlocksModule = null;
+const highlightCode = async () => {
+	try {
+		codeBlocksModule ??= import('https://cdn.sefinek.net/js/codeBlocks.js');
+		const { highlightCodeBlocks } = await codeBlocksModule;
+		highlightCodeBlocks(document.getElementById('docs-content'));
+	} catch (err) {
+		codeBlocksModule = null;
+		console.error('Nie udało się podświetlić kodu:', err);
+	}
+};
 
 const sidebar = document.getElementById('docs-sidebar');
 const toggle = document.getElementById('sidebar-toggle');
@@ -10,14 +18,6 @@ const closeSidebar = () => {
 	document.body.classList.remove('sidebar-open');
 	toggle?.setAttribute('aria-expanded', 'false');
 };
-
-toggle?.addEventListener('click', () => {
-	const isOpen = document.body.classList.toggle('sidebar-open');
-	toggle.setAttribute('aria-expanded', String(isOpen));
-	if (isOpen) resetSearch();
-});
-backdrop?.addEventListener('click', closeSidebar);
-sidebar?.addEventListener('click', e => { if (e.target.closest('a')) closeSidebar(); });
 
 document.addEventListener('click', async e => {
 	const btn = e.target.closest('.code-block__copy');
@@ -92,6 +92,14 @@ searchToggle?.addEventListener('click', () => {
 	}
 });
 
+toggle?.addEventListener('click', () => {
+	const isOpen = document.body.classList.toggle('sidebar-open');
+	toggle.setAttribute('aria-expanded', String(isOpen));
+	if (isOpen) resetSearch();
+});
+backdrop?.addEventListener('click', closeSidebar);
+sidebar?.addEventListener('click', e => { if (e.target.closest('a')) closeSidebar(); });
+
 if (searchWrap && searchInput && searchResults) {
 	const MAX_RESULTS = 8;
 	let searchIndex = null;
@@ -101,8 +109,14 @@ if (searchWrap && searchInput && searchResults) {
 	const loadIndex = () => {
 		if (!indexPromise) {
 			indexPromise = fetch('/api/search')
-				.then(res => (res.ok ? res.json() : []))
-				.catch(() => []);
+				.then(res => {
+					if (!res.ok) throw new Error(`HTTP ${res.status}`);
+					return res.json();
+				})
+				.catch(() => {
+					indexPromise = null;
+					return null;
+				});
 		}
 		return indexPromise;
 	};
@@ -115,11 +129,13 @@ if (searchWrap && searchInput && searchResults) {
 		for (const page of searchIndex) {
 			if (results.length >= MAX_RESULTS) break;
 
-			if (page.title.toLowerCase().includes(q)) results.push({ url: page.url, title: page.title, heading: null });
+			const title = page.title.toLowerCase();
+			if (title.includes(q)) results.push({ url: page.url, title: page.title, heading: null });
 
 			for (const heading of page.headings) {
 				if (results.length >= MAX_RESULTS) break;
-				if (heading.text.toLowerCase().includes(q)) results.push({ url: `${page.url}#${heading.id}`, title: page.title, heading: heading.text });
+				const text = heading.text.toLowerCase();
+				if (text !== title && text.includes(q)) results.push({ url: `${page.url}#${heading.id}`, title: page.title, heading: heading.text });
 			}
 		}
 
@@ -140,10 +156,12 @@ if (searchWrap && searchInput && searchResults) {
 	};
 
 	searchInput.addEventListener('focus', () => {
-		loadIndex().then(data => { searchIndex = data; });
+		loadIndex().then(data => { searchIndex ??= data; });
 	});
 
-	searchInput.addEventListener('input', () => {
+	searchInput.addEventListener('input', async () => {
+		searchIndex ??= await loadIndex();
+
 		searchResults.replaceChildren();
 		activeIndex = -1;
 
@@ -393,33 +411,39 @@ const applyPage = (data, path, hash) => {
 	try {
 		setToc(data.toc);
 		initToc();
-		highlightCode();
 	} catch (err) {
-		console.error('Nie udało się przetworzyć spisu treści/podświetlenia kodu:', err);
+		console.error('Nie udało się przetworzyć spisu treści:', err);
 	}
+	void highlightCode();
 
 	applyScroll(hash);
 	document.getElementById('docs-content')?.focus({ preventScroll: true });
 };
 
+let renderedPath = location.pathname;
+let navigationId = 0;
+
 const navigate = async (url, push) => {
 	const hashIndex = url.indexOf('#');
 	const path = hashIndex === -1 ? url : url.slice(0, hashIndex);
 	const hash = hashIndex === -1 ? '' : url.slice(hashIndex);
+	const id = ++navigationId;
 
 	try {
 		const data = await fetchPage(path);
+		if (id !== navigationId) return;
+
 		applyPage(data, path, hash);
+		renderedPath = path;
 		if (push) history.pushState(null, '', url);
 	} catch {
-		location.href = url;
+		if (id === navigationId) location.href = url;
 	}
 };
 
 const isNavigableLink = a => {
 	if (!a || a.target || a.hasAttribute('download') || a.origin !== location.origin) return false;
-	if ((/^\/(api|css|js|logo)\//).test(a.pathname) || a.pathname === '/favicon.ico' || a.pathname === '/manifest.json') return false;
-	return true;
+	return !((/^\/(api|css|js|logo)\//).test(a.pathname) || (/\.[a-z0-9]+$/i).test(a.pathname));
 };
 
 document.addEventListener('click', e => {
@@ -436,12 +460,13 @@ document.addEventListener('click', e => {
 	}
 
 	e.preventDefault();
-	navigate(a.pathname + a.hash, true);
+	void navigate(a.pathname + a.hash, true);
 });
 
 window.addEventListener('popstate', () => {
-	navigate(location.pathname + location.hash, false);
+	if (location.pathname === renderedPath) return;
+	void navigate(location.pathname + location.hash, false);
 });
 
 initToc();
-highlightCode();
+void highlightCode();

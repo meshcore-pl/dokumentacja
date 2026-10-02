@@ -1,4 +1,5 @@
 const MESSAGES = {
+	400: 'Nieprawidłowe żądanie.',
 	404: 'Nie znaleziono strony. Wróć na stronę główną.',
 	429: 'Zbyt wiele żądań. Spróbuj ponownie za chwilę.',
 	500: 'Wystąpił nieoczekiwany błąd serwera. Spróbuj ponownie za chwilę.',

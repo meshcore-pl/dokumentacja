@@ -4,7 +4,7 @@ description: Przewodnik po komunikacji z urządzeniami MeshCore przez Bluetooth 
 order: 4
 sourceUrl: https://docs.meshcore.io/companion_protocol
 createdAt: 22.08.2026
-updatedAt: 08.03.2026
+updatedAt: 23.08.2026
 ---
 
 # Protokół Companion

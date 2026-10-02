@@ -18,6 +18,11 @@
 	<meta property="og:title" content="<%= title %>">
 	<% if (locals.description) { %><meta property="og:description" content="<%= description %>"><% } %>
 	<% if (locals.canonical) { %><meta property="og:url" content="<%= domain %><%= canonical %>"><% } %>
+	<meta property="og:image" content="<%= domain %>/logo/android-chrome-512x512.png">
+	<meta property="og:image:width" content="512">
+	<meta property="og:image:height" content="512">
+	<meta property="og:image:alt" content="Logo MeshCore Polska">
+	<meta name="twitter:card" content="summary">
 
 	<!-- JavaScript -->
 	<script src="https://cdn.sefinek.net/js/progressbar.js" defer></script>
@@ -47,9 +52,9 @@
 		<span id="brand__version">v<%= version %></span>
 		<div id="topbar__divider"></div>
 		<nav id="topbar__nav" aria-label="Menu główne">
-			<a href="https://meshcorepolska.org" target="_blank" rel="noopener dofollow">Strona główna</a>
+			<a href="https://meshcorepolska.org" target="_blank" rel="noopener">Strona główna</a>
 			<a href="/" class="active">Dokumentacja</a>
-			<a href="https://mapa.meshcorepolska.org" target="_blank" rel="noopener dofollow">Mapa węzłów</a>
+			<a href="https://mapa.meshcorepolska.org" target="_blank" rel="noopener">Mapa węzłów</a>
 			<a href="https://flasher.meshcore.io" target="_blank" rel="noopener nofollow">Flasher</a>
 		</nav>
 		<div id="topbar__spacer"></div>
@@ -67,7 +72,7 @@
 				<svg class="icon-search" width="19" height="19" aria-hidden="true"><use href="/icons.svg#icon-search"></use></svg>
 				<svg class="icon-close" width="17" height="17" aria-hidden="true"><use href="/icons.svg#icon-close"></use></svg>
 			</button>
-			<a href="https://github.com/meshcore-pl/docs" id="topbar__github" target="_blank" rel="noopener">
+			<a href="https://github.com/meshcore-pl/dokumentacja" id="topbar__github" target="_blank" rel="noopener">
 				<svg width="19" height="19" aria-hidden="true"><use href="/icons.svg#icon-github"></use></svg>
 				<span>Repozytorium</span>
 			</a>
