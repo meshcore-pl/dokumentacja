@@ -51,7 +51,7 @@ const getTocLabel = token => tocLabels.get(token) || plainTexts.get(token) || to
 
 const MD_LINK_RE = /^\.?\/?([\w-]+)\.md(#.*)?$/;
 const OWN_ORIGIN_RE = /^https?:\/\/(www\.)?docs\.meshcorepolska\.org(\/|$)/i;
-const FAMILY_RE = /^https?:\/\/([a-z0-9-]+\.)*(meshcorepolska\.org|sefinek\.net|meshcoreprofiles\.com)(\/|$)/i;
+const FAMILY_RE = /^https?:\/\/([a-z0-9-]+\.)*(meshcorepolska\.org|meshcore\.io|sefinek\.net|meshcoreprofiles\.com)(\/|$)/i;
 
 // Buduje renderer marked, który potrafi zamienić wewnętrzne linki `./plik.md`
 // na docelowe slugi stron tej dokumentacji (resolveSlug(stem) -> slug | undefined).
