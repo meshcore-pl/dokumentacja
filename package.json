@@ -20,13 +20,13 @@
     "update": "npm run pull && npm ci --omit=dev && pm2 restart mcd"
   },
   "dependencies": {
-    "ejs": "^6.0.1",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.7.0",
+    "ejs": "^7.0.1",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
     "express-timeout-handler": "^2.2.2",
     "frontmatter-md": "^1.0.3",
     "helmet": "^8.3.0",
-    "marked": "^18.0.14",
+    "marked": "^18.1.0",
     "morgan": "^1.12.1",
     "rate-limit-redis": "^6.0.1",
     "redis": "^6.3.0"
