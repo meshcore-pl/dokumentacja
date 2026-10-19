@@ -1,0 +1,83 @@
+.code-block {
+	position: relative;
+	margin: 0 0 20px;
+}
+
+.code-block pre {
+	background: var(--glass-bg);
+	border: 1px solid var(--border);
+	border-radius: 9px;
+	padding: 16px 18px;
+	overflow-x: auto;
+	margin: 0;
+}
+
+.code-block pre code {
+	background: none;
+	border: 0;
+	padding: 0;
+	color: #c8d0dc;
+	font-size: .85em;
+	line-height: 1.75;
+}
+
+.code-block .pre-label {
+	position: absolute;
+	z-index: 1;
+	top: 10px;
+	right: 14px;
+	color: var(--text-muted);
+	font-family: var(--font-mono);
+	font-size: 11px;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	pointer-events: none;
+	transition: opacity .12s ease;
+}
+
+.code-block:has(.pre-label) .code-block__copy {
+	top: 34px;
+}
+
+.code-block:has(pre.code-viewer--compact) .code-block__copy {
+	top: 10px;
+	right: 14px;
+}
+
+.code-block:hover:has(pre.code-viewer--compact) .pre-label,
+.code-block:has(pre.code-viewer--compact):has(.code-block__copy.is-copied) .pre-label {
+	opacity: 0;
+}
+
+.code-block__copy {
+	position: absolute;
+	z-index: 2;
+	isolation: isolate;
+	top: 8px;
+	right: 8px;
+	background: rgba(10, 12, 17, .82);
+	border: 1px solid var(--border);
+	color: var(--text-muted);
+	border-radius: 6px;
+	padding: 4px 10px;
+	font-size: 12px;
+	font-family: var(--font-sans);
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity .12s ease, color .14s ease, border-color .14s ease;
+}
+
+.code-block:hover .code-block__copy, .code-block__copy:focus-visible {
+	opacity: 1;
+}
+
+.code-block__copy:hover {
+	color: var(--text);
+	border-color: var(--accent);
+}
+
+.code-block__copy.is-copied {
+	color: var(--accent);
+	border-color: var(--accent);
+	opacity: 1;
+}
