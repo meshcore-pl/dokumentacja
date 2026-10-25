@@ -1,5 +1,5 @@
 <%
-const CORE_SHEETS = ['base', 'scrollbar', 'docs/layout', 'components/prose', 'components/code-block', 'components/table', 'docs/footer', 'docs/toc', 'docs/responsive', 'components/navbar'];
+const CORE_SHEETS = ['base', 'scrollbar', 'docs/layout', 'components/prose', 'components/code-block', 'components/table', 'docs/footer', 'docs/toc', 'docs/responsive', 'components/navbar', 'components/toast'];
 const sheets = [...CORE_SHEETS, ...(locals.css ? (Array.isArray(css) ? css : [css]) : [])];
 -%>
 <% sheets.forEach(sheet => { %><link rel="stylesheet" href="/css/<%= sheet %>.css">

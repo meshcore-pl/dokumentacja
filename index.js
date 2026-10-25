@@ -42,8 +42,8 @@ app.use(timeout());
 
 
 // Routes
-const IndexRouter = require('./routes/Index.js');
-app.use(IndexRouter);
+app.use(require('./routes/ServiceWorker.js'));
+app.use(require('./routes/Index.js'));
 
 
 // Error handling

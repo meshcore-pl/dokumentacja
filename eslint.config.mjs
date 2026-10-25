@@ -58,6 +58,13 @@ export default [
 		},
 	},
 	{
+		files: ['services/serviceWorker/worker.js'],
+		languageOptions: {
+			sourceType: 'script',
+			globals: { ...globals.serviceworker },
+		},
+	},
+	{
 		files: ['public/**/*.js'],
 		languageOptions: {
 			sourceType: 'module',
