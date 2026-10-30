@@ -24,7 +24,7 @@ router.get('/sitemap.xml', (req, res) => {
 	res.set({
 		'Content-Type': 'application/xml; charset=utf-8',
 		'Cache-Control': 'public, max-age=3600',
-		'Content-Security-Policy': 'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'',
+		'Content-Security-Policy': 'default-src \'none\'; style-src \'unsafe-inline\'; script-src \'unsafe-inline\'; img-src data:; connect-src \'self\'',
 	});
 	res.send(getSitemap(req.app.locals.domain));
 });

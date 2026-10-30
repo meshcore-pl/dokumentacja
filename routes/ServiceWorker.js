@@ -8,7 +8,7 @@ router.get(ENDPOINTS.serviceWorker, async (req, res, next) => {
 		res.set({
 			'Content-Type': 'text/javascript; charset=utf-8',
 			'Cache-Control': 'no-cache',
-			'Content-Security-Policy': 'default-src \'none\'; connect-src \'self\' https:',
+			'Content-Security-Policy': `default-src 'none'; connect-src 'self' ${req.app.locals.cdn} https:`,
 		});
 		res.send(script);
 	} catch (err) {
