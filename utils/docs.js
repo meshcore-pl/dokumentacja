@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const parseFrontmatter = require('frontmatter-md');
-const { marked, assignHeadingIds, getHeadingId, getTocLabel, createRenderer } = require('./markdown.js');
+const { marked, assignHeadingIds, getHeadingId, getTocLabel, createRenderer, parseDMYDate } = require('./markdown.js');
 
 const DOCS_DIR = path.join(__dirname, '../docs');
 const stemToSlug = stem => stem.replace(/_/g, '-');
@@ -35,6 +35,7 @@ const build = () => {
 			description: data.description || '',
 			order: typeof data.order === 'number' ? data.order : 999,
 			updatedAt: data.updatedAt || null,
+			date: parseDMYDate(data.updatedAt || data.createdAt),
 			hidden: !!data.hidden,
 			toc,
 			html: marked.parser(tokens, { renderer }),

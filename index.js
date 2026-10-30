@@ -3,8 +3,9 @@ process.loadEnvFile(path.join(__dirname, '.env'));
 const express = require('express');
 const helmet = require('helmet');
 const { version } = require('./package.json');
-const { DOMAIN, NODE_ENV, PORT } = process.env;
+const { DOMAIN, NODE_ENV, PORT, CDN_SEFINEK_URL } = process.env;
 const isProd = NODE_ENV === 'production';
+if (!CDN_SEFINEK_URL) throw new Error('Missing required environment variable: CDN_SEFINEK_URL');
 
 // Middleware imports
 const timeout = require('./middlewares/timeout.js');
@@ -19,6 +20,7 @@ if (isProd) app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.locals.domain = DOMAIN;
+app.locals.cdn = CDN_SEFINEK_URL;
 app.locals.version = version;
 
 // Use middlewares
@@ -26,8 +28,8 @@ app.use(helmet({
 	crossOriginResourcePolicy: false,
 	contentSecurityPolicy: {
 		directives: {
-			scriptSrc: ['\'self\'', 'https://cdn.sefinek.net', 'https://static.cloudflareinsights.com'],
-			styleSrc: ['\'self\'', 'https://cdn.sefinek.net', 'https://fonts.googleapis.com'],
+			scriptSrc: ['\'self\'', CDN_SEFINEK_URL, 'https://static.cloudflareinsights.com'],
+			styleSrc: ['\'self\'', CDN_SEFINEK_URL, 'https://fonts.googleapis.com'],
 			fontSrc: ['\'self\'', 'https://fonts.gstatic.com'],
 			imgSrc: ['\'self\'', 'data:', 'https:'],
 			connectSrc: ['\'self\'', 'https://cloudflareinsights.com'],
@@ -43,6 +45,7 @@ app.use(timeout());
 
 // Routes
 app.use(require('./routes/ServiceWorker.js'));
+app.use(require('./routes/Sitemap.js'));
 app.use(require('./routes/Index.js'));
 
 

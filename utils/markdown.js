@@ -93,4 +93,11 @@ const createRenderer = resolveSlug => {
 	return renderer;
 };
 
-module.exports = { marked, slugify, assignHeadingIds, getHeadingId, getTocLabel, createRenderer };
+const parseDMYDate = str => {
+	if (!str) return null;
+	const [day, month, year] = str.split('.').map(Number);
+	const date = new Date(Date.UTC(year, month - 1, day));
+	return Number.isNaN(date.getTime()) ? null : date;
+};
+
+module.exports = { marked, slugify, assignHeadingIds, getHeadingId, getTocLabel, createRenderer, parseDMYDate };

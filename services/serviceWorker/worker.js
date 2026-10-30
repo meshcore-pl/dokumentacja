@@ -1,10 +1,11 @@
 const VERSION = '__VERSION__';
+const OFFLINE_HEADER = '__OFFLINE_HEADER__';
 const PRECACHE = new Set([/* __PRECACHE__ */]);
 
 const STATIC_CACHE = `static-${VERSION}`;
 const PAGES_CACHE = 'pages';
 const API_CACHE = 'api';
-const EXTERNAL_CACHE = 'external';
+const EXTERNAL_CACHE = 'external-v2';
 const KEEP_CACHES = [STATIC_CACHE, PAGES_CACHE, API_CACHE, EXTERNAL_CACHE];
 
 const PAGE_PATHS = new Set([/* __PAGE_PATHS__ */]);
@@ -37,6 +38,12 @@ const fetchWithTimeout = (request, timeoutMs) => {
 	return fetch(request, { signal: controller.signal }).finally(() => clearTimeout(timer));
 };
 
+// An opaque response cannot answer a CORS request, so entries cached before a tag gained `crossorigin` are treated as a miss
+const matchCached = async (key, request, cacheName) => {
+	const cached = await caches.match(key, { cacheName, ignoreVary: true });
+	return cached?.type === 'opaque' && request.mode !== 'no-cors' ? undefined : cached;
+};
+
 const networkFirst = async (event, request, cacheName, maxEntries, key = request) => {
 	try {
 		const response = await fetchWithTimeout(request, NETWORK_TIMEOUT_MS);
@@ -45,9 +52,9 @@ const networkFirst = async (event, request, cacheName, maxEntries, key = request
 			return response;
 		}
 
-		return await caches.match(key, { cacheName, ignoreVary: true }) ?? response;
+		return await matchCached(key, request, cacheName) ?? response;
 	} catch (err) {
-		const cached = await caches.match(key, { cacheName, ignoreVary: true });
+		const cached = await matchCached(key, request, cacheName);
 		if (cached) return cached;
 		throw err;
 	}
@@ -71,7 +78,7 @@ const storePage = async (url, response) => {
 };
 
 const cachedPage = async url => await caches.match(pageKey(url), { cacheName: PAGES_CACHE, ignoreVary: true })
-	?? caches.match(new Request(`${url.origin}/`), { cacheName: PAGES_CACHE, ignoreVary: true });
+	?? caches.match(new Request(url.origin + ENDPOINTS.offline), { cacheName: PAGES_CACHE, ignoreVary: true });
 
 // Promise.race instead of AbortSignal: re-creating a navigate request with init changes its mode and redirect handling.
 const handleNavigation = async (event, request, url) => {
@@ -117,10 +124,10 @@ self.addEventListener('install', event => {
 
 		const pageUrls = [...PAGE_PATHS].map(path => new URL(path, self.location.origin));
 		await Promise.all([
-			precacheAll(PAGES_CACHE, pageUrls.flatMap(url => [
-				[pageKey(url), url.pathname, { cache: 'reload' }],
-				[ajaxKey(url), url.pathname, { cache: 'reload', headers: { [AJAX_HEADER]: '1' } }],
-			])),
+			precacheAll(PAGES_CACHE, [
+				[new Request(self.location.origin + ENDPOINTS.offline), ENDPOINTS.offline, { cache: 'reload', headers: { [OFFLINE_HEADER]: '1' } }],
+				...pageUrls.map(url => [pageKey(url), url.pathname, { cache: 'reload' }]),
+			]),
 			precacheAll(API_CACHE, [[ENDPOINTS.search, ENDPOINTS.search, { cache: 'reload' }]]),
 			precacheAll(EXTERNAL_CACHE, EXTERNAL_PRECACHE.map(url => [url, url])),
 		]);

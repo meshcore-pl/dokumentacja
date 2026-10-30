@@ -1,0 +1,16 @@
+<%- include('includes/header.ejs', {
+	title: 'Brak połączenia | MeshCore Docs',
+	description: 'Ta strona nie jest dostępna offline.',
+	css: 'error'
+}) %>
+
+<main id="error-page">
+	<p id="error-page__code">Offline</p>
+	<p id="error-page__message">Nie posiadasz połączenia z internetem. Niestety ta podstrona nie została jeszcze zapisana w pamięci podręcznej, więc nie możesz korzystać z niej będąc offline. Proszę połączyć się z internetem i spróbować ponownie.</p>
+	<div id="error-page__actions">
+		<a href="" class="btn">Spróbuj ponownie</a>
+		<a href="/" class="btn">Strona główna</a>
+	</div>
+</main>
+
+<%- include('includes/footer.ejs') %>

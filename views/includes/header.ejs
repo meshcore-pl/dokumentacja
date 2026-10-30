@@ -25,7 +25,7 @@
 	<meta name="twitter:card" content="summary">
 
 	<!-- JavaScript -->
-	<script src="https://cdn.sefinek.net/js/progressbar.js" defer></script>
+	<script src="<%= cdn %>/js/progressbar.js" crossorigin defer></script>
 
 	<!-- Icons & manifest -->
 	<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128 256x256">
@@ -38,10 +38,10 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 
-	<link rel="stylesheet" href="https://cdn.sefinek.net/css/code-viewer.css">
+	<link rel="stylesheet" href="<%= cdn %>/css/code-viewer.css" crossorigin>
 	<%- include('stylesheets', { css: locals.css }) %>
 </head>
-<body>
+<body data-cdn="<%= cdn %>">
 <header id="topbar">
 	<div id="topbar__inner">
 		<a href="/" id="brand">

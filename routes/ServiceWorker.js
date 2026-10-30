@@ -1,5 +1,6 @@
 const router = require('express').Router();
-const { getScript, ENDPOINTS } = require('../services/serviceWorker/index.js');
+const HttpError = require('../utils/httpError.js');
+const { getScript, ENDPOINTS, OFFLINE_HEADER } = require('../services/serviceWorker/index.js');
 
 router.get(ENDPOINTS.serviceWorker, async (req, res, next) => {
 	try {
@@ -13,6 +14,12 @@ router.get(ENDPOINTS.serviceWorker, async (req, res, next) => {
 	} catch (err) {
 		next(err);
 	}
+});
+
+router.get(ENDPOINTS.offline, (req, res) => {
+	res.set('Cache-Control', 'no-store');
+	if (req.get(OFFLINE_HEADER) !== '1') return HttpError(res, 404);
+	res.render('offline.ejs');
 });
 
 module.exports = router;

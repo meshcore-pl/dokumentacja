@@ -1,12 +1,15 @@
 let codeBlocksModule = null;
 const highlightCode = async () => {
+	const content = document.getElementById('docs-content');
+	if (!content) return;
+
 	try {
-		codeBlocksModule ??= import('https://cdn.sefinek.net/js/codeBlocks.js');
+		codeBlocksModule ??= import(`${document.body.dataset.cdn}/js/codeBlocks.js`);
 		const { highlightCodeBlocks } = await codeBlocksModule;
-		highlightCodeBlocks(document.getElementById('docs-content'));
+		highlightCodeBlocks(content);
 	} catch (err) {
 		codeBlocksModule = null;
-		console.error('Nie udało się podświetlić kodu:', err);
+		console.error('Failed to highlight code:', err);
 	}
 };
 
@@ -412,7 +415,7 @@ const applyPage = (data, path, hash) => {
 		setToc(data.toc);
 		initToc();
 	} catch (err) {
-		console.error('Nie udało się przetworzyć spisu treści:', err);
+		console.error('Failed to process the table of contents:', err);
 	}
 	void highlightCode();
 

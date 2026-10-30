@@ -9,11 +9,18 @@ const PRECACHE_DIRS = ['css', 'js', 'logo'];
 const EXTRA_FILES = ['favicon.ico', 'icons.svg', 'manifest.webmanifest'];
 const EXCLUDED_RE = /\.(map|md|txt)$|(^|\/)LICENSE[^/]*$|\.LICENSE$/;
 
-const ENDPOINTS = { serviceWorker: '/service-worker.js', search: '/api/search' };
+const ENDPOINTS = { serviceWorker: '/service-worker.js', search: '/api/search', offline: '/offline' };
+const OFFLINE_HEADER = 'X-Offline-Precache';
+const CDN = process.env.CDN_SEFINEK_URL;
 const EXTERNAL_PRECACHE = [
-	'https://cdn.sefinek.net/js/progressbar.js',
-	'https://cdn.sefinek.net/js/console.js',
-	'https://cdn.sefinek.net/css/code-viewer.css',
+	`${CDN}/js/progressbar.js`,
+	`${CDN}/js/console.js`,
+	`${CDN}/js/codeBlocks.js`,
+	`${CDN}/js/highlight.js`,
+	`${CDN}/css/code-viewer.css`,
+	`${CDN}/css/meshcore/toast.css`,
+	`${CDN}/js/meshcore/toast.js`,
+	`${CDN}/js/meshcore/offline-toast.js`,
 	'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap',
 ];
 
@@ -45,7 +52,7 @@ const collectAssets = async () => {
 };
 
 const collectPages = () => {
-	const { pages } = getState();
+	const pages = getState().navPages;
 	const hash = crypto.createHash('sha1');
 	for (const page of pages) hash.update(`${page.slug}\n${page.title}\n${page.html}\n`);
 
@@ -65,6 +72,7 @@ const build = async () => {
 
 	return template
 		.replace('__VERSION__', version)
+		.replace('__OFFLINE_HEADER__', OFFLINE_HEADER)
 		.replace('/* __ENDPOINTS__ */', JSON.stringify(ENDPOINTS).slice(1, -1))
 		.replace('/* __PAGE_PATHS__ */', JSON.stringify(pages.paths).slice(1, -1))
 		.replace('/* __EXTERNAL_PRECACHE__ */', JSON.stringify(EXTERNAL_PRECACHE).slice(1, -1))
@@ -81,4 +89,4 @@ const getScript = () => {
 	});
 };
 
-module.exports = { getScript, ENDPOINTS };
+module.exports = { getScript, ENDPOINTS, OFFLINE_HEADER };
