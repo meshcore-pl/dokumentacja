@@ -1,6 +1,6 @@
 ---
 title: Wprowadzenie
-description: Polskie tłumaczenie dokumentacji MeshCore - protokołu, CLI i narzędzi sieci mesh LoRa.
+description: Nieoficjalna dokumentacja MeshCore po polsku - polecenia CLI, protokół Companion, format pakietów, kody QR i FAQ dotyczące sieci mesh LoRa.
 order: 0
 sourceUrl: https://docs.meshcore.io
 createdAt: 22.08.2026

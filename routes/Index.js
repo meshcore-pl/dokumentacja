@@ -11,7 +11,6 @@ const renderPage = (req, res, slug) => {
 
 	const { prev, next } = neighbours.get(page.slug) || NO_NEIGHBOURS;
 
-	res.set('Cache-Control', 'no-cache');
 	res.vary('X-Docs-Ajax');
 	if (req.get('X-Docs-Ajax')) {
 		return res.json({
@@ -31,10 +30,7 @@ const renderPage = (req, res, slug) => {
 
 router.get('/', (req, res) => renderPage(req, res, ''));
 
-router.get('/api/search', (req, res) => {
-	res.set('Cache-Control', 'no-cache');
-	res.json(getState().searchIndex);
-});
+router.get('/api/search', (req, res) => res.json(getState().searchIndex));
 
 router.get('/:slug', (req, res) => renderPage(req, res, req.params.slug));
 
