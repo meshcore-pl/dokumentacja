@@ -4,13 +4,14 @@ description: Funkcje ochrony baterii i zarządzania zasilaniem w module nRF52 Me
 order: 10
 sourceUrl: https://docs.meshcore.io/nrf52_power_management
 createdAt: 22.08.2026
+updatedAt: 10.11.2026
 ---
 
 # Zarządzanie zasilaniem nRF52
 
 ## Przegląd
 
-Moduł zarządzania zasilaniem nRF52 zapewnia funkcje ochrony baterii, które zapobiegają nadmiernemu rozładowaniu, minimalizują ryzyko wystąpienia stanów brownout i uszkodzenia pamięci flash oraz umożliwiają bezpieczne wybudzanie na podstawie napięcia.
+Moduł zarządzania zasilaniem nRF52 chroni baterię przed nadmiernym rozładowaniem. Ogranicza ryzyko spadków napięcia poniżej poziomu wymaganego do poprawnej pracy (brownout) i uszkodzenia pamięci flash. Umożliwia też wybudzenie urządzenia po wzroście napięcia do bezpiecznego poziomu.
 
 ## Funkcje
 
@@ -21,7 +22,7 @@ Moduł zarządzania zasilaniem nRF52 zapewnia funkcje ochrony baterii, które za
 - Pomijane, gdy wykryte zostanie zasilanie zewnętrzne (USB VBUS)
 
 ### Wybudzanie na podstawie napięcia (LPCOMP + VBUS)
-- Konfiguruje komparator niskiego poboru mocy nRF52 (LPCOMP) przed przejściem w tryb SYSTEMOFF
+- Konfiguruje komparator o niskim poborze mocy nRF52 (LPCOMP) przed przejściem w tryb SYSTEMOFF
 - Włącza wykrywanie USB VBUS, dzięki czemu zasilanie zewnętrzne może wybudzić urządzenie
 - Urządzenie automatycznie wybudza się, gdy napięcie baterii wzrośnie powyżej progu odzyskiwania lub gdy wykryte zostanie VBUS
 
@@ -72,7 +73,7 @@ Uwagi:
 
 ### Architektura
 
-Funkcjonalność zarządzania zasilaniem jest zintegrowana z klasą bazową `NRF52Board` w `src/helpers/NRF52Board.cpp`. Warianty płytek dostarczają konfigurację specyficzną dla sprzętu za pomocą struktury `PowerMgtConfig` i nadpisują `initiateShutdown(uint8_t reason)`, aby wykonać operacje wyłączania specyficzne dla danej płytki oraz warunkowo włączyć wybudzanie na podstawie napięcia (LPCOMP + VBUS).
+Zarządzanie zasilaniem jest częścią klasy bazowej `NRF52Board` w pliku `src/helpers/NRF52Board.cpp`. Każdy wariant płytki określa konfigurację sprzętu w strukturze `PowerMgtConfig` i nadpisuje metodę `initiateShutdown(uint8_t reason)`. Metoda ta przygotowuje płytkę do wyłączenia i w razie potrzeby włącza wybudzanie przez LPCOMP + VBUS.
 
 ### Wczesny odczyt przy starcie
 
@@ -80,7 +81,7 @@ Statyczny konstruktor z priorytetem 101 w `NRF52Board.cpp` odczytuje rejestry RE
 - SystemInit() (priorytet 102) - który czyści RESETREAS
 - Statycznymi konstruktorami C++ (domyślny priorytet 65535)
 
-Zapewnia to odczyt prawdziwego powodu resetu, zanim uruchomi się jakikolwiek kod inicjalizacyjny.
+Pozwala to zachować przyczynę resetu, zanim kod inicjalizacyjny wyczyści rejestry.
 
 ### Implementacja na płytce
 
@@ -128,7 +129,7 @@ Aby włączyć zarządzanie zasilaniem w wariancie płytki:
    }
    ```
 
-   W przypadku wyłączeń zainicjowanych przez użytkownika, `powerOff()` pozostaje specyficzny dla płytki. Zarządzanie zasilaniem uzbraja LPCOMP wyłącznie dla automatycznych powodów wyłączenia (ochrona przy starcie/niskie napięcie).
+   Obsługę wyłączenia przez użytkownika nadal zapewnia metoda `powerOff()` danej płytki. Zarządzanie zasilaniem włącza wybudzanie LPCOMP tylko przy automatycznym wyłączeniu z powodu zbyt niskiego napięcia podczas startu lub pracy urządzenia.
 
 4. **Zadeklaruj nadpisanie w pliku .h płytki**:
    ```cpp
@@ -139,14 +140,14 @@ Aby włączyć zarządzanie zasilaniem w wariancie płytki:
 
 ### Konfiguracja wybudzania na podstawie napięcia
 
-LPCOMP (komparator niskiego poboru mocy) jest skonfigurowany, aby:
+LPCOMP (komparator o niskim poborze mocy) jest skonfigurowany, aby:
 - Monitorować wskazany kanał AIN (0-7 odpowiadający P0.02-P0.05, P0.28-P0.31)
 - Porównywać z ułamkiem napięcia referencyjnego VDD (REFSEL: 0-6=1/8..7/8, 7=ARef, 8-15=1/16..15/16)
 - Wykrywać zdarzenia UP (wzrost napięcia powyżej progu)
 - Używać histerezy 50mV dla odporności na szumy
 - Wybudzać urządzenie ze stanu SYSTEMOFF po wyzwoleniu
 
-Wybudzanie VBUS jest włączane za pomocą zdarzenia USBDETECTED peryferium POWER, zawsze gdy używana jest funkcja `configureVoltageWake()`. Wymaga to doprowadzenia USB VBUS do nRF52 (typowe na płytkach nRF52840 z natywnym USB).
+Funkcja `configureVoltageWake()` włącza też wybudzanie przez zdarzenie USBDETECTED modułu POWER. Wymaga to doprowadzenia sygnału USB VBUS do nRF52, co jest typowe dla płytek nRF52840 z natywnym USB.
 
 **Wybór referencji LPCOMP (PWRMGT_LPCOMP_REFSEL)**:
 
@@ -191,10 +192,12 @@ Status zarządzania zasilaniem można sprawdzić za pomocą CLI:
 | `get pwrmgt.bootreason` | Zwraca opis powodu resetu i wyłączenia                               |
 | `get pwrmgt.bootmv`     | Zwraca napięcie przy starcie w miliwoltach                           |
 
-Na płytkach bez włączonego zarządzania zasilaniem wszystkie polecenia oprócz `get pwrmgt.support` zwracają:
+Na płytkach bez włączonego zarządzania zasilaniem polecenia `get pwrmgt.source` i `get pwrmgt.bootmv` zwracają:
 ```
 ERROR: Power management not supported
 ```
+
+`get pwrmgt.support` zwraca wtedy `unsupported`. Polecenie `get pwrmgt.bootreason` działa na każdej płytce. Jeśli płytka nie udostępnia przyczyny resetu lub wyłączenia, odpowiednie pole ma wartość `Not available`. Na ESP32 dostępna jest przyczyna resetu, a przyczyna wyłączenia pozostaje niedostępna.
 
 ## Wyjście debugowania
 

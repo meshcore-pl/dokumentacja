@@ -4,19 +4,19 @@ description: Przewodnik po komunikacji z urządzeniami MeshCore przez Bluetooth 
 order: 4
 sourceUrl: https://docs.meshcore.io/companion_protocol
 createdAt: 22.08.2026
-updatedAt: 23.08.2026
+updatedAt: 10.11.2026
 ---
 
 # Protokół Companion
 
-- **Ostatnia aktualizacja**: 2026-03-08
+- **Data podana w oryginale**: 2026-03-08
 - **Wersja protokołu**: Firmware Companion v1.12.0+
 
 > UWAGA: ten dokument jest wciąż w trakcie tworzenia. Niektóre informacje mogą być niedokładne.
 
-Ten dokument zawiera kompleksowy przewodnik komunikacji z urządzeniami MeshCore przez Bluetooth Low Energy (BLE).
+Ten dokument opisuje komunikację z urządzeniami MeshCore przez Bluetooth Low Energy (BLE).
 
-Jest niezależny od platformy i może być używany na Androidzie, iOS, w Pythonie, JavaScript lub dowolnej innej platformie obsługującej BLE.
+Opis protokołu jest niezależny od platformy. Można go wykorzystać m.in. w aplikacjach na Androida i iOS oraz w implementacjach w Pythonie i JavaScript z obsługą BLE.
 
 ## Oficjalne biblioteki
 
@@ -27,25 +27,21 @@ Istniejące biblioteki protokołu MeshCore Companion znajdziesz w poniższych re
 
 ## Ważna uwaga dotycząca bezpieczeństwa
 
-Wszystkie sekrety, hashe i wartości kryptograficzne pokazane w tym przewodniku są jedynie wartościami przykładowymi.
+Klucze i sekrety w przykładach służą do demonstracji. Do własnych kanałów prywatnych generuj nowe, losowe klucze za pomocą generatora kryptograficznego. Przechowuj je bezpiecznie i nie zapisuj w logach.
 
-- Wszystkie wartości hex, klucze publiczne i hashe służą wyłącznie celom demonstracyjnym
-- Nigdy nie używaj przykładowych sekretów w produkcji
-- Zawsze generuj nowe, kryptograficznie bezpieczne, losowe sekrety
-- W swojej implementacji stosuj odpowiednie praktyki bezpieczeństwa
-- Ten przewodnik dotyczy wyłącznie dokumentacji protokołu
+Wyjątkiem jest opisany dalej klucz wbudowanego kanału „Public”: jest wspólny i publicznie znany.
 
 ## Spis treści
 
-1. [Połączenie BLE](#połączenie-ble)
+1. [Połączenie BLE](#polaczenie-ble)
 2. [Struktura pakietu](#struktura-pakietu)
 3. [Polecenia](#polecenia)
-4. [Zarządzanie kanałami](#zarządzanie-kanałami)
-5. [Obsługa wiadomości](#obsługa-wiadomości)
+4. [Zarządzanie kanałami](#zarzadzanie-kanalami)
+5. [Obsługa wiadomości](#obsluga-wiadomosci)
 6. [Parsowanie odpowiedzi](#parsowanie-odpowiedzi)
-7. [Przykładowy przebieg implementacji](#przykładowy-przebieg-implementacji)
+7. [Przykładowy przebieg implementacji](#przykladowy-przebieg-implementacji)
 8. [Dobre praktyki](#dobre-praktyki)
-9. [Rozwiązywanie problemów](#rozwiązywanie-problemów)
+9. [Rozwiązywanie problemów](#rozwiazywanie-problemow)
 
 ---
 
@@ -109,16 +105,15 @@ Wysyłając polecenia do charakterystyki RX, określ typ zapisu:
 
 ### MTU (Maximum Transmission Unit)
 
-Domyślne MTU BLE to 23 bajty (20 bajtów payloadu). Dla większych poleceń, takich jak `SET_CHANNEL` (50 bajtów), może być konieczne:
+Domyślne MTU BLE wynosi 23 bajty, z czego 20 bajtów mieści dane. Większe polecenia, np. `SET_CHANNEL` (50 bajtów), wymagają odpowiednio większego limitu zapisu.
 
-1. **Zażądanie większego MTU**: zażądaj MTU o wartości 512 bajtów, jeśli jest obsługiwane
-    - Android: `gatt.requestMtu(512)`
-    - iOS: `peripheral.maximumWriteValueLength(for:)`
-    - Python (bleak): MTU jest negocjowane automatycznie
+- Android: zażądaj większego MTU, np. `gatt.requestMtu(512)`, jeśli urządzenie je obsługuje.
+- iOS: odczytaj limit zapisu przez `peripheral.maximumWriteValueLength(for:)`.
+- Python (bleak): MTU jest negocjowane automatycznie.
 
 ### Kolejność poleceń
 
-**Kluczowe**: polecenia muszą być wysyłane w odpowiedniej kolejności:
+Połącz się z urządzeniem i włącz powiadomienia, zanim wyślesz pierwsze polecenie:
 
 1. **Po połączeniu**:
     - Poczekaj na ustanowienie połączenia BLE
@@ -134,7 +129,7 @@ Domyślne MTU BLE to 23 bajty (20 bajtów payloadu). Dla większych poleceń, ta
 
 ### Zarządzanie kolejką poleceń
 
-Dla niezawodnego działania zaimplementuj kolejkę poleceń.
+Użyj kolejki, aby wysyłać jedno polecenie naraz i czekać na jego odpowiedź.
 
 **Struktura kolejki**:
 
@@ -191,7 +186,7 @@ Bytes 8+: Application name (UTF-8, optional)
 
 ### 2. Device Query
 
-**Cel**: odpytanie o informacje o urządzeniu.
+**Cel**: pobranie informacji o urządzeniu.
 
 **Format polecenia**:
 ```
@@ -215,7 +210,7 @@ Byte 1: 0x03
 **Format polecenia**:
 ```
 Byte 0: 0x1F
-Byte 1: Channel Index (0-7)
+Byte 1: Channel Index (0 .. max_channels-1)
 ```
 
 **Przykład** (pobranie kanału 1):
@@ -234,7 +229,7 @@ Byte 1: Channel Index (0-7)
 **Format polecenia**:
 ```
 Byte 0: 0x20
-Byte 1: Channel Index (0-7)
+Byte 1: Channel Index (0 .. max_channels-1)
 Bytes 2-33: Channel Name (32 bytes, UTF-8, null-padded)
 Bytes 34-49: Secret (16 bytes)
 ```
@@ -242,8 +237,9 @@ Bytes 34-49: Secret (16 bytes)
 **Całkowita długość**: 50 bajtów
 
 **Indeks kanału**:
-- Indeks 0: zarezerwowany dla kanałów publicznych (bez sekretu)
-- Indeksy 1-7: dostępne dla kanałów prywatnych
+- Dozwolony zakres to `0` do `max_channels - 1`. Odczytaj `max_channels` z bajtu 3 odpowiedzi `PACKET_DEVICE_INFO`. Nie zakładaj, że urządzenie obsługuje zawsze 8 kanałów: zależnie od płytki `MAX_GROUP_CHANNELS` wynosi 1, 8 lub 40.
+- Pod indeksem 0 firmware domyślnie zapisuje kanał „Public”. Można go nadpisać tak samo jak pozostałe kanały.
+- Indeks poza zakresem powoduje odpowiedź `PACKET_ERROR` z kodem `ERR_CODE_NOT_FOUND`.
 
 **Nazwa kanału**:
 - Kodowana w UTF-8
@@ -251,8 +247,9 @@ Bytes 34-49: Secret (16 bytes)
 - Dopełniana bajtami null (0x00), jeśli krótsza
 
 **Pole Secret** (16 bajtów):
-- Dla **kanałów prywatnych**: 16-bajtowy sekret
-- Dla **kanałów publicznych**: same zera (0x00)
+- Każdy kanał wymaga 16-bajtowego klucza. Firmware oblicza hash kanału na podstawie `SHA256(secret)`. Nie ma osobnego trybu „bez sekretu”.
+- Nie używaj klucza złożonego z samych zer. Tworzy on kanał ze znanym kluczem AES i takim samym hashem na każdym urządzeniu. Jego wiadomości może odczytać każdy, kto zna ten klucz. Firmware pomija puste, nienazwane kanały przy odbiorze, ale nazwany kanał z zerowym kluczem będzie odbierać taki ruch.
+- Wbudowany kanał „Public” używa znanego klucza `izOH6cXN6mrJ5e26oRXNcg==` w base64, czyli `8b3387e9c5cdea6ac9e5edbaa115cd72` w zapisie hex.
 
 **Przykład** (utworzenie kanału „YourChannelName” pod indeksem 1 z sekretem):
 ```
@@ -262,7 +259,7 @@ Bytes 34-49: Secret (16 bytes)
 
 **Uwaga**: wariant z 32-bajtowym sekretem nie jest obsługiwany i zwraca `PACKET_ERROR`.
 
-**Odpowiedź**: `PACKET_OK` (0x00) przy sukcesie, `PACKET_ERROR` (0x01) przy niepowodzeniu
+**Odpowiedź**: `PACKET_OK` (0x00) po powodzeniu, `PACKET_ERROR` (0x01) w razie błędu
 
 ---
 
@@ -274,7 +271,7 @@ Bytes 34-49: Secret (16 bytes)
 ```
 Byte 0: 0x03
 Byte 1: 0x00
-Byte 2: Channel Index (0-7)
+Byte 2: Channel Index (0 .. max_channels-1)
 Bytes 3-6: Timestamp (32-bit little-endian Unix timestamp, seconds)
 Bytes 7+: Message Text (UTF-8, variable length)
 ```
@@ -286,7 +283,7 @@ Bytes 7+: Message Text (UTF-8, variable length)
 03 00 01 D2 02 96 49 48 65 6C 6C 6F
 ```
 
-**Odpowiedź**: `PACKET_MSG_SENT` (0x06) przy sukcesie
+**Odpowiedź**: `PACKET_MSG_SENT` (0x06) po powodzeniu
 
 ---
 
@@ -297,7 +294,7 @@ Bytes 7+: Message Text (UTF-8, variable length)
 **Format polecenia**:
 ```
 Byte 0:                         0x3E
-Byte 1:                         Channel Index (0-7)
+Byte 1:                         Channel Index (0 .. max_channels-1)
 Byte 2:                         Path Length (0xFF = flood, otherwise actual path length)
 Bytes 3 .. 2+path_len:          Path (omitted when path_len == 0xFF)
 Next 2 bytes (little-endian):   Data Type (`data_type`, uint16)
@@ -312,32 +309,33 @@ Remaining bytes:                Binary payload (variable length)
 **Mapowanie Data Type / Transport**:
 - `0x0000` (`DATA_TYPE_RESERVED`) jest nieprawidłowe i odrzucane z `PACKET_ERROR`.
 - `0xFFFF` (`DATA_TYPE_DEV`) to przestrzeń deweloperska do eksperymentowania i tworzenia aplikacji.
-- Wartości `0x0001`–`0xFFFE` są dostępne dla zarejestrowanych przestrzeni nazw aplikacji/społeczności. Zobacz tabelę [Zarejestrowane wartości data_type](#zarejestrowane-wartości-data_type) poniżej.
+- Wartości `0x0001`–`0xFFFE` są dostępne dla zarejestrowanych przestrzeni nazw aplikacji/społeczności. Zobacz tabelę [Zarejestrowane wartości data_type](#zarejestrowane-wartosci-data-type) poniżej.
 
 **Limity**:
-- Maksymalna długość payloadu to `MAX_CHANNEL_DATA_LENGTH = MAX_FRAME_SIZE - 9 = 163` bajty.
-- Większe payloady są odrzucane z `PACKET_ERROR` (`ERR_CODE_ILLEGAL_ARG`).
+- Payload może mieć najwyżej **165 bajtów**: `MAX_GROUP_DATA_LENGTH = MAX_PACKET_PAYLOAD - CIPHER_BLOCK_SIZE - 3`. Aplikacja powinna sprawdzać ten limit przed wysłaniem.
+- Większy payload jest odrzucany z `PACKET_ERROR` i kodem `ERR_CODE_ILLEGAL_ARG` (6).
+- W starszym firmware payload o długości 166-167 bajtów mógł zwracać `ERR_CODE_TABLE_FULL` (3). Nie oznaczało to chwilowo zajętej kolejki: dane trzeba było skrócić. Poprawkę dodano w [commicie 0a82fcd2](https://github.com/meshcore-dev/MeshCore/commit/0a82fcd2).
 
-**Odpowiedź**: `PACKET_OK` (0x00) przy sukcesie, lub `PACKET_ERROR` (0x01) z jednym z:
+**Odpowiedź**: `PACKET_OK` (0x00) po powodzeniu albo `PACKET_ERROR` (0x01) z kodem:
 - `ERR_CODE_NOT_FOUND` (2) - nieznany `channel_idx`
-- `ERR_CODE_ILLEGAL_ARG` (6) - nieprawidłowy `path_len`, zarezerwowany `data_type` (`0x0000`) lub payload większy niż `MAX_CHANNEL_DATA_LENGTH`
-- `ERR_CODE_TABLE_FULL` (3) - kolejka wychodząca jest pełna; spróbuj ponownie później
+- `ERR_CODE_ILLEGAL_ARG` (6) - nieprawidłowy `path_len`, zarezerwowany `data_type` (`0x0000`) lub payload dłuższy niż 165 bajtów
+- `ERR_CODE_TABLE_FULL` (3) - brak miejsca na wysłanie datagramu; można spróbować później, o ile payload mieści się w limicie
 
 **Przychodzące datagramy** są dostarczane do hosta za pomocą `RESP_CODE_CHANNEL_DATA_RECV` (0x1B); patrz [Receive Channel Data Datagram](#receive-channel-data-datagram).
 
 #### Zarejestrowane wartości `data_type`
 
-`data_type` jest **identyfikatorem aplikacji**, a nie identyfikatorem formatu payloadu. Każda zarejestrowana wartość identyfikuje aplikację, która posiada własne, wewnętrzne schematy payloadu. Firmware nie sprawdza zawartości payloadu - `data_type` jest przesyłany w sposób nieprzezroczysty (opaque).
+`data_type` wskazuje aplikację, która ma obsłużyć datagram. Format payloadu określa ta aplikacja. Firmware przekazuje identyfikator i dane bez interpretowania ich zawartości.
 
 | Wartość         | Stała                | Przeznaczenie                                                                                     |
 |-----------------|----------------------|---------------------------------------------------------------------------------------------------|
 | 0x0000          | `DATA_TYPE_RESERVED` | Zarezerwowane; nieprawidłowe przy wysyłaniu                                                       |
-| 0x0001 – 0x00FF | —                    | Zarezerwowane do użytku wewnętrznego                                                              |
-| 0x0100 – 0xFEFF | —                    | Zarejestrowane przestrzenie nazw aplikacji (patrz [number_allocations.md](number_allocations.md)) |
-| 0xFF00 – 0xFFFE | —                    | Testy/development; rejestracja niewymagana                                                        |
+| 0x0001 – 0x00FF | -                    | Zarezerwowane do użytku wewnętrznego                                                              |
+| 0x0100 – 0xFEFF | -                    | Zarejestrowane przestrzenie nazw aplikacji (patrz [number_allocations.md](number_allocations.md)) |
+| 0xFF00 – 0xFFFE | -                    | Testy/development; rejestracja niewymagana                                                        |
 | 0xFFFF          | `DATA_TYPE_DEV`      | Przestrzeń deweloperska/eksperymentalna                                                           |
 
-Aby zarejestrować nową aplikację, zgłoś PR dodający wiersz do tabeli w [docs/number_allocations.md](number_allocations.md). Wewnętrzne podformaty w ramach przydzielonego ID aplikacji należą do tej aplikacji i nie są śledzone w firmware MeshCore ani w tym dokumencie.
+Aby zarejestrować aplikację, dodaj wiersz do tabeli [przydziałów identyfikatorów](number_allocations.md) w dokumentacji źródłowej MeshCore i zgłoś pull request. W obrębie przydzielonego identyfikatora aplikacja sama określa format danych.
 
 ---
 
@@ -348,9 +346,9 @@ Przychodzące datagramy grupowe (na poziomie radia `PAYLOAD_TYPE_GRP_DATA`, 0x06
 **Format ramki** (`RESP_CODE_CHANNEL_DATA_RECV`, 0x1B):
 ```
 Byte 0:                 0x1B (packet type)
-Byte 1:                 SNR (signed int8, scaled ×4 — divide by 4.0 to recover dB)
+Byte 1:                 SNR (signed int8, scaled ×4 - divide by 4.0 to recover dB)
 Bytes 2-3:              Reserved (clients MUST ignore)
-Byte 4:                 Channel Index (0-7)
+Byte 4:                 Channel Index (0 .. max_channels-1)
 Byte 5:                 Path Length (actual path length when flooded, otherwise 0xFF for direct)
 Bytes 6-7:              Data Type (uint16 little-endian)
 Byte 8:                 Data Length
@@ -363,10 +361,10 @@ Bytes 9 .. 8+data_len:  Payload
 
 | Kierunek   | `path_len = 0xFF`                | `path_len ≠ 0xFF`                                                                                                                                                    |
 |------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Wysyłanie  | Zalej sieć (flood)               | Trasa bezpośrednia; następuje zakodowana ścieżka (dolne 6 bitów = liczba hashy, górne 2 bity + 1 = rozmiar hasha; liczba bajtów na łączu = `hash_count × hash_size`) |
-| Odbieranie | Pakiet dotarł trasą bezpośrednią | Pakiet został zalany (flood); to zakodowane pole `pkt->path_len` w takiej postaci, w jakiej zostało zaobserwowane (bez następujących bajtów ścieżki)                 |
+| Wysyłanie  | Rozsyłanie w trybie flood               | Trasa bezpośrednia; następuje zakodowana ścieżka (dolne 6 bitów = liczba hashy, górne 2 bity + 1 = rozmiar hasha; liczba bajtów na łączu = `hash_count × hash_size`) |
+| Odbieranie | Pakiet dotarł trasą bezpośrednią | Pakiet dotarł w trybie flood; to zakodowane pole `pkt->path_len` w takiej postaci, w jakiej zostało zaobserwowane (bez następujących bajtów ścieżki)                 |
 
-Innymi słowy, znaczenie `0xFF` jest odwrócone między obydwoma kierunkami, a przy odbiorze to pole niesie wyłącznie metadane - nigdy ścieżkę nadającą się do routingu. `path_len` to zakodowany bajt (patrz `Packet::isValidPathLen` / `Packet::writePath` w `src/Packet.cpp`), a nie surowa liczba bajtów.
+Wartość `0xFF` ma więc inne znaczenie przy wysyłaniu i odbieraniu. Przy odbiorze pole opisuje sposób dostarczenia pakietu i nie zawiera trasy, którą można wykorzystać do wysyłania. `path_len` to zakodowany bajt (patrz `Packet::isValidPathLen` / `Packet::writePath` w `src/Packet.cpp`), a nie surowa liczba bajtów.
 
 **Uwaga**: urządzenie może również wysłać `PACKET_MESSAGES_WAITING` (0x83), aby poinformować hosta, że w kolejce znajdują się datagramy; odpytuj za pomocą `CMD_SYNC_NEXT_MESSAGE` (0x0A), aby je pobrać.
 
@@ -421,7 +419,7 @@ Byte 0: 0x0A
 
 ### 8. Get Battery and Storage
 
-**Cel**: odpytanie o napięcie baterii urządzenia i wykorzystanie pamięci.
+**Cel**: odczyt napięcia baterii i wykorzystania pamięci.
 
 **Format polecenia**:
 ```
@@ -446,7 +444,7 @@ Byte 0: 0x14
     - Każdy może dołączyć do tego kanału, wiadomości należy uznawać za publiczne
     - Używany jako domyślny publiczny czat grupowy
 2. **Kanały hashtagowe**
-    - Wykorzystują tajny klucz wyprowadzony z nazwy kanału
+    - Klucz jest wyprowadzany z nazwy kanału, więc zna go każdy, kto zna nazwę
     - To pierwsze 16 bajtów `sha256("#test")`
     - Na przykład kanał hashtagowy `#test` ma klucz: `9cd8fcf22a47333b591d96a2b848b73f`
     - Używane jako publiczny czat grupowy oparty na temacie, oddzielny od domyślnego kanału publicznego
@@ -557,7 +555,7 @@ def parse_contact_message(data):
 **Format standardowy** (`PACKET_CHANNEL_MSG_RECV`, 0x08):
 ```
 Byte 0: 0x08 (packet type)
-Byte 1: Channel Index (0-7)
+Byte 1: Channel Index (0 .. max_channels-1)
 Byte 2: Path Length
 Byte 3: Text Type
 Bytes 4-7: Timestamp (32-bit little-endian)
@@ -569,7 +567,7 @@ Bytes 8+: Message Text (UTF-8)
 Byte 0: 0x11 (packet type)
 Byte 1: SNR (signed byte, multiplied by 4)
 Bytes 2-3: Reserved
-Byte 4: Channel Index (0-7)
+Byte 4: Channel Index (0 .. max_channels-1)
 Byte 5: Path Length
 Byte 6: Text Type
 Bytes 7-10: Timestamp (32-bit little-endian)
@@ -622,7 +620,7 @@ Ten dokument używa konwencji nazewnictwa na poziomie specyfikacji (`PACKET_*`) 
 - `RESP_CODE_*` - bezpośrednie odpowiedzi na polecenie (np. `RESP_CODE_CHANNEL_DATA_RECV` = `PACKET_CHANNEL_DATA_RECV` = 0x1B).
 - `PUSH_CODE_*` - asynchroniczne powiadomienia niepowiązane z konkretnym poleceniem (np. `PUSH_CODE_MSG_WAITING` = `PACKET_MESSAGES_WAITING` = 0x83).
 
-Wartości bajtowe są rozstrzygające; nazwy są aliasami. Czytając kod źródłowy firmware, `RESP_CODE_X` / `PUSH_CODE_X` odpowiadają `PACKET_X` z tego dokumentu o tej samej wartości liczbowej.
+O typie pakietu decyduje wartość bajtu, a nazwy stałych są jej aliasami. Stałe `RESP_CODE_X` i `PUSH_CODE_X` w kodzie firmware odpowiadają nazwom `PACKET_X` z tego dokumentu, jeśli mają tę samą wartość liczbową.
 
 ### Typy pakietów
 
@@ -821,8 +819,8 @@ Bytes 1-6: ACK Code (6 bytes, hex)
 | Kod | Stała (firmware)           | Opis                                                                                 |
 |-----|----------------------------|--------------------------------------------------------------------------------------|
 | 1   | `ERR_CODE_UNSUPPORTED_CMD` | Nieznany lub nieobsługiwany bajt polecenia / subpolecenie                            |
-| 2   | `ERR_CODE_NOT_FOUND`       | Cel nie znaleziony (kanał, kontakt, wiadomość itd.)                                  |
-| 3   | `ERR_CODE_TABLE_FULL`      | Wewnętrzna kolejka lub tabela jest pełna - spróbuj ponownie później                  |
+| 2   | `ERR_CODE_NOT_FOUND`       | Nie znaleziono celu (kanał, kontakt, wiadomość itd.)                                  |
+| 3   | `ERR_CODE_TABLE_FULL`      | Pełna kolejka lub tabela; w starszym firmware także zbyt długi payload `SEND_CHANNEL_DATA` (patrz limity datagramów)                  |
 | 4   | `ERR_CODE_BAD_STATE`       | Operacja nieprawidłowa w bieżącym stanie urządzenia (np. iterator już działa)        |
 | 5   | `ERR_CODE_FILE_IO_ERROR`   | Błąd operacji wejścia/wyjścia systemu plików lub pamięci                             |
 | 6   | `ERR_CODE_ILLEGAL_ARG`     | Nieprawidłowy argument (zła długość, wartość poza zakresem, zarezerwowane pole itd.) |
@@ -842,7 +840,7 @@ Implementacje BLE kolejkują i dostarczają jedną ramkę protokołu na jeden za
 1. **Wzorzec polecenie-odpowiedź**:
    - Wyślij polecenie przez charakterystykę RX
    - Poczekaj na odpowiedź przez charakterystykę TX (powiadomienie)
-   - Dopasuj odpowiedź do polecenia za pomocą numerów sekwencyjnych lub typu polecenia
+   - Dopasuj odpowiedź do polecenia według oczekiwanego typu pakietu
    - Obsłuż timeout (zwykle 5 sekund)
    - Użyj kolejki poleceń, aby zapobiec równoczesnym poleceniom
 
@@ -909,7 +907,7 @@ secret_hex = secret_16_bytes.hex()
 
 # 2. Zbuduj polecenie SET_CHANNEL
 channel_name = "YourChannelName"
-channel_index = 1  # Użyj 1-7 dla kanałów prywatnych
+channel_index = 1  # Sprawdź, czy indeks jest mniejszy od max_channels
 command = build_set_channel(channel_index, channel_name, secret_16_bytes)
 
 # 3. Wyślij polecenie
@@ -954,7 +952,6 @@ def on_notification_received(data):
 
 1. **Zarządzanie połączeniem**:
    - Zaimplementuj automatyczne ponowne łączenie z wykładniczym opóźnieniem
-   - Obsługuj rozłączenia w sposób odporny na błędy
    - Zapisuj adres ostatnio połączonego urządzenia dla szybkiego ponownego połączenia
 
 2. **Zarządzanie sekretami**:
@@ -980,7 +977,7 @@ def on_notification_received(data):
 
 ### Problemy z połączeniem
 
-- **Urządzenie nie znalezione**: upewnij się, że urządzenie jest włączone i rozgłasza się
+- **Nie znaleziono urządzenia**: upewnij się, że urządzenie jest włączone i rozgłasza się
 - **Timeout połączenia**: sprawdź uprawnienia Bluetooth i odległość od urządzenia
 - **Błędy GATT**: upewnij się, że usługa/charakterystyki zostały prawidłowo odkryte
 

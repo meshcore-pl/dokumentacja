@@ -4,17 +4,17 @@ description: Lista poleceń CLI wysyłanych do repeaterów, room serwerów i sen
 order: 2
 sourceUrl: https://docs.meshcore.io/cli_commands
 createdAt: 22.08.2026
-updatedAt: 04.09.2026
+updatedAt: 10.11.2026
 ---
 
 # Polecenia CLI
 
-Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów, room serwerów i sensorów MeshCore.
+Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwerów i czujników MeshCore.
 
 ## Nawigacja
 
 - [Operacyjne](#operacyjne)
-- [Sąsiedzi](#sąsiedzi-tylko-repeater)
+- [Sąsiedzi](#sasiedzi-tylko-repeater)
 - [Statystyki](#statystyki)
 - [Logowanie](#logowanie)
 - [Informacje](#informacje)
@@ -23,11 +23,11 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
   - [System](#system)
   - [Routing](#routing)
   - [ACL](#acl)
-  - [Zarządzanie regionami](#zarządzanie-regionami-v110)
-    - [Przykłady regionów](#przykłady-regionów)
-  - [GPS](#gps-gdy-obsługa-gps-jest-wkompilowana)
-  - [Czujniki](#czujniki-gdy-obsługa-czujników-jest-wkompilowana)
-  - [Bridge](#bridge-gdy-obsługa-bridge-jest-wkompilowana)
+  - [Zarządzanie regionami](#zarzadzanie-regionami-v110)
+    - [Przykłady regionów](#przyklady-regionow)
+  - [GPS](#gps-gdy-obsluga-gps-jest-wkompilowana)
+  - [Czujniki](#czujniki-gdy-obsluga-czujnikow-jest-wkompilowana)
+  - [Bridge](#bridge-gdy-obsluga-bridge-jest-wkompilowana)
 
 ---
 
@@ -78,13 +78,13 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ---
 
-### Wysłanie advertu typu flood
+### Wysłanie advertu do wszystkich
 **Użycie:**
 - `advert`
 
 ---
 
-### Wysłanie advertu typu zero-hop
+### Wysłanie advertu 0-hop
 **Użycie:**
 - `advert.zerohop`
 
@@ -129,7 +129,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ---
 
-### Odkrywanie sąsiadów zero-hop
+### Odkrywanie sąsiadów 0-hop
 
 **Użycie:**
 - `discover.neighbors`
@@ -218,7 +218,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Ustawiane flagą kompilacji:** `LORA_FREQ`, `LORA_BW`, `LORA_SF`, `LORA_CR`
 
-**Domyślnie:** `869.525,250,11,5`
+**Domyślnie:** `869.618,62.5,8,5`
 
 **Uwaga:** wymaga restartu, aby zmiana zaczęła obowiązywać
 
@@ -236,7 +236,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Domyślnie:** zależy od płytki
 
-**Uwagi:** to ustawienie kontroluje wyłącznie poziom mocy chipu LoRa. Niektóre węzły mają dodatkowy stopień wzmacniacza mocy, który zwiększa całkowitą moc wyjściową. Sprawdź w instrukcji węzła prawidłową wartość do użycia. **Ustawienie zbyt wysokiej wartości może naruszać przepisy prawa w Twoim kraju.**
+**Uwagi:** to ustawienie określa wyłącznie moc układu LoRa. Niektóre urządzenia mają dodatkowy wzmacniacz zwiększający moc wyjściową. Właściwą wartość sprawdź w instrukcji urządzenia. **Ustawienie zbyt wysokiej wartości może naruszać przepisy prawa w Twoim kraju.**
 
 ---
 
@@ -251,7 +251,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 - `cr`: współczynnik kodowania (5-8)
 - `timeout_mins`: czas trwania w minutach (musi być > 0)
 
-**Uwaga:** to nie jest zapisywane w ustawieniach i zostanie wyczyszczone po restarcie
+**Uwaga:** to ustawienie jest tymczasowe i zostanie usunięte po restarcie
 
 ---
 
@@ -263,7 +263,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 **Parametry:**
 - `frequency`: częstotliwość w MHz
 
-**Domyślnie:** `869.525`
+**Domyślnie:** `869.618`
 
 **Uwaga:** wymaga restartu, aby zmiana zaczęła obowiązywać
 **Tylko przez port szeregowy:** `set freq <frequency>`
@@ -328,7 +328,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Domyślnie:** zależy od płytki
 
-**Uwaga:** maksymalna długość jest różna. Jeśli lokalizacja jest ustawiona, maksymalna długość to 24 bajty; w przeciwnym razie 32. Emoji i znaki unicode mogą zajmować więcej niż jeden bajt.
+**Uwaga:** nazwa może mieć do 24 bajtów, jeśli ustawiono lokalizację, lub do 32 bajtów bez lokalizacji. Polskie litery i emoji mogą zajmować więcej niż jeden bajt w UTF-8.
 
 ---
 
@@ -372,7 +372,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 - `get prv.key`: Tak
 - `set prv.key`: Nie
 
-**Uwaga:** wymaga restartu, aby zmiana zaczęła obowiązywać po ustawieniu
+**Uwaga:** zmiana zaczyna obowiązywać po restarcie.
 
 ---
 
@@ -401,9 +401,9 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 **Parametry:**
 - `password`: hasło gościa
 
-**Ustawiane flagą kompilacji:** `ROOM_PASSWORD` (tylko Room Server)
+**Ustawiane flagą kompilacji:** `ROOM_PASSWORD` (tylko Room serwer)
 
-**Domyślnie:** `<puste>`
+**Domyślnie:** zależy od wariantu firmware. Standardowe warianty Room serwer używają `hello`; w repeaterze pole jest domyślnie puste.
 
 ---
 
@@ -464,7 +464,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Domyślnie:** `off`
 
-**Uwaga:** gdy włączone, urządzenie przechodzi w tryb uśpienia między transmisjami radiowymi
+**Uwaga:** po włączeniu tej opcji urządzenie usypia między transmisjami radiowymi.
 
 ---
 
@@ -496,9 +496,9 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Domyślnie:** `0`
 
-**Uwaga:** `path.hash.mode` ustawia niskopoziomowy rozmiar kodowania ID/hasha używany, gdy repeater rozgłasza advert. To ustawienie nie ma wpływu na to, jaki rozmiar ID/hasha pakietu ten repeater przekazuje dalej - w firmware >= 1.14 wszystkie rozmiary powinny być przekazywane. Ta funkcja została dodana w firmware 1.14
+**Uwaga:** `path.hash.mode` określa rozmiar identyfikatora (hasha) ścieżki we własnych advertach repeatera. Nie zmienia rozmiarów hashy obsługiwanych przy przekazywaniu cudzych pakietów. Firmware >= 1.14 powinien przekazywać pakiety ze wszystkimi obsługiwanymi rozmiarami hashy. Funkcję dodano w wersji 1.14.
 
-**Uwaga tymczasowa:** adverty z rozmiarem ID/hasha 2 lub 3 bajty mogą mieć ograniczoną propagację flood w Twojej sieci, dopóki ta funkcja jest nowa, ponieważ firmware w wersji 1.13.0 i starszej odrzuca pakiety z wielobajtowymi ID/hashami ścieżki, obsługując wyłącznie hashe 1-bajtowe. Zanim zastosujesz większe rozmiary ID/hasha, upewnij się, że instalacja firmware >=1.14 w Twojej sieci osiągnęła masę krytyczną wystarczającą do skutecznego zalewania (flood) sieci.
+**Zgodność ze starszym firmware:** wersje 1.13.0 i starsze obsługują wyłącznie 1-bajtowe hashe ścieżki i odrzucają pakiety z dłuższymi hashami. Adverty z hashami 2- lub 3-bajtowymi mogą więc mieć ograniczony zasięg. Przed ich włączeniem upewnij się, że wystarczająca liczba repeaterów w sieci korzysta z firmware >= 1.14.
 
 ---
 
@@ -516,9 +516,9 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Domyślnie:** `off`
 
-**Uwaga:** gdy włączone, repeatery zaczynają odrzucać pakiety flood, które wyglądają, jakby znajdowały się w pętli. Zdarzało się to ostatnio w niektórych sieciach mesh, gdy w sieci pojawił się choć jeden repeater z „wadliwym” firmware (prawdopodobnie jakimś forkiem lub niestandardowym firmware). Jeśli payload zostanie zmodyfikowany, a następnie przekazany dalej, ten sam pakiet powoduje burzę pakietów, powtarzaną aż do maksymalnie 64 hopów. Ta funkcja została dodana w firmware 1.14
+**Uwaga:** funkcja wykrywa pakiety flood krążące w pętli i je odrzuca. Takie pętle obserwowano w sieciach z repeaterami używającymi zmodyfikowanego firmware. Zmiana payloadu przed przekazaniem może uniemożliwić rozpoznanie duplikatu i wywołać burzę pakietów trwającą do wyczerpania limitu 64 hopów. Funkcję dodano w firmware 1.14.
 
-**Przykład:** jeśli ustawienie to `loop.detect minimal`, a odebrany zostanie pakiet o rozmiarze ścieżki 1 bajt, repeater sprawdzi, czy jego własny ID/hash już znajduje się w ścieżce. Jeśli jest już zakodowany 4 razy, odrzuci pakiet. Jeśli pakiet używa rozmiaru ścieżki 2 bajty, a własny ID/hash repeatera jest już zakodowany 2 razy, odrzuca go. Jeśli pakiet używa rozmiaru ścieżki 3 bajty, a własny ID/hash repeatera jest już zakodowany 1 raz, odrzuca go.
+**Przykład:** w trybie `loop.detect minimal` repeater liczy wystąpienia własnego identyfikatora w ścieżce. Odrzuca pakiet, gdy identyfikator występuje co najmniej 4 razy dla hashy 1-bajtowych, 2 razy dla 2-bajtowych lub raz dla 3-bajtowych.
 
 ---
 
@@ -544,7 +544,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 **Parametry:**
 - `value`: współczynnik opóźnienia transmisji bezpośredniej (0-2)
 
-**Domyślnie:** `0.2`
+**Domyślnie:** `0.3` (Repeater), `0.2` (Room serwer i Sensor)
 
 **Uwaga:** to samo losowe okno unikania kolizji co `txdelay`, ale zastosowane do ruchu bezpośredniego (nie-flood, trasowanego). Wartość domyślna jest niższa, ponieważ pakiety bezpośrednie są adresowane do konkretnego następnego hopa, więc dużo mniej węzłów konkuruje o ich retransmisję.
 
@@ -560,7 +560,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 **Domyślnie:** `0.0`
 
-**Uwaga:** gdy włączone, repeatery, które odebrały pakiet flood ze słabym sygnałem, są wstrzymywane w kolejce opóźnień przed przetworzeniem, podczas gdy te, które odebrały go z silnym sygnałem, przetwarzają go od razu. Daje to priorytet przekazywania ścieżkom o silnym sygnale. Zanim węzły ze słabym sygnałem przetworzą swoją kopię, pakiet mógł już się rozprzestrzenić i zostanie potraktowany jako duplikat, co zmniejsza liczbę zbędnych retransmisji.
+**Uwaga:** funkcja opóźnia przetwarzanie pakietów flood odebranych ze słabym sygnałem. Pakiety z silnym sygnałem są przetwarzane od razu, więc trasy o lepszym sygnale mają pierwszeństwo. Zanim upłynie opóźnienie, węzeł może odebrać kolejną kopię pakietu i odrzucić oczekującą kopię jako duplikat. Ogranicza to zbędne retransmisje.
 
 ---
 
@@ -585,7 +585,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 ---
 
 #### Podgląd lub zmiana współczynnika czasu nadawania (limit cyklu pracy)
-> **Przestarzałe** od firmware v1.15.0. Zamiast tego użyj [`get/set dutycycle`](#podgląd-lub-zmiana-limitu-cyklu-pracy-duty-cycle).
+> **Przestarzałe** od firmware v1.15.0. Zamiast tego użyj [`get/set dutycycle`](#podglad-lub-zmiana-limitu-cyklu-pracy-duty-cycle).
 
 **Użycie:**
 - `get af`
@@ -615,13 +615,27 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ---
 
+#### Włączenie lub wyłączenie sprzętowego wykrywania aktywności kanału (CAD)
+**Użycie:**
+- `get cad`
+- `set cad <on|off>`
+
+Przed nadawaniem radio sprawdza, czy kanał jest zajęty. Jeśli wykryje aktywność, odkłada transmisję. CAD działa niezależnie od `int.thresh`: można włączyć jedną z tych funkcji, obie albo żadną.
+
+**Parametry:**
+- `on|off`: włącza lub wyłącza sprzętowe CAD
+
+**Domyślnie:** `off`
+
+---
+
 #### Podgląd lub zmiana interwału resetu AGC
 **Użycie:**
 - `get agc.reset.interval`
 - `set agc.reset.interval <value>`
 
 **Parametry:**
-- `value`: interwał w sekundach zaokrąglany w dół do wielokrotności 4 (17 staje się 16). 0, aby wyłączyć.
+- `value`: interwał w sekundach, od 0 do 1020. Wartość jest zaokrąglana w dół do wielokrotności 4, np. 17 do 16. Wartość `0` wyłącza resetowanie AGC.
 
 **Domyślnie:** `0.0`
 
@@ -639,7 +653,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ---
 
-#### Podgląd lub zmiana interwału advertu flood
+#### Podgląd lub zmiana interwału advertu do wszystkich
 **Użycie:**
 - `get flood.advert.interval`
 - `set flood.advert.interval <hours>`
@@ -647,19 +661,21 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 **Parametry:**
 - `hours`: interwał w godzinach (3-168)
 
-**Domyślnie:** `12` (Repeater) - `0` (Sensor)
+**Domyślnie:** `47` godzin (Repeater i Room serwer), `0`, czyli wyłączone (Sensor)
 
 ---
 
-#### Podgląd lub zmiana interwału advertu zero-hop
+#### Podgląd lub zmiana interwału advertu 0-hop
 **Użycie:**
 - `get advert.interval`
 - `set advert.interval <minutes>`
 
 **Parametry:**
-- `minutes`: interwał w minutach zaokrąglany w dół do najbliższej wielokrotności 2 (61 staje się 60) (60-240)
+- `minutes`: interwał od 60 do 240 minut, zaokrąglany w dół do wielokrotności 2, np. 61 do 60
 
-**Domyślnie:** `0`
+**Domyślnie:** `2` minuty na urządzeniu z ustawieniami fabrycznymi, a po zapisaniu konfiguracji `0` (wyłączone).
+
+**Uwaga:** zapis dowolnego ustawienia zeruje interwał krótszy niż wymagane minimum 60 minut. Aby zachować automatyczne adverty 0-hop, ustaw wartość od 60 do 240.
 
 ---
 
@@ -675,21 +691,21 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ---
 
-#### Ograniczenie liczby hopów dla wiadomości flood bez zasięgu (unscoped)
+#### Ograniczenie liczby hopów dla wiadomości flood bez przypisanego regionu (unscoped)
 **Użycie:**
 - `get flood.max.unscoped`
 - `set flood.max.unscoped <value>`
 
 **Parametry:**
-- `value`: maksymalna liczba hopów flood (0-64) dla pakietu bez zasięgu (bez ustawionego regionu)
+- `value`: maksymalna liczba hopów flood (0-64) dla pakietu bez przypisanego regionu
 
-**Domyślnie:** `64` - (`0xFF` oznacza, że nie zostało ustawione, będzie podążać za flood.max, dopóki nie zostanie ustawione.)
+**Domyślnie:** `64` - wartość `0xFF` oznacza brak osobnego ustawienia; używana jest wtedy wartość `flood.max`.
 
-**Uwaga:** alternatywa dla `region denyf *` - ustawienie `flood.max.unscoped` na niższą wartość, np. `3`, pozwoliłoby lokalnym wiadomościom bez zasięgu propagować się, jednocześnie zapobiegając zalewaniu lokalnego regionu przez hałaśliwych sąsiadów.
+**Uwaga:** zamiast `region denyf *` można ustawić niski limit `flood.max.unscoped`, np. `3`. Pozwala to przekazywać lokalne wiadomości bez przypisanego regionu, a jednocześnie ogranicza napływ takiego ruchu z odległych węzłów.
 
 ---
 
-#### Ograniczenie liczby hopów dla wiadomości flood advertu
+#### Ograniczenie liczby hopów dla advertów do wszystkich
 **Użycie:**
 - `get flood.max.advert`
 - `set flood.max.advert <value>`
@@ -727,7 +743,7 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 
 ---
 
-#### Podgląd lub zmiana flagi „tylko do odczytu” tego room servera
+#### Podgląd lub zmiana flagi „tylko do odczytu” tego room serwera
 **Użycie:**
 - `get allow.read.only`
 - `set allow.read.only <state>`
@@ -828,14 +844,14 @@ Ten dokument zawiera liste poleceń CLI, które można wysyłać do repeaterów,
 **Użycie:**
 - `region def <token> [<token> ...]`
 
-**Parametry (tokeny):** oddzielone spacjami. Logiczny **kursor** zaczyna na wildcard `*`.
+**Parametry:** tokeny oddzielone spacjami. **Kursor** wskazuje region, do którego dodawane są kolejne regiony podrzędne. Początkowo wskazuje korzeń `*`.
 
 - **`name`** - tworzy `name` jako dziecko bieżącego kursora (odpowiednik `region put name` z kursorem jako rodzicem), a kursor przenosi się na `name`.
 - **`name|jump`** *(lub `name,jump`)* - tworzy `name` jako dziecko bieżącego kursora, a następnie przenosi kursor na `jump` (musi on już istnieć na węźle albo zostać utworzony wcześniej w tym samym poleceniu). `jump` **nie** jest rodzicem `name` - użyj tej formy, aby cofnąć kursor wyżej i rozpocząć inną gałąź.
 
-**Zachowanie:** każdy utworzony region domyślnie ma zezwolenie na flood (tak samo jak `region put`). Odpowiedzią jest wynikowe drzewo regionów (w tym samym formacie co samo `region`); przejrzyj je przed uruchomieniem `region save`, aby zapisać zmiany na stałe. W razie błędu odpowiedź to `Err - ...`, a regiony umieszczone przed wystąpieniem błędu pozostają na węźle, tak samo jak przy częściowym łańcuchu `region put`.
+**Zachowanie:** nowe regiony domyślnie zezwalają na flood, tak jak przy `region put`. Polecenie zwraca drzewo regionów w formacie używanym przez `region`. Sprawdź wynik, a następnie zapisz zmiany poleceniem `region save`. W razie błędu otrzymasz `Err - ...`. Zmiany wykonane przed błędem pozostają na urządzeniu.
 
-**Istniejące regiony:** `region def` nie czyści istniejącego drzewa - jeśli nazwa już istnieje, jej rodzic zostaje zaktualizowany na bieżący kursor; w przeciwnym razie tworzony jest nowy region. Aby zacząć od nowa, najpierw usuń niechciane regiony poleceniem `region remove`.
+**Istniejące regiony:** `region def` zachowuje obecne drzewo. Jeśli region o danej nazwie już istnieje, przenosi go pod region wskazywany przez kursor. W przeciwnym razie tworzy nowy region. Niepotrzebne wpisy usuń poleceniem `region remove`.
 
 **Limity:** repeater przez port szeregowy akceptuje jedną linię do **160 znaków**. Dla większych drzew podziel na wiele poleceń `region def`; kursor resetuje się do `*` między poleceniami, więc rozpocznij kolejne polecenie od `child|ancestor`, aby ustawić go ponownie. Każdy token dzieli się co najwyżej raz na znaku `|` - `region def a|b|c|d` nie jest skrótem płaskiej listy; patrz przykład płaskiej listy poniżej.
 
@@ -899,11 +915,13 @@ region save
 
 ### Przykłady regionów
 
+W poleceniu `region load` pusta linia kończy wprowadzanie regionów. W przykładach poniżej oddziela ona listę regionów od `region save`.
+
 **Przykład 1: użycie flagi F z nazwanym regionem publicznym**
 ```mccli
 region load
 #Europe F
-<blank line to end region load>
+
 region save
 ```
 
@@ -917,7 +935,7 @@ region save
 ```mccli
 region load
 * F
-<blank line to end region load>
+
 region save
 ```
 
@@ -932,7 +950,7 @@ region save
 ```mccli
 region load
 *
-<blank line to end region load>
+
 region save
 ```
 **Wyjaśnienie:**
@@ -952,7 +970,7 @@ region load
   #France
     #Paris
     #Lyon
-<blank line to end region load>
+
 region save
 ```
 
@@ -974,7 +992,7 @@ region load
     #Canada
       #Ontario
       #Quebec
-<blank line to end region load>
+
 region save
 ```
 
@@ -1152,7 +1170,7 @@ region save
 #### Podgląd powodów resetu i wyłączenia
 **Użycie:** `get pwrmgt.bootreason`
 
-**Uwaga:** zwraca błąd na płytkach bez obsługi zarządzania zasilaniem.
+Działa także na płytkach bez obsługi zarządzania zasilaniem. Jeśli płytka nie udostępnia danej przyczyny, odpowiedź zawiera `Not available`. Na ESP32 dostępna jest przyczyna resetu, a przyczyna wyłączenia ma wartość `Not available`.
 
 ---
 
@@ -1178,7 +1196,7 @@ Obsługa Ethernetu jest dostępna na płytkach RAK4631 z modułem RAK13800 (W510
 - `ETH: not connected` gdy Ethernet nie jest aktywny
 
 **Uwagi:**
-- Dostępne tylko na firmware repeatera i room servera. Firmware companion radio ethernet nie udostępnia CLI.
+- Dostępne tylko na firmware repeatera i room serwera. Firmware companion radio ethernet nie udostępnia CLI.
 - Interfejs Ethernet automatycznie uzyskuje adres IP przez DHCP przy starcie.
 - Serwer TCP nasłuchuje na porcie 23 (domyślnie) dla połączeń CLI.
 - Połącz się dowolnym klientem TCP (np. `nc`, PuTTY), aby uzyskać dostęp do tego samego CLI co przez port szeregowy.

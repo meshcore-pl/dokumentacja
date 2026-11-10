@@ -4,6 +4,7 @@ description: Typy payloadów przenoszonych wewnątrz pakietów MeshCore.
 order: 7
 sourceUrl: https://docs.meshcore.io/payloads
 createdAt: 22.08.2026
+updatedAt: 10.11.2026
 ---
 
 # Format payloadu
@@ -59,7 +60,7 @@ Ten rodzaj payloadu informuje odbiorców o istnieniu węzła i przekazuje o nim 
 |---------|----------------|-------------------------------------|
 | `0x01`  | is chat node   | advert dotyczy węzła czatu          |
 | `0x02`  | is repeater    | advert dotyczy repeatera            |
-| `0x03`  | is room server | advert dotyczy room servera         |
+| `0x03`  | is room server | advert dotyczy room serwera         |
 | `0x04`  | is sensor      | advert dotyczy serwera czujników    |
 | `0x10`  | has location   | appdata zawiera informacje lat/long |
 | `0x20`  | has feature 1  | zarezerwowane na przyszłość         |
@@ -68,7 +69,7 @@ Ten rodzaj payloadu informuje odbiorców o istnieniu węzła i przekazuje o nim 
 
 ## Potwierdzenie (Acknowledgement)
 
-Potwierdzenie, że wiadomość została odebrana. Zwróć uwagę, że w przypadku wiadomości zwróconej ścieżki, potwierdzenie może zostać wysłane w payloadzie „extra” (patrz [Zwrócona ścieżka](#zwrócona-ścieżka)) zamiast jako osobny pakiet potwierdzenia. Polecenia CLI nie powodują wysyłania odpowiedzi potwierdzających, ani osobnych, ani w formie extra.
+Potwierdza odebranie wiadomości. Może być przesłane w polu „extra” pakietu zwracającego ścieżkę (patrz [Zwrócona ścieżka](#zwrocona-sciezka)) zamiast w osobnym pakiecie. Polecenia CLI nie powodują wysyłania takich potwierdzeń ani osobno, ani w polu „extra”.
 
 | Pole     | Rozmiar (bajty) | Opis                                                                               |
 |----------|-----------------|------------------------------------------------------------------------------------|
@@ -76,7 +77,7 @@ Potwierdzenie, że wiadomość została odebrana. Zwróć uwagę, że w przypadk
 
 ## Zwrócona ścieżka, żądanie, odpowiedź i zwykła wiadomość tekstowa
 
-Zwrócona ścieżka, żądanie, odpowiedź i zwykłe wiadomości tekstowe są sformatowane w ten sam sposób. Zobacz podsekcje, aby dowiedzieć się więcej o reprezentacji tekstu jawnego powiązanego z szyfrogramem.
+Pakiety zwracające ścieżkę, żądania, odpowiedzi i zwykłe wiadomości tekstowe mają wspólny format. Kolejne podsekcje opisują strukturę ich danych przed zaszyfrowaniem.
 
 | Pole             | Rozmiar (bajty) | Opis                                                    |
 |------------------|-----------------|---------------------------------------------------------|
@@ -87,7 +88,7 @@ Zwrócona ścieżka, żądanie, odpowiedź i zwykłe wiadomości tekstowe są sf
 
 ### Zwrócona ścieżka
 
-Wiadomości zwróconej ścieżki opisują trasę, jaką pakiet przebył od pierwotnego autora. Odbiorcy wysyłają wiadomości zwróconej ścieżki do autora oryginalnej wiadomości.
+Pakiet zwracający ścieżkę opisuje trasę, którą przebyła wiadomość od nadawcy do odbiorcy. Odbiorca odsyła go nadawcy oryginalnej wiadomości.
 
 | Pole        | Rozmiar (bajty) | Opis                                                                                                                             |
 |-------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------|
@@ -101,18 +102,25 @@ Wiadomości zwróconej ścieżki opisują trasę, jaką pakiet przebył od pierw
 | Pole         | Rozmiar (bajty) | Opis                                                |
 |--------------|-----------------|-----------------------------------------------------|
 | timestamp    | 4               | czas nadawcy (znacznik czasu unix)                  |
+| req type     | 1               | podtyp żądania                                      |
 | request data | reszta payloadu | treść payloadu żądania, definiowana przez aplikację |
 
-Dla popularnych helperów czatu/serwera w `BaseChatMesh`, obecne wartości typu żądania to:
+Funkcje pomocnicze czatu i serwera w `BaseChatMesh` używają następujących typów żądań:
 
 | Wartość | Nazwa     | Opis                                                  |
 |---------|-----------|-------------------------------------------------------|
-| `0x01`  | get stats | pobierz statystyki repeatera lub room servera         |
-| `0x02`  | keepalive | żądanie keep-alive używane dla utrzymywanych połączeń |
+| `0x01`  | get stats | pobierz statystyki repeatera lub room serwera         |
+| `0x02`  | keepalive | przestarzałe                                        |
+| `0x03`  | get telemetry | pobranie telemetrii węzła                        |
+| `0x04`  | get min/max/avg | pobranie statystyk szeregów czasowych z czujnika |
+| `0x05`  | get acl | pobranie listy uprawnień węzła                         |
+| `0x06`  | get neighbors | pobranie listy sąsiadów węzła                    |
+| `0x08`  | subscribe | subskrypcja powiadomień z telemetrią                  |
+| `0x09`  | unsubscribe | anulowanie subskrypcji telemetrii                  |
 
 #### Get stats
 
-Pobiera informacje o węźle, potencjalnie obejmujące:
+Zależnie od typu węzła odpowiedź może zawierać:
 
 - Poziom baterii (miliwolty)
 - Aktualna długość kolejki nadawania
@@ -130,24 +138,61 @@ Pobiera informacje o węźle, potencjalnie obejmujące:
 - Ostatnia wartość SNR
 - Liczba duplikatów trasy bezpośredniej
 - Liczba duplikatów trasy flood
-- Number posted (?)
-- Number of post pushes (?)
-
-#### Get telemetry data
-
-Niezdefiniowane w `BaseChatMesh`. Payloady żądań specyficzne dla czujników i aplikacji mogą być implementowane przez firmware wyższego poziomu.
+- Liczbę opublikowanych wiadomości
+- Liczbę wysyłek wiadomości z room serwera do klientów (push)
 
 #### Get Telemetry
 
-Niezdefiniowane w `BaseChatMesh`.
+Pobiera telemetrię węzła. Maska wskazuje, które grupy danych należy pominąć.
+
+| Pole            | Rozmiar (bajty) | Opis |
+|-----------------|-----------------|------|
+| timestamp       | 4 | czas nadawcy (znacznik czasu Unix) |
+| req type        | 1 | `0x03` |
+| permission mask | 1 | maska wykluczanych uprawnień; stosowana jako `permissions & ~mask`; `0` nie wyklucza żadnej grupy telemetrii |
 
 #### Get Min/Max/Ave (węzły czujników)
 
-Niezdefiniowane w `BaseChatMesh`.
+Pobiera wartości minimalne, maksymalne i średnie dla wskazanego przedziału czasu.
+
+| Pole      | Rozmiar (bajty) | Opis |
+|-----------|-----------------|------|
+| timestamp | 4 | czas nadawcy (znacznik czasu Unix) |
+| req type  | 1 | `0x04` |
+| start     | 4 | początek przedziału, liczba sekund wstecz |
+| end       | 4 | koniec przedziału, liczba sekund wstecz |
+| reserved  | 2 | ustaw na zera |
+
+#### Subskrypcja telemetrii (węzły czujników)
+
+Włącza automatyczne przesyłanie telemetrii. Pole `min deltas` określa minimalne zmiany wartości, które mają wywołać powiadomienie.
+
+| Pole           | Rozmiar (bajty) | Opis |
+|----------------|-----------------|------|
+| timestamp      | 4 | czas nadawcy (znacznik czasu Unix) |
+| req type       | 1 | `0x08` |
+| push tag       | 4 | 32-bitowy identyfikator dołączany do payloadów odpowiedzi z telemetrią |
+| timeout secs   | 2 | czas ważności subskrypcji w sekundach |
+| reserved       | 1 | ustaw na zero |
+| min deltas len | 1 | długość pola `min deltas` w bajtach |
+| min deltas     | zmienny | progi zmian zakodowane w formacie LPP |
+
+#### Anulowanie subskrypcji telemetrii (węzły czujników)
+
+| Pole      | Rozmiar (bajty) | Opis |
+|-----------|-----------------|------|
+| timestamp | 4 | czas nadawcy (znacznik czasu Unix) |
+| req type  | 1 | `0x09` |
 
 #### Get Access List
 
-Niezdefiniowane w `BaseChatMesh`.
+Pobiera listę uprawnień węzła (ACL).
+
+| Pole      | Rozmiar (bajty) | Opis |
+|-----------|-----------------|------|
+| timestamp | 4 | czas nadawcy (znacznik czasu Unix) |
+| req type  | 1 | `0x05` |
+| reserved  | 2 | ustaw na zera |
 
 #### Get Neighbors
 
@@ -163,7 +208,7 @@ Niezdefiniowane w `BaseChatMesh`.
 |---------|-----------------|-----------------------------------------------|
 | content | reszta payloadu | treść odpowiedzi, definiowana przez aplikację |
 
-Zawartość odpowiedzi to nieprzezroczyste (opaque) dane aplikacji. Nie istnieje pojedyncza, ogólna otoczka odpowiedzi wykraczająca poza pokazany powyżej wrapper zaszyfrowanego payloadu.
+Format zawartości odpowiedzi określa aplikacja. Poza opisaną wyżej strukturą zaszyfrowanego payloadu protokół nie narzuca wspólnego formatu odpowiedzi.
 
 ### Zwykła wiadomość tekstowa
 
@@ -178,8 +223,9 @@ Zawartość odpowiedzi to nieprzezroczyste (opaque) dane aplikacji. Nie istnieje
 | Wartość | Opis                         | Treść wiadomości                                                                                   |
 |---------|------------------------------|----------------------------------------------------------------------------------------------------|
 | `0x00`  | zwykła wiadomość tekstowa    | zwykły tekst wiadomości                                                                            |
-| `0x01`  | polecenie CLI                | tekst polecenia zawarty w wiadomości                                                               |
+| `0x01`  | dane CLI                     | tekst polecenia lub odpowiedzi CLI |
 | `0x02`  | podpisana wiadomość tekstowa | pierwsze cztery bajty to prefiks klucza publicznego nadawcy, a następnie zwykła wiadomość tekstowa |
+| `0x03` | polecenie CLI | od firmware v1.18: tekst jawnie oznaczony jako polecenie CLI |
 
 ## Żądanie anonimowe
 
@@ -190,13 +236,13 @@ Zawartość odpowiedzi to nieprzezroczyste (opaque) dane aplikacji. Nie istnieje
 | cipher MAC       | 2               | MAC dla zaszyfrowanych danych w kolejnym polu     |
 | ciphertext       | reszta payloadu | zaszyfrowana wiadomość, szczegóły poniżej         |
 
-### Logowanie do room servera
+### Logowanie do room serwera
 
 | Pole           | Rozmiar (bajty)   | Opis                                                  |
 |----------------|-------------------|-------------------------------------------------------|
 | timestamp      | 4                 | czas nadawcy (znacznik czasu unix)                    |
 | sync timestamp | 4                 | znacznik czasu nadawcy „synchronizuj wiadomości OD x” |
-| password       | reszta wiadomości | hasło do room servera                                 |
+| password       | reszta wiadomości | hasło do room serwera                                 |
 
 ### Logowanie do repeatera/sensora
 
@@ -240,7 +286,7 @@ Zawartość odpowiedzi to nieprzezroczyste (opaque) dane aplikacji. Nie istnieje
 | cipher MAC   | 2               | MAC dla zaszyfrowanych danych w kolejnym polu |
 | ciphertext   | reszta payloadu | zaszyfrowana wiadomość, szczegóły poniżej     |
 
-Tekst jawny zawarty w szyfrogramie odpowiada formatowi opisanemu w [zwykłej wiadomości tekstowej](#zwykła-wiadomość-tekstowa). Konkretnie składa się z czterobajtowego znacznika czasu, bajtu flag oraz wiadomości. Bajt flag będzie zwykle miał wartość `0x00`, ponieważ jest to „zwykła wiadomość tekstowa”. Wiadomość będzie miała postać `<nazwa nadawcy>: <treść wiadomości>` (np. `user123: I'm on my way`).
+Dane przed zaszyfrowaniem mają format [zwykłej wiadomości tekstowej](#zwykla-wiadomosc-tekstowa): 4-bajtowy znacznik czasu, bajt typu i numeru próby oraz treść. Bajt typu ma zwykle wartość `0x00`. Treść ma postać `<nazwa nadawcy>: <treść wiadomości>`, np. `user123: Już jadę`.
 
 ## Grupowy datagram
 

@@ -4,6 +4,7 @@ description: Opis formatu pakietu protokołu MeshCore.
 order: 6
 sourceUrl: https://docs.meshcore.io/packet_format
 createdAt: 22.08.2026
+updatedAt: 10.11.2026
 ---
 
 # Format pakietu
@@ -17,13 +18,13 @@ Ten dokument opisuje format pakietu MeshCore.
 
 ## Format pakietu w wersji 1
 
-To jest struktura pakietu na poziomie protokołu, używana w firmware MeshCore v1.12.0
+Poniżej opisano strukturę pakietu protokołu MeshCore, w tym wielobajtowe hashe ścieżki. Uwagi o firmware v1.12.0 i starszym wskazują ograniczenia wcześniejszego formatu.
 
 ```
 [header][transport_codes(opcjonalnie)][path_length][path][payload]
 ```
 
-- [header](#format-nagłówka) - 1 bajt
+- [header](#format-naglowka) - 1 bajt
     - Format 8-bitowy: `0bVVPPPPRR` - `V=Version` - `P=PayloadType` - `R=RouteType`
     - Bity 0-1 - 2 bity - [Route Type](#typy-trasowania)
         - `0x00`/`0b00` - `ROUTE_TYPE_TRANSPORT_FLOOD` - routing zalewowy (Flood) + kody transportu
@@ -64,11 +65,11 @@ To jest struktura pakietu na poziomie protokołu, używana w firmware MeshCore v
         - `0b10`: 3-bajtowe hashe ścieżki
         - `0b11`: zarezerwowane / nieobsługiwane
 - `path` - `hop_count * hash_size` bajtów - ścieżka używana do routingu bezpośredniego (Direct) lub śledzenia ścieżki zalewowej (flood)
-    - Maksymalnie do 64 bajtów, zdefiniowane przez `MAX_PATH_SIZE`
+    - Do 64 bajtów, zdefiniowane przez `MAX_PATH_SIZE`
     - Efektywna długość w bajtach jest obliczana na podstawie zakodowanej liczby hopów i rozmiaru hasha, a nie pobierana bezpośrednio z `path_length`
     - Firmware w wersji v1.12.0 i starszy obsługiwał wyłącznie stare, 1-bajtowe hashe ścieżki i odrzucał pakiety, których bajty ścieżki przekraczały [64 bajty](https://github.com/meshcore-dev/MeshCore/blob/e812632235274ffd2382adf5354168aec765d416/src/Dispatcher.cpp#L144)
 - `payload` - zmienna długość - dane payloadu
-    - Maksymalnie do 184 bajtów, zdefiniowane przez `MAX_PACKET_PAYLOAD`
+    - Do 184 bajtów, zdefiniowane przez `MAX_PACKET_PAYLOAD`
     - Zazwyczaj jest to pozostała część surowych danych pakietu
     - Firmware parsuje te dane na podstawie podanego Payload Type
     - Firmware w wersji v1.12.0 i starszy odrzuca pakiety, których `payload` jest [większy niż 184 bajty](https://github.com/meshcore-dev/MeshCore/blob/e812632235274ffd2382adf5354168aec765d416/src/Dispatcher.cpp#L152)
@@ -87,7 +88,7 @@ To jest struktura pakietu na poziomie protokołu, używana w firmware MeshCore v
 
 ### Format nagłówka
 
-Bit 0 oznacza najniższy bit (miejsce jedności)
+Bit 0 jest najmniej znaczącym bitem bajtu.
 
 | Bity | Maska  | Pole            | Opis                           |
 |------|--------|-----------------|--------------------------------|
@@ -106,7 +107,7 @@ Bit 0 oznacza najniższy bit (miejsce jedności)
 
 ### Kodowanie długości ścieżki (Path Length)
 
-`path_length` nie jest surową liczbą bajtów. Zawiera w sobie zarówno rozmiar hasha, jak i liczbę hopów:
+Pole `path_length` koduje rozmiar hasha i liczbę hopów. Nie określa bezpośrednio liczby bajtów ścieżki:
 
 | Bity | Pole               | Znaczenie                          |
 |------|--------------------|------------------------------------|
@@ -124,7 +125,7 @@ Kody rozmiaru hasha:
 
 Przykłady:
 
-- `0x00`: pakiet zero-hop, brak bajtów ścieżki
+- `0x00`: pakiet 0-hop, brak bajtów ścieżki
 - `0x05`: 5 hopów z użyciem 1-bajtowych hashy, więc ścieżka ma 5 bajtów
 - `0x45`: 5 hopów z użyciem 2-bajtowych hashy, więc ścieżka ma 10 bajtów
 - `0x8A`: 10 hopów z użyciem 3-bajtowych hashy, więc ścieżka ma 30 bajtów

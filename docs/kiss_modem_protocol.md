@@ -4,11 +4,12 @@ description: Standardowy firmware TNC KISS dla radiów LoRa MeshCore, kompatybil
 order: 5
 sourceUrl: https://docs.meshcore.io/kiss_modem_protocol
 createdAt: 22.08.2026
+updatedAt: 10.11.2026
 ---
 
 # Protokół modemu KISS MeshCore
 
-Standardowy firmware TNC KISS dla radiów LoRa MeshCore. Kompatybilny z każdym klientem KISS (Direwolf, APRSdroid, YAAC itd.) do wysyłania i odbierania surowych pakietów. Rozszerzenia specyficzne dla MeshCore (kryptografia, konfiguracja radia, telemetria) są dostępne za pomocą standardowego polecenia SetHardware (0x06).
+Firmware TNC KISS pozwala wysyłać i odbierać surowe pakiety przez radio LoRa MeshCore. Współpracuje z klientami KISS, takimi jak Direwolf, APRSdroid i YAAC. Funkcje MeshCore, w tym kryptografia, konfiguracja radia i telemetria, są dostępne przez polecenie SetHardware (`0x06`).
 
 ## Konfiguracja portu szeregowego
 
@@ -31,7 +32,7 @@ Standardowe ramkowanie KISS zgodnie ze specyfikacją KA9Q/K3MC.
 
 ### Bajt typu (Type Byte)
 
-Bajt typu jest podzielony na dwie połówki (nibble):
+Bajt typu składa się z dwóch 4-bitowych części (nibble):
 
 | Bity | Pole    | Opis                                   |
 |------|---------|----------------------------------------|
@@ -61,22 +62,30 @@ Maksymalny rozmiar niezakodowanej ramki: 512 bajtów.
 |------|---------|---------------|-------------------------|
 | Data | `0x00`  | Surowy pakiet | Pakiet odebrany z radia |
 
-Ramki Data przenoszą wyłącznie surowe dane pakietu, bez żadnych poprzedzających metadanych. Payload polecenia Data jest ograniczony do 255 bajtów, aby odpowiadał maksymalnej jednostce transmisji MeshCore (MAX_TRANS_UNIT); ramki większe niż 255 bajtów są po cichu odrzucane. Specyfikacja KISS zaleca co najmniej 1024 bajty dla ogólnego przeznaczenia TNC; ten modem jest przeznaczony wyłącznie do pakietów MeshCore, których MTU protokołu wynosi 255 bajtów.
+Ramki Data przenoszą surowe dane pakietu bez poprzedzających je metadanych. Payload może mieć najwyżej 255 bajtów, zgodnie z limitem MeshCore (`MAX_TRANS_UNIT`). Większe ramki są odrzucane bez powiadomienia. Specyfikacja KISS zaleca obsługę co najmniej 1024 bajtów w modemach TNC ogólnego przeznaczenia. Ten modem obsługuje wyłącznie pakiety MeshCore, dla których MTU wynosi 255 bajtów.
 
-### Zachowanie CSMA
+### Oczekiwanie na zakończenie transmisji
 
-TNC implementuje p-persistent CSMA dla trybu half-duplex:
+Jednocześnie tylko jeden pakiet może oczekiwać na zakończenie transmisji radiowej. Jeśli host wyśle kolejną ramkę Data wcześniej, modem odpowie ramką Error (`0xF1`) z kodem TxBusy (`0x07`).
 
-1. Gdy pakiet zostanie zakolejkowany, monitorowane jest wykrywanie nośnej (carrier detect)
-2. Gdy kanał się zwolni, generowana jest losowa wartość 0-255
-3. Jeśli wartość jest mniejsza lub równa P (Persistence), odczekaj TXDELAY, a następnie transmituj
-4. W przeciwnym razie odczekaj SlotTime i powtórz od kroku 1
+### Kolejka danych wysyłanych do hosta
+
+Modem zapisuje zakodowane ramki w kolejce mieszczącej dwie pozycje i wysyła je, gdy bufor portu szeregowego ma wolne miejsce. Funkcja `loop()` nie czeka na zakończenie zapisu, więc transmisja radiowa nie zależy od szybkości odczytu po stronie hosta. Powiadomienie TxDone jest przechowywane do czasu umieszczenia w kolejce. Gdy kolejka jest pełna, modem zgłasza Error (`0xF1`) z kodem TxBusy (`0x07`). Host powinien na bieżąco odczytywać port, aby nie opóźniać odpowiedzi.
+
+### Dostęp do kanału (CSMA)
+
+W trybie half-duplex TNC korzysta z algorytmu p-persistent CSMA:
+
+1. Po zakolejkowaniu pakietu TNC sprawdza, czy kanał jest wolny.
+2. Gdy kanał się zwolni, losuje wartość od 0 do 255.
+3. Jeśli wartość jest mniejsza lub równa P (Persistence), czeka przez TXDELAY i rozpoczyna nadawanie.
+4. W przeciwnym razie czeka przez SlotTime i wraca do kroku 1.
 
 W trybie full-duplex CSMA jest pomijane, a pakiety są transmitowane po TXDELAY.
 
 ## Rozszerzenia SetHardware (0x06)
 
-Funkcjonalność specyficzna dla MeshCore wykorzystuje standardowe polecenie KISS SetHardware. Pierwszy bajt danych SetHardware jest subpoleceniem. Standardowi klienci KISS ignorują te ramki.
+Funkcje MeshCore są dostępne przez standardowe polecenie KISS SetHardware. Pierwszy bajt jego danych określa subpolecenie. Klienci KISS bez obsługi tych rozszerzeń ignorują takie ramki.
 
 ### Format ramki
 
@@ -117,7 +126,7 @@ Funkcjonalność specyficzna dla MeshCore wykorzystuje standardowe polecenie KIS
 
 ### Subpolecenia odpowiedzi (TNC do hosta)
 
-Kody odpowiedzi używają konwencji najstarszego bitu: `response = command | 0x80`. Odpowiedzi ogólne i niewywołane żądaniem używają zakresu `0xF0`+.
+Kod odpowiedzi powstaje przez ustawienie najstarszego bitu kodu polecenia: `response = command | 0x80`. Odpowiedzi ogólne i niewywołane żądaniem używają zakresu `0xF0`+.
 
 | Subpolecenie | Wartość | Dane                                           |
 |--------------|---------|------------------------------------------------|
@@ -158,15 +167,15 @@ Kody odpowiedzi używają konwencji najstarszego bitu: `response = command | 0x8
 | MacFailed     | `0x04`  | Weryfikacja MAC nie powiodła się |
 | UnknownCmd    | `0x05`  | Nieznane subpolecenie            |
 | EncryptFailed | `0x06`  | Szyfrowanie nie powiodło się     |
-| TxBusy        | `0x07`  | Nadajnik zajęty                  |
+| TxBusy        | `0x07`  | Zajęty nadajnik lub pełna kolejka danych do hosta |
 
 ### Zdarzenia niewywołane żądaniem
 
 TNC wysyła te ramki SetHardware bez poprzedzającego żądania:
 
-**TxDone (0xF8)**: wysyłane po zakończeniu transmisji pakietu. Zawiera pojedynczy bajt: 0x01 dla sukcesu, 0x00 dla niepowodzenia.
+**TxDone (0xF8)**: informuje o zakończeniu transmisji radiowej. Zawiera jeden bajt: `0x01` oznacza powodzenie, a `0x00` niepowodzenie. Zajęty port szeregowy może opóźnić dostarczenie tego powiadomienia, ale nie powoduje jego odrzucenia.
 
-**RxMeta (0xF9)**: wysyłane natychmiast po każdej standardowej ramce danych (typ 0x00) wraz z metadanymi odebranego pakietu. Zawiera SNR (1 bajt, ze znakiem, wartość x4 dla precyzji 0,25 dB), a następnie RSSI (1 bajt, ze znakiem, dBm). Domyślnie włączone; można przełączać za pomocą SetSignalReport. Standardowi klienci KISS ignorują tę ramkę.
+**RxMeta (0xF9)**: metadane wysyłane po standardowej ramce danych (typ `0x00`). Zawiera SNR (1 bajt ze znakiem, wartość pomnożona przez 4) i RSSI (1 bajt ze znakiem, w dBm). Trafia do kolejki razem z ramką danych. Jeśli nie można zakolejkować danych, ich metadane również są pomijane. Funkcja jest domyślnie włączona; zmienia ją polecenie SetSignalReport. Klienci KISS bez obsługi tego rozszerzenia ignorują ramkę.
 
 ## Formaty danych
 

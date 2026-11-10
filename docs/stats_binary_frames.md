@@ -5,11 +5,12 @@ description: Struktury binarnych ramek dla poleceń statystyk radia companiona M
 order: 9
 sourceUrl: https://docs.meshcore.io/stats_binary_frames
 createdAt: 22.08.2026
+updatedAt: 10.11.2026
 ---
 
 # Struktury binarnych ramek statystyk {toc: Ramki statystyk}
 
-Struktury binarnych ramek dla poleceń statystyk radia companiona. Wszystkie wielobajtowe liczby całkowite używają kolejności bajtów little-endian.
+Ta strona opisuje ramki poleceń i odpowiedzi służących do odczytu statystyk radia Companion. Wszystkie wielobajtowe liczby całkowite są zapisane w kolejności little-endian.
 
 ## Kody poleceń
 
@@ -30,7 +31,7 @@ Polecenie `CMD_GET_STATS` używa 2-bajtowej struktury ramki:
 
 | Odpowiedź         | Kod | Opis                                                          |
 |-------------------|-----|---------------------------------------------------------------|
-| `RESP_CODE_STATS` | 24  | Odpowiedź ze statystykami (odpowiedź 2-bajtowa: kod + subtyp) |
+| `RESP_CODE_STATS` | 24  | Odpowiedź ze statystykami; nagłówek ma 2 bajty: kod i subtyp |
 
 ### Subtypy odpowiedzi statystyk
 

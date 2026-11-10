@@ -4,6 +4,7 @@ description: Polecenia dostępne w klientach Terminal Chat MeshCore.
 order: 3
 sourceUrl: https://docs.meshcore.io/terminal_chat_cli
 createdAt: 22.08.2026
+updatedAt: 10.11.2026
 ---
 
 # Terminal Chat CLI
@@ -13,7 +14,7 @@ Poniżej znajdują się polecenia, które można wpisywać w klientach Terminal 
 ```mccli
 set freq {frequency}
 ```
-Ustawia częstotliwość LoRa. Przykład: set freq 915.8
+Ustawia częstotliwość LoRa. Przykład: `set freq 915.8`.
 
 ```mccli
 set tx {tx-power-dbm}
@@ -28,32 +29,29 @@ Ustawia nazwę wyświetlaną w advertach.
 ```mccli
 set lat {latitude}
 ```
-Ustawia szerokość geograficzną na mapie w adverta. (stopnie dziesiętne)
+Ustawia szerokość geograficzną wysyłaną w advertach, w stopniach dziesiętnych.
 
 ```mccli
 set lon {longitude}
 ```
-Ustawia długość geograficzną na mapie w adverta. (stopnie dziesiętne)
-
-```mccli
-set dutycycle {percent}
-```
-Ustawia limit cyklu pracy nadajnika (duty cycle, 1-100%). Przykład: `set dutycycle 10` dla 10%.
+Ustawia długość geograficzną wysyłaną w advertach, w stopniach dziesiętnych.
 
 ```mccli
 set af {air-time-factor}
 ```
-Ustawia współczynnik czasu nadawania (air-time-factor). Przestarzałe - zamiast tego użyj `set dutycycle`.
+Ustawia współczynnik czasu nadawania (air-time-factor).
+
+> Terminal Chat nie obsługuje `set dutycycle`, dlatego nadal używa `set af`. Polecenie `set dutycycle` jest dostępne w firmware Repeater, Room serwer, Sensor i Companion Radio, opisanym na stronie [Polecenia CLI](./cli_commands.md). Terminal Chat ma własną obsługę ustawień, ograniczoną do sześciu poleceń `set` wymienionych powyżej.
 
 ```mccli
 time {epoch-secs}
 ```
-Ustawia zegar urządzenia przy użyciu sekund epoki UNIX. Przykład: time 1738242833
+Ustawia zegar urządzenia na podstawie znacznika czasu Unix w sekundach. Przykład: `time 1738242833`.
 
 ```mccli
 advert
 ```
-Wysyła pakiet advertu
+Wysyła advert.
 
 ```mccli
 clock
@@ -68,7 +66,7 @@ Pokazuje wersję urządzenia oraz datę kompilacji firmware.
 ```mccli
 card
 ```
-Wyświetla *Twoją* „wizytówkę”, aby inni mogli ją ręcznie _zaimportować_
+Wyświetla wizytówkę Twojego urządzenia, którą inni użytkownicy mogą zaimportować.
 
 ```mccli
 import {card}
@@ -78,17 +76,17 @@ Importuje podaną wizytówkę do Twoich kontaktów.
 ```mccli
 list {n}
 ```
-Wyświetla listę wszystkich kontaktów od najnowszych. (opcjonalne {n} oznacza ostatnie n według daty advertu)
+Wyświetla kontakty od najnowszego według daty advertu. Opcjonalny parametr `{n}` ogranicza listę do `n` najnowszych kontaktów.
 
 ```mccli
 to
 ```
-Pokazuje nazwę aktualnie wybranego kontaktu odbiorcy. (dotyczy kolejnych poleceń „send”)
+Pokazuje nazwę odbiorcy wybranego dla kolejnych poleceń `send`.
 
 ```mccli
 to {name-prefix}
 ```
-Ustawia odbiorcę na _pierwszy_ pasujący kontakt (z „list”) po prefiksie nazwy. (czyli nie musisz wpisywać całej nazwy)
+Wybiera jako odbiorcę pierwszy kontakt, którego nazwa zaczyna się od podanego prefiksu. Nie trzeba wpisywać całej nazwy.
 
 ```mccli
 send {text}
@@ -104,3 +102,8 @@ Resetuje ścieżkę do aktualnego odbiorcy, wymuszając ponowne wyszukiwanie śc
 public {text}
 ```
 Wysyła wiadomość tekstową na wbudowany, publiczny kanał grupowy „public”.
+
+```mccli
+help
+```
+Wyświetla dostępne polecenia.
