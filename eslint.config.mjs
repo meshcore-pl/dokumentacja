@@ -67,7 +67,7 @@ export default [
 	{
 		files: ['public/**/*.js'],
 		languageOptions: {
-			sourceType: 'module',
+			sourceType: 'script',
 			globals: { ...globals.browser },
 		},
 		rules: {

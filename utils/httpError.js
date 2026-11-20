@@ -6,7 +6,7 @@ const MESSAGES = {
 	503: 'Serwer jest chwilowo niedostępny. Spróbuj ponownie za chwilę.',
 };
 
-module.exports = (res, status, err) => {
+export default (res, status, err) => {
 	if (err) console.error(err);
 
 	res.status(status).render('error.ejs', {

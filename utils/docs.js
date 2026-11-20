@@ -1,9 +1,9 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const parseFrontmatter = require('frontmatter-md');
-const { marked, assignHeadingIds, getHeadingId, getTocLabel, createRenderer, parseDMYDate } = require('./markdown.js');
+import fs from 'node:fs';
+import path from 'node:path';
+import parseFrontmatter from 'frontmatter-md';
+import { marked, assignHeadingIds, getHeadingId, getTocLabel, createRenderer, parseDMYDate } from './markdown.js';
 
-const DOCS_DIR = path.join(__dirname, '../docs');
+const DOCS_DIR = path.join(import.meta.dirname, '../docs');
 const stemToSlug = stem => stem.replace(/_/g, '-');
 
 let state;
@@ -62,4 +62,4 @@ const getState = () => {
 	return state;
 };
 
-module.exports = { getState };
+export { getState };

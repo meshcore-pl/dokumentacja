@@ -1,6 +1,8 @@
-const router = require('express').Router();
-const HttpError = require('../utils/httpError.js');
-const { getScript, ENDPOINTS, OFFLINE_HEADER } = require('../services/serviceWorker/index.js');
+import { Router } from 'express';
+import HttpError from '../utils/httpError.js';
+import { getScript, ENDPOINTS, OFFLINE_HEADER } from '../services/serviceWorker/index.js';
+
+const router = Router();
 
 router.get(ENDPOINTS.serviceWorker, async (req, res, next) => {
 	try {
@@ -22,4 +24,4 @@ router.get(ENDPOINTS.offline, (req, res) => {
 	res.render('offline.ejs');
 });
 
-module.exports = router;
+export default router;

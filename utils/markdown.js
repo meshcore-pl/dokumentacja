@@ -1,4 +1,4 @@
-const { marked } = require('marked');
+import { marked } from 'marked';
 
 const DIACRITICS = { ą: 'a', ć: 'c', ę: 'e', ł: 'l', ń: 'n', ó: 'o', ś: 's', ź: 'z', ż: 'z' };
 const slugify = text => text.toLowerCase()
@@ -100,4 +100,4 @@ const parseDMYDate = str => {
 	return Number.isNaN(date.getTime()) ? null : date;
 };
 
-module.exports = { marked, slugify, assignHeadingIds, getHeadingId, getTocLabel, createRenderer, parseDMYDate };
+export { marked, slugify, assignHeadingIds, getHeadingId, getTocLabel, createRenderer, parseDMYDate };

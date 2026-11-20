@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
 	apps: [{
 		name: 'mcd',
 		script: './index.js',
@@ -23,3 +23,6 @@ module.exports = {
 		},
 	}],
 };
+
+export default config;
+export { config as 'module.exports' };

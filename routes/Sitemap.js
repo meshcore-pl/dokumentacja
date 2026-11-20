@@ -1,5 +1,7 @@
-const router = require('express').Router();
-const { getState } = require('../utils/docs.js');
+import { Router } from 'express';
+import { getState } from '../utils/docs.js';
+
+const router = Router();
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -29,4 +31,4 @@ router.get('/sitemap.xml', (req, res) => {
 	res.send(getSitemap(req.app.locals.domain));
 });
 
-module.exports = router;
+export default router;

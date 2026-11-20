@@ -1,6 +1,8 @@
-const router = require('express').Router();
-const HttpError = require('../utils/httpError.js');
-const { getState } = require('../utils/docs.js');
+import { Router } from 'express';
+import HttpError from '../utils/httpError.js';
+import { getState } from '../utils/docs.js';
+
+const router = Router();
 
 const NO_NEIGHBOURS = { prev: null, next: null };
 
@@ -34,4 +36,4 @@ router.get('/api/search', (req, res) => res.json(getState().searchIndex));
 
 router.get('/:slug', (req, res) => renderPage(req, res, req.params.slug));
 
-module.exports = router;
+export default router;

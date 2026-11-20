@@ -1,16 +1,24 @@
-const path = require('node:path');
-process.loadEnvFile(path.join(__dirname, '.env'));
-const express = require('express');
-const helmet = require('helmet');
-const { version } = require('./package.json');
+import './loadEnv.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import express from 'express';
+import helmet from 'helmet';
+
+// Middleware imports
+import timeout from './middlewares/timeout.js';
+import logger from './global/middlewares/morgan.js';
+import limiter from './middlewares/ratelimit.js';
+import HttpError from './utils/httpError.js';
+
+// Routes
+import ServiceWorkerRouter from './routes/ServiceWorker.js';
+import SitemapRouter from './routes/Sitemap.js';
+import IndexRouter from './routes/Index.js';
+
+const { version } = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 const { DOMAIN, NODE_ENV, PORT, CDN_SEFINEK_URL } = process.env;
 const isProd = NODE_ENV === 'production';
 if (!CDN_SEFINEK_URL) throw new Error('Missing required environment variable: CDN_SEFINEK_URL');
-
-// Middleware imports
-const timeout = require('./middlewares/timeout.js');
-const logger = require('./middlewares/morgan.js');
-const HttpError = require('./utils/httpError.js');
 
 // Create an Express app
 const app = express();
@@ -18,7 +26,7 @@ const app = express();
 // Configure the app
 if (isProd) app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(import.meta.dirname, 'views'));
 app.locals.domain = DOMAIN;
 app.locals.cdn = CDN_SEFINEK_URL;
 app.locals.version = version;
@@ -37,16 +45,16 @@ app.use(helmet({
 		},
 	},
 }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(import.meta.dirname, 'public')));
 app.use(logger);
-if (isProd) app.use(require('./middlewares/ratelimit.js'));
+if (isProd) app.use(limiter);
 app.use(timeout());
 
 
 // Routes
-app.use(require('./routes/ServiceWorker.js'));
-app.use(require('./routes/Sitemap.js'));
-app.use(require('./routes/Index.js'));
+app.use(ServiceWorkerRouter);
+app.use(SitemapRouter);
+app.use(IndexRouter);
 
 
 // Error handling
