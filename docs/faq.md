@@ -157,7 +157,7 @@ Room serwer przechowuje historię wiadomości, więc po powrocie do zasięgu mo�
 
 Room serwerem można zarządzać zdalnie z T-Deck z odblokowaną administracją lub z aplikacji mobilnej MeshCore połączonej z radiem BLE Companion.
 
-Gdy klient loguje się do room serwera, otrzymuje ostatnie 32 nieprzeczytane wiadomości.
+Room serwer domyślnie przechowuje do 32 ostatnich wiadomości (`MAX_UNSYNCED_POSTS`). Po połączeniu klient synchronizuje zachowane wiadomości nowsze niż jego znacznik ostatniej synchronizacji. Starsze wpisy mogły już zostać nadpisane. Historia jest przechowywana w RAM i znika po restarcie room serwera.
 
 Room serwer może również przekazywać pakiety po włączeniu tej funkcji poleceniem `set repeat on`. Takie połączenie obu ról nazywamy room-peaterem. Nie udostępnia wtedy pełnego zestawu funkcji repeatera ani wszystkich opcji zdalnej administracji dostępnych w firmware repeatera.
 
@@ -215,7 +215,7 @@ Klienci MeshCore rozgłaszają się wyłącznie wtedy, gdy zainicjuje to użytko
 Polecenie `set advert.interval {minutes}` ustawia osobny interwał wysyłania lokalnych advertów 0-hop.
 
 ### 2.5. Czy istnieje limit hopów?
-Firmware dopuszcza maksymalnie 64 hopy. W praktyce osiągnięcie tego limitu jest trudne ze względu na warunki radiowe i rosnący czas dostarczenia pakietów.
+Pole ścieżki ma limit 64 bajtów, ale liczba wpisów jest zapisana w 6 bitach. Mieści więc najwyżej 63 identyfikatory repeaterów przy hashu 1-bajtowym, 32 przy 2-bajtowym i 21 przy 3-bajtowym. Ustawienie CLI `flood.max` przyjmuje wartości do 64, lecz nie zwiększa pojemności pola ścieżki.
 
 ---
 
@@ -285,11 +285,11 @@ Reset AGC ma niewielki narzut: polega na ustawieniu `state = STATE_IDLE;` w funk
 Instrukcja dotycząca obserwatora jest dostępna tutaj: <https://analyzer.letsmesh.net/observer/onboard>
 
 ### 3.9. Czym jest obsługa multibyte? Co oznaczają adverty i wiadomości 1-, 2- i 3-bajtowe?
-Pierwotny projekt protokołu MeshCore wykorzystuje pierwszy bajt klucza publicznego repeatera do oznaczania repeatera w ścieżce. Przy 1 bajcie na każdy repeater w ścieżce, pakiety MeshCore mogą pokonać nawet 64 hopy.
+Pierwotny projekt protokołu MeshCore wykorzystuje pierwszy bajt klucza publicznego repeatera do oznaczania repeatera w ścieżce. Przy hashu 1-bajtowym ścieżka może zawierać do 63 identyfikatorów repeaterów.
 
 Jeden bajt pozwala rozróżnić 254 identyfikatory (00 i FF są zarezerwowane). W wielu sieciach występują więc repeatery z takim samym pierwszym bajtem klucza publicznego. Nie zakłóca to przekazywania pakietów, ale utrudnia narzędziom rozróżnianie repeaterów podczas analizy ścieżek.
 
-Firmware 1.14 i nowszy obsługuje adverty oraz wiadomości kanałowe i bezpośrednie z hashami ścieżki o długości 1, 2 lub 3 bajtów. Pakiety z hashami 1-bajtowymi są zgodne także ze starszym firmware repeaterów. Maksymalna długość trasy wynosi 64 hopy dla hashy 1-bajtowych, 32 dla 2-bajtowych i 21 dla 3-bajtowych.
+Firmware 1.14 i nowszy obsługuje adverty oraz wiadomości kanałowe i bezpośrednie z hashami ścieżki o długości 1, 2 lub 3 bajtów. Pakiety z hashami 1-bajtowymi są zgodne także ze starszym firmware repeaterów. Pole ścieżki mieści do 63 wpisów dla hashy 1-bajtowych, 32 dla 2-bajtowych i 21 dla 3-bajtowych.
 
 #### 3.9.1. Jakie rozmiary hashy ścieżki przekaże mój repeater?
 Repeatery z firmware 1.14+ przekazują dalej pakiety wysłane z 1-, 2- lub 3-bajtowym hashem ścieżki. Repeatery ze starszym firmware niż 1.14 przekazują dalej wyłącznie pakiety z 1-bajtowym hashem ścieżki, a pakiety 2- i 3-bajtowe po cichu odrzucają.
@@ -497,7 +497,7 @@ sudo apt update
 sudo apt install libpython3-dev
 sudo apt install python3-venv
 ```
-Mac: python3 powinien być już zainstalowany.
+Na macOS sprawdź dostępność polecenia `python3`. Jeśli go brakuje, zainstaluj Python 3 przed dalszymi krokami.
 
 Następnie kroki są takie same dla wszystkich platform:
 ```bash
@@ -545,15 +545,15 @@ Raspberry Pi może wgrać firmware do urządzenia LoRa przez port szeregowy USB.
 
 > Instrukcje dla urządzeń nRF, takich jak RAK, T1000-E, T114, znajdują się zaraz po instrukcjach dla ESP
 
-Dla urządzeń opartych na ESP (np. Heltec V3) potrzebujesz:
+Poniższe adresy i opcja `--chip esp32-s3` dotyczą przykładu z Heltec V3 (ESP32-S3). Dla innej płytki sprawdź układ i adresy wgrywania w jej konfiguracji.
 
 1. Pobierz plik firmware z <https://flasher.meshcore.io>.
     - Wejdź na stronę w przeglądarce i znajdź sekcję z potrzebnym firmware.
     - Kliknij przycisk Download, kliknij prawym przyciskiem myszy na potrzebny plik, na przykład:
         - `Heltec_v3_companion_radio_ble-v1.7.1-165fb33.bin`
-            - Wersja bin bez scalenia (non-merged) zachowuje istniejącą bazę parowania Bluetooth.
+            - Plik niescalony (non-merged) zawiera aplikację i jest wgrywany pod jej adresem.
         - `Heltec_v3_companion_radio_usb-v1.7.1-165fb33-merged.bin`
-            - Wersja bin scalona (merged) nadpisuje wszystko, w tym bootloader i istniejącą bazę parowania Bluetooth, ale zachowuje konfiguracje.
+            - Plik scalony (merged) zawiera też bootloader i tablicę partycji. Nie zakładaj zachowania ustawień ani parowania: przed aktualizacją wykonaj eksport konfiguracji.
     - Kliknij prawym przyciskiem myszy na nazwę pliku i skopiuj link. Oto przykład: `https://flasher.meshcore.io/releases/download/companion-v1.7.1/Heltec_v3_companion_radio_ble-v1.7.1-165fb33.bin`
     - Uruchom:
         - `wget https://flasher.meshcore.io/releases/download/companion-v1.7.1/Heltec_v3_companion_radio_ble-v1.7.1-165fb33.bin`, aby pobrać plik firmware dla Twojego typu urządzenia lub potrzebnej wersji: USB, BLE, Repeater, Room serwer, bin scalony lub niescalony.
@@ -562,13 +562,19 @@ Dla urządzeń opartych na ESP (np. Heltec V3) potrzebujesz:
 2. Potwierdź ścieżkę urządzenia `ttyXXXX` na swoim Raspberry Pi.
     - Przejdź do katalogu `/dev` i uruchom polecenie `ls`, aby znaleźć ścieżkę swojego urządzenia.
     - Zazwyczaj jest to `/dev/ttyUSB0` dla urządzeń ESP.
-3. Zainstaluj esptool z powłoki.
-    - `pip install esptool --break-system-packages`
+3. Utwórz środowisko Pythona i zainstaluj esptool:
+    ```sh
+    python3 -m venv meshcore-flash
+    . meshcore-flash/bin/activate
+    python -m pip install esptool
+    ```
 4. Wgraj firmware.
     - Dla pliku bin niescalonego:
-        - `esptool.py -p /dev/ttyUSB0 --chip esp32-s3 write_flash 0x10000 <non-merged_firmware>.bin`
+        - `esptool --port /dev/ttyUSB0 write-flash 0x10000 <non-merged_firmware>.bin`
     - Dla pliku bin scalonego:
-        - `esptool.py -p /dev/ttyUSB0 --chip esp32-s3 write_flash 0x00000 <merged_firmware>.bin`
+        - `esptool --port /dev/ttyUSB0 write-flash 0x00000 <merged_firmware>.bin`
+
+Powyższe polecenia używają składni esptool 5. Adresy dotyczą opisanego przykładu Heltec V3; dla innej płytki sprawdź instrukcję jej firmware. Zobacz [dokumentację esptool](https://docs.espressif.com/projects/esptool/en/latest/esp32s3/esptool/basic-commands.html).
 
 **Instrukcje dla urządzeń nRF:**
 
@@ -585,8 +591,8 @@ Dla urządzeń nRF, np. RAK lub Heltec T114, wykonaj następujące kroki:
 2. Potwierdź ścieżkę urządzenia `ttyXXXX` na swoim Raspberry Pi.
     - Przejdź do katalogu `/dev` i uruchom polecenie `ls`, aby znaleźć ścieżkę swojego urządzenia.
     - Zazwyczaj jest to `/dev/ttyACM0` dla urządzeń nRF.
-3. Zainstaluj adafruit-nrfutil.
-    - `pip install adafruit-nrfutil --break-system-packages`
+3. W aktywnym środowisku Pythona zainstaluj `adafruit-nrfutil`. Jeśli go jeszcze nie masz, utwórz je jak w instrukcji dla ESP powyżej.
+    - `python -m pip install adafruit-nrfutil`
 4. Wgraj firmware na urządzenie nRF.
     - `adafruit-nrfutil --verbose dfu serial --package RAK_4631_companion_radio_ble-v1.7.1-165fb33.zip -p /dev/ttyACM0 -b 115200 --singlebank --touch 1200`
 
@@ -611,7 +617,7 @@ Listę projektów społeczności prowadzi [samuk](https://github.com/samuk) w re
 Aplikacja znana z iOS i Androida jest dostępna również na Windows i macOS. Pliki instalacyjne, w tym APK na Androida, znajdziesz tutaj:
 <https://files.liamcottle.net/MeshCore>
 
-Zarówno wersja klienta na Windows, jak i na Mac są w pełni odblokowane i darmowe w użyciu.
+Dostępność funkcji i warunki korzystania sprawdź dla pobieranej wersji aplikacji.
 
 ### 5.16. Czy istnieją materiały porównujące MeshCore z innymi systemami LoRa?
 Oto lista materiałów porównawczych dotyczących MeshCore:
@@ -686,17 +692,17 @@ Nadaj dostęp użytkownikowi do portu USB:
 ## 7. Inne pytania
 
 ### 7.1. Jak zaktualizować urządzenie nRF52 przez Bluetooth (OTA DFU)?
-Poniższa instrukcja dotyczy Androida i iOS. Aplikacja nRF DFU ma taki sam interfejs na obu platformach.
+Poniższa instrukcja dotyczy Androida i iOS. Ogólny przebieg jest podobny na obu platformach, ale dostępne ustawienia mogą się różnić.
 
 Aktualizacja companiona przez OTA wymaga firmware Companion 1.15 lub nowszego. Zalecany jest [bootloader OTAFIX](https://github.com/oltaco/Adafruit_nRF52_Bootloader_OTAFIX), który ułatwia odzyskanie urządzenia po nieudanej aktualizacji.
 
 1. Pobierz aplikację nRF DFU z App Store (iOS) lub Play Store (Android) - znajdziesz ją, szukając `nrf dfu`; pełna nazwa aplikacji to `nRF Device Firmware Update`
 2. Na <https://flasher.meshcore.io> pobierz wersję **ZIP** firmware dla swojego urządzenia nRF (np. RAK, Heltec T114 lub Seeed Studio Xiao)
-3. W aplikacji MeshCore zaloguj się zdalnie z uprawnieniami administratora do repeatera, który chcesz zaktualizować
-4. Przejdź do zakładki Command Line, wpisz `start ota` i wciśnij enter.
-5. Powinieneś zobaczyć `OK`, potwierdzające, że urządzenie repeatera jest teraz w trybie OTA
+3. Otwórz CLI aktualizowanego urządzenia. W przypadku repeatera lub room serwera zaloguj się zdalnie jako administrator. Dla companiona użyj lokalnego CLI dostępnego przez obsługującą je aplikację lub USB.
+4. Wpisz `start ota` i naciśnij Enter.
+5. Odpowiedź potwierdzi włączenie trybu OTA. Nazwa widoczna przez Bluetooth może zmienić się na nazwę bootloadera.
 6. Uruchom aplikację DFU, następnie stuknij `Settings` w prawym górnym rogu
-7. Włącz `Packet receipt notifications` i zmień `Number of Packets` na 10 dla RAK, 8 dla T114. 8 działa też dla RAK.
+7. Dobierz ustawienia do wersji bootloadera. Dla OTAFIX 2.x autor podaje PRN włączone i `Number of packets` równe 30. Jeśli transfer szybko kończy się błędem, zmniejsz PRN i wyłącz `Request high MTU` na Androidzie. Aktualne zalecenia są w [instrukcji OTAFIX](https://github.com/oltaco/Adafruit_nRF52_Bootloader_OTAFIX#recommended-ota-dfu-settings).
 8. Wybierz pobrany plik zip z firmware
 9. Wybierz urządzenie, które chcesz zaktualizować. Jeśli nie ma go na liście, spróbuj ponownie włączyć `OTA` na urządzeniu
 10. Jeśli urządzenie nie zostanie znalezione, włącz `Force Scanning` w aplikacji DFU
@@ -730,16 +736,9 @@ Bootloader OTAFIX autorstwa `che aporeps` zwiększa odporność aktualizacji OTA
 
 Aktualne informacje znajdziesz pod adresem <https://github.com/oltaco/Adafruit_nRF52_Bootloader_OTAFIX>.
 
-Obecnie obsługiwane są następujące płytki:
+Listę obsługiwanych płytek sprawdzaj w [repozytorium OTAFIX](https://github.com/oltaco/Adafruit_nRF52_Bootloader_OTAFIX#boards-supported). Obejmuje ona m.in. Heltec T096, T1 i T114, RAK4631 i RAK3401, T1000-E, XIAO nRF52840 oraz ThinkNode M1/M3/M6.
 
-- Heltec Automation Mesh Node T114 / HT-nRF5262
-- Nologo ProMicro NRF52840 (znany też jako SuperMini NRF52840)
-- Seeed Studio SenseCAP Card Tracker T1000-E
-- Seeed Studio Wio Tracker L1
-- Seeed Studio XIAO nRF52840 BLE
-- Seeed Studio XIAO nRF52840 BLE SENSE
-- RAK 4631
-- RAK WisMesh Tag (nowość od 28/11/2025)
+Przed zmianą bootloadera wyeksportuj ustawienia. Autor OTAFIX wymaga wyczyszczenia pamięci przez flasher MeshCore po instalacji nowego bootloadera na urządzeniu z firmware Companion lub Ripple. Użyj procedury opisanej w [instrukcji instalacji](https://github.com/oltaco/Adafruit_nRF52_Bootloader_OTAFIX#installation); zwykły program kasujący może nie wyczyścić obszaru ExtraFS.
 
 ### 7.4. Czy logo i czcionka MeshCore są dostępne?
 Logo i czcionkę znajdziesz w [repozytorium MeshCore](https://github.com/meshcore-dev/MeshCore/tree/main/logo).
@@ -763,19 +762,18 @@ Ustaw `WIFI_SSID` i `WIFI_PWD` w `./variants/heltec_v3/platformio.ini`, skompilu
 ### 7.7. Jak ustawić moc nadawania w Station G2, Heltec V4 i urządzeniach z modułami EByte?
 Moc nadawania radia Companion ustawisz w aplikacji mobilnej. W repeaterze i room serwerze służy do tego polecenie `set tx`. Bieżącą wartość odczytasz poleceniem `get tx`.
 
-⚠️ **UWAGA: ustawiaj te wartości na własne ryzyko. Nieprawidłowe ustawienia mocy mogą trwale uszkodzić sprzęt radiowy.**
+W urządzeniach ze wzmacniaczem PA wartość ustawiona w aplikacji nie jest mocą na wyjściu antenowym. Poniższe przykłady pochodzą z konfiguracji płytek w firmware (commit `4c2c70a5`). Podane moce wyjściowe są przybliżeniami z komentarzy w kodzie, a nie wynikami pomiaru Twojego egzemplarza.
 
-| Urządzenie / model                                                                  | Region / opis                        | Ustawienie w aplikacji (dBm) | Docelowa moc wyjściowa radia | Uwagi                                                                                                                                            |
-|:-------------------------------------------------------------------------------------|:---------------------------------------|:------------------------------|:--------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------|
-| **Station G2** <br> [Odnośnik](https://wiki.uniteng.com/en/meshtastic/station-g2)    | Maksymalna moc dla US915                | 19 dBm                        | 36,5 dBm (4,46W)                 |                                                                                                                                                    |
-|                                                                                        | Maksymalna moc dla US915 w punkcie kompresji 1dB | 16 dBm                | 35 dBm (3,16W)                   | Punkt kompresji 1dB                                                                                                                               |
-|                                                                                        | Maksymalna moc dla EU868 w punkcie kompresji 1dB | 15 dBm                | 34,5 dBm (2,82W)                 | Punkt kompresji 1dB                                                                                                                               |
-|                                                                                        | Moc wyjściowa 1W dla US915               | 10 dBm                        | 1W                               | Sprawdź wymagania obowiązujące w Twoim kraju                                                                                                     |
-|                                                                                        | Moc wyjściowa 1W dla EU868               | 9 dBm                         | 1W                               | Sprawdź wymagania obowiązujące w Twoim kraju                                                                                                     |
-| **Ikoka Stick E22-900M30S**                                                           | Model 1W                                | 19 dBm                        | 1W                               | **NIE PRZEKRACZAJ** (ryzyko spalenia) [karta danych](https://www.cdebyte.com/pdf-down.aspx?id=4216)                                              |
-| **Ikoka Stick E22-900M33S**                                                           | Model 2W                                | 9 dBm                         | 2W                               | **NIE PRZEKRACZAJ** (ryzyko spalenia) [karta danych](https://www.cdebyte.com/pdf-down.aspx?id=4216) Sprawdź wymagania obowiązujące w Twoim kraju |
-| **Heltec V4**                                                                         | Moc standardowa                          | 10 dBm                        | 22 dBm (~0,15W)                  |                                                                                                                                                    |
-|                                                                                        | Moc podwyższona                          | 22 dBm                        | 28 dBm (~0,5W do 0,6W)           |                                                                                                                                                    |
+| Urządzenie | Domyślne ustawienie TX | Przybliżona moc na wyjściu | Uwagi |
+|---|---|---|---|
+| Station G2 | 7 dBm | 27 dBm (0,5 W), z włączonym PA | Wariant firmware określa maksymalne ustawienie 19 dBm. |
+| Heltec V4 | 10 dBm | 22 dBm (0,16 W) | Maksymalne ustawienie SX1262 wynosi 22 dBm; po wzmocnieniu moc wyjściowa może wynosić około 28 dBm. |
+| Ikoka Stick E22-900M30S | 20 dBm | 30 dBm (1 W) | Komentarz w konfiguracji ostrzega przed zniekształceniami przy większym wysterowaniu. |
+| Ikoka Stick E22-900M33S | 9 dBm | 33 dBm (2 W) | Nie przekraczaj 9 dBm: konfiguracja ostrzega przed uszkodzeniem wzmacniacza. |
+
+Źródła: konfiguracje [Station G2](https://github.com/sefinek/MeshCore/blob/4c2c70a5/variants/station_g2/platformio.ini), [Heltec V4](https://github.com/sefinek/MeshCore/blob/4c2c70a5/variants/heltec_v4/platformio.ini) i [Ikoka Stick](https://github.com/sefinek/MeshCore/blob/4c2c70a5/variants/ikoka_stick_nrf/platformio.ini) oraz [opis wzmacniacza Heltec V4](https://wiki.heltec.org/news/heltec-v4-test-result/heltec-v4-test-result).
+
+Przed zmianą TX sprawdź dokładny wariant sprzętu i jego dokumentację. Możliwości wzmacniacza nie określają dozwolonej mocy nadawania w danym paśmie.
 
 ---
 

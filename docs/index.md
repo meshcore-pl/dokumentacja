@@ -4,7 +4,7 @@ description: Nieoficjalna dokumentacja MeshCore po polsku - polecenia CLI, proto
 order: 0
 sourceUrl: https://docs.meshcore.io
 createdAt: 1.11.2026
-updatedAt: 10.11.2026
+updatedAt: 20.11.2026
 ---
 
 # Wprowadzenie
@@ -18,16 +18,6 @@ Wieloskokowy routing (multi-hop) umożliwia komunikację nawet na duże odległo
 
 ## Nazwy używane w dokumentacji
 Stosujemy nazwy przyjęte przez społeczność MeshCore Polska i używane w polskiej wersji aplikacji:
-
-| Pojęcie | Angielska nazwa | Co oznacza? |
-|---------|----------------|-------------|
-| Companion (kompan) | Companion | Urządzenie osobiste, które łączy aplikację z siecią LoRa. |
-| Repeater (RPT) | Repeater | Węzeł przekazujący pakiety dalej i zwiększający zasięg sieci. |
-| Room serwer (RS) | Room Server | Serwer wiadomości grupowych z historią dostępną po połączeniu. |
-| Room-peater | | Room serwer, który dodatkowo przekazuje pakiety jak repeater. |
-| Advert 0-hop | Advert Zero Hop | Advert lokalny, którego repeatery nie przekazują dalej. |
-| Advert do wszystkich | Flood Routed | Advert przekazywany dalej przez repeatery. |
-
 Więcej pojęć i opisów ról znajdziesz we [wprowadzeniu MeshCore Polska](https://meshcorepolska.org/dokumentacja/meshcore/wprowadzenie).
 
 ## Zacznij tutaj
@@ -41,5 +31,5 @@ Więcej pojęć i opisów ról znajdziesz we [wprowadzeniu MeshCore Polska](http
 ## Zgłaszanie błędów
 Znalazłeś literówkę, błąd w tłumaczeniu lub nieaktualną informację?
 
-- [Repozytorium tłumaczenia](https://github.com/meshcore-pl/docs) - zgłoś literówki, błędy tłumaczenia oraz brakujące lub nieaktualne strony
+- [Repozytorium tłumaczenia](https://github.com/meshcore-pl/dokumentacja) - zgłoś literówki, błędy tłumaczenia oraz brakujące lub nieaktualne strony
 - [Repozytorium MeshCore](https://github.com/meshcore-dev/MeshCore/tree/main/docs) - zgłoś błędy merytoryczne występujące również w oryginalnej wersji angielskiej

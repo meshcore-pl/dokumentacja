@@ -65,7 +65,8 @@ Poniżej opisano strukturę pakietu protokołu MeshCore, w tym wielobajtowe hash
         - `0b10`: 3-bajtowe hashe ścieżki
         - `0b11`: zarezerwowane / nieobsługiwane
 - `path` - `hop_count * hash_size` bajtów - ścieżka używana do routingu bezpośredniego (Direct) lub śledzenia ścieżki zalewowej (flood)
-    - Do 64 bajtów, zdefiniowane przez `MAX_PATH_SIZE`
+    - Do 64 bajtów, zdefiniowane przez `MAX_PATH_SIZE`; jednocześnie liczba wpisów musi mieścić się w 6 bitach
+    - Maksymalnie 63 wpisy dla hashy 1-bajtowych, 32 dla 2-bajtowych i 21 dla 3-bajtowych
     - Efektywna długość w bajtach jest obliczana na podstawie zakodowanej liczby hopów i rozmiaru hasha, a nie pobierana bezpośrednio z `path_length`
     - Firmware w wersji v1.12.0 i starszy obsługiwał wyłącznie stare, 1-bajtowe hashe ścieżki i odrzucał pakiety, których bajty ścieżki przekraczały [64 bajty](https://github.com/meshcore-dev/MeshCore/blob/e812632235274ffd2382adf5354168aec765d416/src/Dispatcher.cpp#L144)
 - `payload` - zmienna długość - dane payloadu

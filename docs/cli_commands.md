@@ -11,6 +11,8 @@ updatedAt: 10.11.2026
 
 Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwerów i czujników MeshCore.
 
+Dostępność poleceń i wartości domyślne zależą od roli urządzenia oraz opcji kompilacji. Zakres przyjmowany przez CLI nie oznacza, że każdy układ radiowy obsłuży wszystkie te wartości.
+
 ## Nawigacja
 
 - [Operacyjne](#operacyjne)
@@ -61,6 +63,8 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
 **Użycie:**
 - `clock sync`
 
+Zegar jest aktualizowany tylko wtedy, gdy odebrany czas jest późniejszy od bieżącego.
+
 ---
 
 ### Wyświetlenie aktualnego czasu w UTC
@@ -74,7 +78,7 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
 - `time <epoch_seconds>`
 
 **Parametry:**
-- `epoch_seconds`: czas w formacie epoch Unix
+- `epoch_seconds`: czas w formacie epoch Unix; polecenie przesuwa zegar tylko do przodu
 
 ---
 
@@ -112,9 +116,9 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
 **Użycie:**
 - `neighbors`
 
-**Uwaga:** wynik tego polecenia jest ograniczony do 8 najnowszych advertów.
+**Uwaga:** sąsiedzi są sortowani od ostatnio słyszanych. Odpowiedź ma ograniczoną długość, więc liczba wpisów zależy od długości ich danych.
 
-**Uwaga:** każda linia jest zakodowana jako `{pubkey-prefix}:{timestamp}:{snr*4}`
+**Format:** `{pubkey-prefix}:{seconds-ago}:{snr*4}`. Prefiks ma 4 bajty zapisane jako 8 znaków hex. Drugie pole oznacza liczbę sekund od ostatniego odbioru, a nie znacznik czasu Unix.
 
 ---
 
@@ -230,7 +234,7 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
 - `set tx <dbm>`
 
 **Parametry:**
-- `dbm`: poziom mocy w dBm (1-22)
+- `dbm`: ustawienie mocy w dBm. Dozwolony zakres i rzeczywista moc wyjściowa zależą od układu radiowego, płytki i ewentualnego wzmacniacza. CLI nie narzuca wspólnego limitu 1-22 dBm.
 
 **Ustawiane flagą kompilacji:** `LORA_TX_POWER`
 
@@ -245,8 +249,8 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
 - `tempradio <freq>,<bw>,<sf>,<cr>,<timeout_mins>`
 
 **Parametry:**
-- `freq`: częstotliwość w MHz (300-2500)
-- `bw`: szerokość pasma w kHz (7.8-500)
+- `freq`: częstotliwość w MHz (walidacja CLI: 150-2500; sprzęt musi obsługiwać wybrane pasmo)
+- `bw`: szerokość pasma w kHz (walidacja CLI: 7-500; wybierz wartość obsługiwaną przez radio)
 - `sf`: współczynnik rozpraszania (5-12)
 - `cr`: współczynnik kodowania (5-8)
 - `timeout_mins`: czas trwania w minutach (musi być > 0)
@@ -516,7 +520,7 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
 
 **Domyślnie:** `off`
 
-**Uwaga:** funkcja wykrywa pakiety flood krążące w pętli i je odrzuca. Takie pętle obserwowano w sieciach z repeaterami używającymi zmodyfikowanego firmware. Zmiana payloadu przed przekazaniem może uniemożliwić rozpoznanie duplikatu i wywołać burzę pakietów trwającą do wyczerpania limitu 64 hopów. Funkcję dodano w firmware 1.14.
+**Uwaga:** funkcja wykrywa pakiety flood krążące w pętli i je odrzuca. Takie pętle obserwowano w sieciach z repeaterami używającymi zmodyfikowanego firmware. Zmiana payloadu przed przekazaniem może uniemożliwić rozpoznanie duplikatu i wywołać burzę pakietów trwającą do wyczerpania limitu hopów. Funkcję dodano w firmware 1.14.
 
 **Przykład:** w trybie `loop.detect minimal` repeater liczy wystąpienia własnego identyfikatora w ścieżce. Odrzuca pakiet, gdy identyfikator występuje co najmniej 4 razy dla hashy 1-bajtowych, 2 razy dla 2-bajtowych lub raz dla 3-bajtowych.
 
@@ -578,7 +582,7 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
 - `set dutycycle 100` - brak limitu cyklu pracy
 - `set dutycycle 50` - cykl pracy 50% (domyślnie)
 - `set dutycycle 10` - cykl pracy 10%
-- `set dutycycle 1` - cykl pracy 1% (najsurowszy wymóg UE)
+- `set dutycycle 1` - cykl pracy 1%
 
 > **Uwaga:** dodane w firmware v1.15.0
 
@@ -597,7 +601,7 @@ Ten dokument zawiera listę poleceń CLI dostępnych dla repeaterów, room serwe
   - `af = 2` → ~33% duty
   - `af = 3` → ~25% duty
   - `af = 9` → ~10% duty
-  Za dobór wartości odpowiedniej dla Twojej jurysdykcji i planu kanałów (np. regulacja 10% duty cycle dla EU 868 MHz) odpowiadasz Ty sam.
+  Dobierz limit do konkretnego pasma i lokalnych przepisów.
 
 **Domyślnie:** `1.0`
 
@@ -659,7 +663,7 @@ Przed nadawaniem radio sprawdza, czy kanał jest zajęty. Jeśli wykryje aktywno
 - `set flood.advert.interval <hours>`
 
 **Parametry:**
-- `hours`: interwał w godzinach (3-168)
+- `hours`: interwał od 3 do 168 godzin; `0` wyłącza automatyczne adverty do wszystkich
 
 **Domyślnie:** `47` godzin (Repeater i Room serwer), `0`, czyli wyłączone (Sensor)
 
@@ -671,7 +675,7 @@ Przed nadawaniem radio sprawdza, czy kanał jest zajęty. Jeśli wykryje aktywno
 - `set advert.interval <minutes>`
 
 **Parametry:**
-- `minutes`: interwał od 60 do 240 minut, zaokrąglany w dół do wielokrotności 2, np. 61 do 60
+- `minutes`: interwał od 60 do 240 minut, zaokrąglany w dół do wielokrotności 2, np. 61 do 60; `0` wyłącza automatyczne adverty 0-hop
 
 **Domyślnie:** `2` minuty na urządzeniu z ustawieniami fabrycznymi, a po zapisaniu konfiguracji `0` (wyłączone).
 
@@ -731,7 +735,7 @@ Przed nadawaniem radio sprawdza, czy kanał jest zajęty. Jeśli wykryje aktywno
   - `2`: Odczyt i zapis
   - `3`: Administrator
 
-**Uwaga:** wpis zostaje usunięty, gdy `permissions` jest pominięte
+**Uwaga:** aby usunąć zapisane uprawnienia, podaj `0`. Samo pominięcie argumentu nie jest poprawną składnią polecenia.
 
 ---
 
@@ -760,16 +764,11 @@ Przed nadawaniem radio sprawdza, czy kanał jest zajęty. Jeśli wykryje aktywno
 #### Zbiorcze wczytywanie list regionów
 **Użycie:**
 - `region load`
-- `region load <name> [flood_flag]`
 
 **Parametry:**
-- `name`: nazwa regionu. `*` oznacza region wieloznaczny (wildcard)
+Po uruchomieniu polecenia wpisuj regiony w kolejnych liniach. Pierwszy poziom wymaga jednej spacji na początku linii, kolejne poziomy odpowiednio dwóch, trzech itd., do siedmiu spacji. Dodaj `F` po nazwie, aby zezwolić nowemu regionowi na flood. Pusta linia kończy import.
 
-**Uwaga:** `flood_flag`: opcjonalne `F`, aby zezwolić na flood
-
-**Uwaga:** wcięcie tworzy relacje rodzic-dziecko (maks. 8 poziomów)
-
-**Uwaga:** `region load` z pustą nazwą nie zadziała zdalnie (jest interaktywne)
+Import zastępuje listę regionów. Dla regionów o istniejących nazwach zachowywane są wcześniejsze identyfikatory i flagi. Pracuj przez konsolę lokalną; do zmian zdalnych używaj `region put`, `region def`, `region allowf` i `region denyf`.
 
 ---
 
@@ -915,94 +914,37 @@ region save
 
 ### Przykłady regionów
 
-W poleceniu `region load` pusta linia kończy wprowadzanie regionów. W przykładach poniżej oddziela ona listę regionów od `region save`.
+**Import jednego regionu przez lokalną konsolę**
 
-**Przykład 1: użycie flagi F z nazwanym regionem publicznym**
+Pierwszy znak linii z nazwą regionu to spacja. Pusta linia kończy import; następne polecenie zapisuje wynik.
+
 ```mccli
 region load
-#Europe F
+ #Europe F
 
 region save
 ```
 
-**Wyjaśnienie:**
-- Tworzy region o nazwie `#Europe` z włączonym flood
-- Pakiety z tego regionu będą rozsyłane metodą flood do innych węzłów
+**Dodanie hierarchii bez importu**
 
----
+`region def` nie wymaga interaktywnego wprowadzania. Poniższe polecenie tworzy `#UK` i `#France` jako regiony podrzędne `#Europe`. Każdy utworzony region zezwala na flood.
 
-**Przykład 2: użycie wildcard z flagą F**
 ```mccli
-region load
-* F
-
+region def #Europe #UK|#Europe #France
 region save
 ```
 
-**Wyjaśnienie:**
-- Tworzy region wildcard `*` z włączonym flood
-- Automatycznie włącza flood dla wszystkich regionów
-- Dotyczy wyłącznie pakietów bez kodów transportu
+**Ruch bez przypisanego regionu**
 
----
+`*` dotyczy pakietów bez kodów transportu regionu. Nie oznacza automatycznego zezwolenia dla wszystkich nazwanych regionów.
 
-**Przykład 3: użycie wildcard bez flagi F**
 ```mccli
-region load
-*
-
-region save
-```
-**Wyjaśnienie:**
-- Tworzy region wildcard `*` bez flood
-- Ten region istnieje, ale nie wpływa na dystrybucję pakietów
-- Używany jako region domyślny/pusty
-
----
-
-**Przykład 4: zagnieżdżony region publiczny z flagą F**
-```mccli
-region load
-#Europe F
-  #UK
-    #London
-    #Manchester
-  #France
-    #Paris
-    #Lyon
-
+region allowf *
 region save
 ```
 
-**Wyjaśnienie:**
-- Tworzy region `#Europe` z włączonym flood
-- Dodaje zagnieżdżone regiony podrzędne (`#UK`, `#France`)
-- Wszystkie zagnieżdżone regiony dziedziczą flagę flood od rodzica
+Aby zablokować taki ruch, użyj `region denyf *`. Flagi regionów nazwanych ustawiaj oddzielnie; samo zagnieżdżenie nie powoduje dziedziczenia zezwolenia na flood.
 
----
-
-**Przykład 5: wildcard z zagnieżdżonymi regionami publicznymi**
-```mccli
-region load
-* F
-  #NorthAmerica
-    #USA
-      #NewYork
-      #California
-    #Canada
-      #Ontario
-      #Quebec
-
-region save
-```
-
-**Wyjaśnienie:**
-- Tworzy region wildcard `*` z włączonym flood
-- Dodaje zagnieżdżoną hierarchię `#NorthAmerica`
-- Automatycznie włącza flood dla wszystkich regionów podrzędnych
-- Przydatne dla sieci globalnych z określonymi zasadami regionalnymi
-
----
 ### GPS (gdy obsługa GPS jest wkompilowana)
 
 #### Podgląd lub zmiana stanu GPS
@@ -1056,7 +998,7 @@ region save
 **Parametry:**
 - `start`: opcjonalny indeks początkowy (domyślnie 0)
 
-**Uwaga:** format wyjścia: `<var_name>=<value>\n`
+**Format odpowiedzi:** najpierw liczba zmiennych (`<n> vars`), następnie linie `<var_name>=<value>`. Jeśli wynik się nie mieści, kończy się wpisem `... next:<index>`. Podaj ten indeks w następnym `sensor list`, aby kontynuować.
 
 ---
 
@@ -1109,8 +1051,10 @@ region save
 
 **Parametry:**
 - `source`:
-  - `logRx`: mostkuje odebrane pakiety
-  - `logTx`: mostkuje wysłane pakiety
+  - `rx`: mostkuje odebrane pakiety
+  - `tx`: mostkuje wysłane pakiety
+
+`get bridge.source` zwraca odpowiednio `logRx` lub `logTx`. W poleceniu `set` używaj `rx` albo `tx`.
 
 **Domyślnie:** `logTx`
 
@@ -1122,7 +1066,7 @@ region save
 - `set bridge.baud <rate>`
 
 **Parametry:**
-- `rate`: prędkość transmisji (`9600`, `19200`, `38400`, `57600` lub `115200`)
+- `rate`: prędkość transmisji od 9600 do wartości `BRIDGE_MAX_BAUD` z kompilacji. Wybierz prędkość obsługiwaną przez oba urządzenia.
 
 **Domyślnie:** `115200`
 

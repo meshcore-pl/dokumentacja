@@ -11,7 +11,7 @@ updatedAt: 10.11.2026
 
 ## Przegląd
 
-Moduł zarządzania zasilaniem nRF52 chroni baterię przed nadmiernym rozładowaniem. Ogranicza ryzyko spadków napięcia poniżej poziomu wymaganego do poprawnej pracy (brownout) i uszkodzenia pamięci flash. Umożliwia też wybudzenie urządzenia po wzroście napięcia do bezpiecznego poziomu.
+Moduł zarządzania zasilaniem nRF52 sprawdza napięcie przy uruchomieniu i może zablokować rozruch przy zbyt słabej baterii. Ogranicza to ryzyko nieprawidłowej pracy i uszkodzenia pamięci flash przy spadkach napięcia (brownout). Obsługuje też zapis przyczyny wyłączenia oraz wybudzenie po wzroście napięcia lub podłączeniu zasilania. Nie zastępuje sprzętowego zabezpieczenia ogniwa przed nadmiernym rozładowaniem.
 
 ## Funkcje
 
@@ -43,31 +43,30 @@ Kody powodu wyłączenia (zapisywane w GPREGRET2):
 
 ## Obsługiwane płytki
 
-| Płytka                                    | Zaimplementowane | Wybudzanie LPCOMP | Wybudzanie VBUS |
-|-------------------------------------------|------------------|-------------------|-----------------|
-| Seeed Studio XIAO nRF52840 (`xiao_nrf52`) | Tak              | Tak               | Tak             |
-| RAK4631 (`rak4631`)                       | Tak              | Tak               | Tak             |
-| Heltec T114 (`heltec_t114`)               | Tak              | Tak               | Tak             |
-| GAT562 Mesh Watch13                       | Tak              | Tak               | Tak             |
-| Promicro nRF52840                         | Nie              | Nie               | Nie             |
-| RAK WisMesh Tag                           | Nie              | Nie               | Nie             |
-| Heltec Mesh Solar                         | Nie              | Nie               | Nie             |
-| LilyGo T-Echo / T-Echo Lite               | Nie              | Nie               | Nie             |
-| SenseCAP Solar                            | Tak              | Tak               | Tak             |
-| WIO Tracker L1 / L1 E-Ink                 | Nie              | Nie               | Nie             |
-| WIO WM1110                                | Nie              | Nie               | Nie             |
-| Mesh Pocket                               | Nie              | Nie               | Nie             |
-| Nano G2 Ultra                             | Nie              | Nie               | Nie             |
-| ThinkNode M1/M3/M6                        | Nie              | Nie               | Nie             |
-| T1000-E                                   | Nie              | Nie               | Nie             |
-| Ikoka Nano/Stick/Handheld (nRF)           | Nie              | Nie               | Nie             |
-| Keepteen LT1                              | Nie              | Nie               | Nie             |
-| Minewsemi ME25LS01                        | Nie              | Nie               | Nie             |
+Sama obecność kodu obsługi w wariancie nie oznacza, że funkcja jest włączona w gotowym firmware. Wymaga flagi `NRF52_POWER_MANAGEMENT` i konfiguracji pomiaru napięcia. Dostępność w swoim urządzeniu sprawdzisz poleceniem `get pwrmgt.support`.
 
-Uwagi:
-- „Zaimplementowane” odnosi się do Fazy 1 (blokada rozruchu + odczyt powodu wyłączenia).
-- Wyłączenie zainicjowane przez użytkownika na Heltec T114 nie włącza wybudzania LPCOMP.
-- Wykrywanie VBUS służy do pomijania blokady rozruchu przy zasilaniu zewnętrznym, a wybudzanie VBUS jest konfigurowane razem z LPCOMP, gdy obsługiwany sprzęt udostępnia VBUS do nRF52.
+Poniższe warianty mają w kodzie `checkBootVoltage()` i własną metodę `initiateShutdown()`:
+
+| Wariant | Flaga w konfiguracji projektu |
+|---------|-------------------------------|
+| `xiao_nrf52` | wymaga włączenia |
+| `rak4631` | wymaga włączenia |
+| `rak3401` | wymaga włączenia |
+| `heltec_t114` | wymaga włączenia |
+| `heltec_t096` | wymaga włączenia |
+| `heltec_t1` | włączona |
+| `heltec_tower_v2` | włączona |
+| `gat562_mesh_watch13` | wymaga włączenia |
+| `gat562_mesh_evb_pro` | wymaga włączenia |
+| `gat562_mesh_tracker_pro` | wymaga włączenia |
+| `gat562_30s_mesh_kit` | wymaga włączenia |
+| `sensecap_solar` | wymaga włączenia |
+| `muziworks_r1_neo` | wymaga włączenia; próg blokady rozruchu ustawiony na 0 |
+| `muzi_base` | włączona |
+
+Stan tabeli dotyczy konfiguracji w sprawdzonym repozytorium firmware. Gotowy plik od innego dostawcy może mieć inne flagi.
+
+Próg `voltage_bootlock = 0` wyłącza blokadę rozruchu. Kod pomija też odczyty nieprzekraczające 1000 mV, aby błędny pomiar nie wyłączał urządzenia. Wybudzanie przez LPCOMP i VBUS zależy od konfiguracji sprzętu. Na Heltec T114 zwykłe wyłączenie przez użytkownika nie włącza LPCOMP.
 
 ## Szczegóły techniczne
 
@@ -141,7 +140,7 @@ Aby włączyć zarządzanie zasilaniem w wariancie płytki:
 ### Konfiguracja wybudzania na podstawie napięcia
 
 LPCOMP (komparator o niskim poborze mocy) jest skonfigurowany, aby:
-- Monitorować wskazany kanał AIN (0-7 odpowiadający P0.02-P0.05, P0.28-P0.31)
+- Monitorować wskazany kanał AIN: AIN0-AIN3 to P0.02-P0.05, AIN4-AIN7 to P0.28-P0.31
 - Porównywać z ułamkiem napięcia referencyjnego VDD (REFSEL: 0-6=1/8..7/8, 7=ARef, 8-15=1/16..15/16)
 - Wykrywać zdarzenia UP (wzrost napięcia powyżej progu)
 - Używać histerezy 50mV dla odporności na szumy
@@ -153,22 +152,22 @@ Funkcja `configureVoltageWake()` włącza też wybudzanie przez zdarzenie USBDET
 
 | REFSEL | Ułamek | VBAT przy dzielniku 1M/1M (VDD=3,0-3,3) | VBAT przy dzielniku 1,5M/1M (VDD=3,0-3,3) |
 |--------|--------|-----------------------------------------|-------------------------------------------|
-| 0      | 1/8    | 0,75-0,82 V                             | 0,94-1,03 V                               |
+| 0      | 1/8    | 0,75-0,83 V                             | 0,94-1,03 V                               |
 | 1      | 2/8    | 1,50-1,65 V                             | 1,88-2,06 V                               |
-| 2      | 3/8    | 2,25-2,47 V                             | 2,81-3,09 V                               |
-| 3      | 4/8    | 3,00-3,30 V                             | 3,75-4,12 V                               |
-| 4      | 5/8    | 3,75-4,12 V                             | 4,69-5,16 V                               |
-| 5      | 6/8    | 4,50-4,95 V                             | 5,62-6,19 V                               |
-| 6      | 7/8    | 5,25-5,77 V                             | 6,56-7,22 V                               |
+| 2      | 3/8    | 2,25-2,48 V                             | 2,81-3,09 V                               |
+| 3      | 4/8    | 3,00-3,30 V                             | 3,75-4,13 V                               |
+| 4      | 5/8    | 3,75-4,13 V                             | 4,69-5,16 V                               |
+| 5      | 6/8    | 4,50-4,95 V                             | 5,63-6,19 V                               |
+| 6      | 7/8    | 5,25-5,78 V                             | 6,56-7,22 V                               |
 | 7      | ARef   | -                                       | -                                         |
 | 8      | 1/16   | 0,38-0,41 V                             | 0,47-0,52 V                               |
-| 9      | 3/16   | 1,12-1,24 V                             | 1,41-1,55 V                               |
+| 9      | 3/16   | 1,13-1,24 V                             | 1,41-1,55 V                               |
 | 10     | 5/16   | 1,88-2,06 V                             | 2,34-2,58 V                               |
-| 11     | 7/16   | 2,62-2,89 V                             | 3,28-3,61 V                               |
+| 11     | 7/16   | 2,63-2,89 V                             | 3,28-3,61 V                               |
 | 12     | 9/16   | 3,38-3,71 V                             | 4,22-4,64 V                               |
-| 13     | 11/16  | 4,12-4,54 V                             | 5,16-5,67 V                               |
+| 13     | 11/16  | 4,13-4,54 V                             | 5,16-5,67 V                               |
 | 14     | 13/16  | 4,88-5,36 V                             | 6,09-6,70 V                               |
-| 15     | 15/16  | 5,62-6,19 V                             | 7,03-7,73 V                               |
+| 15     | 15/16  | 5,63-6,19 V                             | 7,03-7,73 V                               |
 
 **Ważne**: dla płytek z dzielnikiem napięcia na pinie pomiaru baterii, LPCOMP mierzy napięcie po podziale. Użyj:
 `VBAT_threshold ≈ (VDD * fraction) * divider_scale`, gdzie `divider_scale = (Rtop + Rbottom) / Rbottom` (np. 2,0 dla 1M/1M, 2,5 dla 1,5M/1M, 3,0 dla XIAO).

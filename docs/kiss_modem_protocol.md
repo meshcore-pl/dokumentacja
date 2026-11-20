@@ -28,7 +28,7 @@ Standardowe ramkowanie KISS zgodnie ze specyfikacją KA9Q/K3MC.
 
 | FEND | Type Byte | Data (escaped) | FEND |
 |------|-----------|----------------|------|
-| 0xC0 | 1 byte    | 0-510 bytes    | 0xC0 |
+| 0xC0 | 1 byte    | 0-511 bytes    | 0xC0 |
 
 ### Bajt typu (Type Byte)
 
@@ -39,7 +39,7 @@ Bajt typu składa się z dwóch 4-bitowych części (nibble):
 | 7-4  | Port    | Numer portu (0 dla TNC jednoportowego) |
 | 3-0  | Command | Numer polecenia                        |
 
-Maksymalny rozmiar niezakodowanej ramki: 512 bajtów.
+Bufor odbiorczy mieści 512 bajtów po usunięciu kodowania escape, w tym bajt typu. Dla polecenia Data obowiązuje dodatkowy limit 255 bajtów danych.
 
 ## Standardowe polecenia KISS
 
@@ -51,7 +51,7 @@ Maksymalny rozmiar niezakodowanej ramki: 512 bajtów.
 | TXDELAY     | `0x01`  | Opóźnienie (1 bajt) | Opóźnienie załączenia nadajnika w jednostkach 10ms (domyślnie: 50 = 500ms) |
 | Persistence | `0x02`  | P (1 bajt)          | Parametr trwałości CSMA 0-255 (domyślnie: 63)                              |
 | SlotTime    | `0x03`  | Interwał (1 bajt)   | Interwał slotu CSMA w jednostkach 10ms (domyślnie: 10 = 100ms)             |
-| TXtail      | `0x04`  | Opóźnienie (1 bajt) | Czas przytrzymania po nadawaniu w jednostkach 10ms (domyślnie: 0)          |
+| TXtail      | `0x04`  | Opóźnienie (1 bajt) | Parametr TXtail (domyślnie 0); obecny kod zapisuje go, ale nie stosuje przy nadawaniu          |
 | FullDuplex  | `0x05`  | Tryb (1 bajt)       | 0 = half duplex, wartość niezerowa = full duplex (domyślnie: 0)            |
 | SetHardware | `0x06`  | Subpolecenie + dane | Rozszerzenia MeshCore (patrz poniżej)                                      |
 | Return      | `0xFF`  | -                   | Wyjście z trybu KISS (bez efektu)                                          |

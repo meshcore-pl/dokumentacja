@@ -48,8 +48,8 @@ Ten rodzaj payloadu informuje odbiorców o istnieniu węzła i przekazuje o nim 
 | Pole      | Rozmiar (bajty) | Opis                                                               |
 |-----------|-----------------|--------------------------------------------------------------------|
 | flags     | 1               | określa, które pola są obecne, patrz poniżej                       |
-| latitude  | 4 (opcjonalne)  | szerokość geograficzna dziesiętna pomnożona przez 1000000, integer |
-| longitude | 4 (opcjonalne)  | długość geograficzna dziesiętna pomnożona przez 1000000, integer   |
+| latitude  | 4 (opcjonalne)  | szerokość geograficzna dziesiętna pomnożona przez 1000000, int32 ze znakiem |
+| longitude | 4 (opcjonalne)  | długość geograficzna dziesiętna pomnożona przez 1000000, int32 ze znakiem   |
 | feature 1 | 2 (opcjonalne)  | zarezerwowane na przyszłość                                        |
 | feature 2 | 2 (opcjonalne)  | zarezerwowane na przyszłość                                        |
 | name      | reszta appdata  | nazwa węzła                                                        |
@@ -73,7 +73,11 @@ Potwierdza odebranie wiadomości. Może być przesłane w polu „extra” pakie
 
 | Pole     | Rozmiar (bajty) | Opis                                                                               |
 |----------|-----------------|------------------------------------------------------------------------------------|
-| checksum | 4               | Suma kontrolna CRC znacznika czasu wiadomości, tekstu i klucza publicznego nadawcy |
+| ack hash | 4 | Pierwsze 4 bajty SHA-256 danych wiadomości i odpowiedniego klucza publicznego |
+| attempt | 1 (opcjonalnie) | Rozszerzony numer próby, używany w ACK zwykłych wiadomości tekstowych |
+| random | 1 (opcjonalnie) | Losowy bajt różnicujący pakiety ACK |
+
+Dla zwykłej wiadomości hash obejmuje znacznik czasu, bajt typu i numeru próby, tekst oraz klucz publiczny nadawcy. Potwierdzenie wiadomości przekazanej przez room serwer obejmuje też prefiks autora i klucz odbiorcy potwierdzanej wiadomości. W obecnym kodzie ACK zwykłej wiadomości tekstowej ma 6 bajtów, a ACK wiadomości z room serwera i keepalive ma 4 bajty.
 
 ## Zwrócona ścieżka, żądanie, odpowiedź i zwykła wiadomość tekstowa
 
@@ -92,8 +96,8 @@ Pakiet zwracający ścieżkę opisuje trasę, którą przebyła wiadomość od n
 
 | Pole        | Rozmiar (bajty) | Opis                                                                                                                             |
 |-------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------|
-| path length | 1               | długość kolejnego pola                                                                                                           |
-| path        | patrz wyżej     | lista hashy węzłów (po jednym bajcie każdy)                                                                                      |
+| path length | 1               | zakodowany rozmiar hasha i liczba wpisów ścieżki, jak w polu `path_length` nagłówka                                                                                                           |
+| path        | patrz wyżej     | lista hashy węzłów; każdy ma 1, 2 lub 3 bajty zgodnie z `path length`                                                                                      |
 | extra type  | 1               | dodatkowy, dołączony typ payloadu, np. potwierdzenie lub odpowiedź. Te same wartości co w [formacie pakietu](./packet_format.md) |
 | extra       | reszta danych   | dodatkowa, dołączona zawartość payloadu, w tym samym formacie co główna zawartość opisana w tym dokumencie                       |
 
@@ -105,12 +109,12 @@ Pakiet zwracający ścieżkę opisuje trasę, którą przebyła wiadomość od n
 | req type     | 1               | podtyp żądania                                      |
 | request data | reszta payloadu | treść payloadu żądania, definiowana przez aplikację |
 
-Funkcje pomocnicze czatu i serwera w `BaseChatMesh` używają następujących typów żądań:
+Firmware repeatera, room serwera i czujnika używa poniższych typów żądań. Dostępność zależy od roli urządzenia; nie wszystkie są obsługiwane bezpośrednio w `BaseChatMesh`:
 
 | Wartość | Nazwa     | Opis                                                  |
 |---------|-----------|-------------------------------------------------------|
 | `0x01`  | get stats | pobierz statystyki repeatera lub room serwera         |
-| `0x02`  | keepalive | przestarzałe                                        |
+| `0x02`  | keepalive | utrzymanie połączenia, nadal używane przez `BaseChatMesh`                                        |
 | `0x03`  | get telemetry | pobranie telemetrii węzła                        |
 | `0x04`  | get min/max/avg | pobranie statystyk szeregów czasowych z czujnika |
 | `0x05`  | get acl | pobranie listy uprawnień węzła                         |
@@ -138,8 +142,8 @@ Zależnie od typu węzła odpowiedź może zawierać:
 - Ostatnia wartość SNR
 - Liczba duplikatów trasy bezpośredniej
 - Liczba duplikatów trasy flood
-- Liczbę opublikowanych wiadomości
-- Liczbę wysyłek wiadomości z room serwera do klientów (push)
+- Liczba opublikowanych wiadomości
+- Liczba wysyłek wiadomości z room serwera do klientów (push)
 
 #### Get Telemetry
 
@@ -149,7 +153,7 @@ Pobiera telemetrię węzła. Maska wskazuje, które grupy danych należy pominą
 |-----------------|-----------------|------|
 | timestamp       | 4 | czas nadawcy (znacznik czasu Unix) |
 | req type        | 1 | `0x03` |
-| permission mask | 1 | maska wykluczanych uprawnień; stosowana jako `permissions & ~mask`; `0` nie wyklucza żadnej grupy telemetrii |
+| permission mask | 1 | maska wykluczanych grup telemetrii; ustawiony bit wyłącza daną grupę, a `0` nie wyklucza żadnej |
 
 #### Get Min/Max/Ave (węzły czujników)
 
@@ -224,8 +228,10 @@ Format zawartości odpowiedzi określa aplikacja. Poza opisaną wyżej struktur�
 |---------|------------------------------|----------------------------------------------------------------------------------------------------|
 | `0x00`  | zwykła wiadomość tekstowa    | zwykły tekst wiadomości                                                                            |
 | `0x01`  | dane CLI                     | tekst polecenia lub odpowiedzi CLI |
-| `0x02`  | podpisana wiadomość tekstowa | pierwsze cztery bajty to prefiks klucza publicznego nadawcy, a następnie zwykła wiadomość tekstowa |
+| `0x02`  | wiadomość z prefiksem autora | pierwsze cztery bajty to prefiks klucza publicznego nadawcy, a następnie zwykła wiadomość tekstowa |
 | `0x03` | polecenie CLI | od firmware v1.18: tekst jawnie oznaczony jako polecenie CLI |
+
+Nazwa `TXT_TYPE_SIGNED_PLAIN` w kodzie oznacza wiadomość z 4-bajtowym prefiksem klucza autora. Prefiks nie jest podpisem cyfrowym i sam nie pozwala kryptograficznie zweryfikować autora.
 
 ## Żądanie anonimowe
 

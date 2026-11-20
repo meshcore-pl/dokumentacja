@@ -9,7 +9,7 @@ updatedAt: 10.11.2026
 
 # Terminal Chat CLI
 
-Poniżej znajdują się polecenia, które można wpisywać w klientach Terminal Chat:
+Polecenia dotyczą przykładowego firmware Terminal Chat z katalogu `examples/simple_secure_chat`. Inne aplikacje terminalowe mogą mieć własny zestaw poleceń.
 
 ```mccli
 set freq {frequency}
@@ -46,12 +46,12 @@ Ustawia współczynnik czasu nadawania (air-time-factor).
 ```mccli
 time {epoch-secs}
 ```
-Ustawia zegar urządzenia na podstawie znacznika czasu Unix w sekundach. Przykład: `time 1738242833`.
+Ustawia zegar urządzenia na podstawie znacznika czasu Unix w sekundach. Przykład: `time 1738242833`. Polecenie przesuwa zegar tylko do przodu.
 
 ```mccli
 advert
 ```
-Wysyła advert.
+Wysyła advert 0-hop, bez przekazywania przez repeatery.
 
 ```mccli
 clock

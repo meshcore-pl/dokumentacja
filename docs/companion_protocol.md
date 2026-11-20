@@ -60,10 +60,10 @@ Urządzenia MeshCore Companion udostępniają usługę BLE z następującymi UUI
 1. **Skanowanie urządzeń**
     - Skanuj urządzenia BLE rozgłaszające UUID usługi MeshCore
     - Opcjonalnie filtruj po nazwie urządzenia (zwykle zawiera prefiks „MeshCore”)
-    - Zapisz adres MAC urządzenia w celu ponownego łączenia
+    - Zapisz identyfikator urządzenia udostępniany przez system; nie każda platforma pozwala odczytać adres MAC
 
 2. **Połączenie z GATT**
-    - Połącz się z urządzeniem, korzystając z odnalezionego adresu MAC
+    - Połącz się z urządzeniem, korzystając z identyfikatora zwróconego przez skanowanie
     - Poczekaj na ustanowienie połączenia
 
 3. **Odkrywanie usług i charakterystyk**
@@ -77,8 +77,8 @@ Urządzenia MeshCore Companion udostępniają usługę BLE z następującymi UUI
     - Subskrybuj powiadomienia na charakterystyce TX, aby otrzymywać dane z firmware
 
 5. **Wyślij polecenia początkowe**
-    - Wyślij `CMD_APP_START`, aby zidentyfikować swoją aplikację wobec firmware i pobrać ustawienia radia
-    - Wyślij `CMD_DEVICE_QUERY`, aby pobrać informacje o urządzeniu i wynegocjować obsługiwane wersje protokołu
+    - Wyślij `CMD_DEVICE_QUERY`, aby pobrać informacje o urządzeniu i wskazać obsługiwaną wersję protokołu
+    - Wyślij `CMD_APP_START`, aby zgłosić nazwę aplikacji i pobrać ustawienia radia
     - Wyślij `CMD_SET_DEVICE_TIME`, aby ustawić zegar firmware
     - Wyślij `CMD_GET_CONTACTS`, aby pobrać wszystkie kontakty
     - Wyślij `CMD_GET_CHANNEL` wielokrotnie, aby pobrać wszystkie sloty kanałów
@@ -93,7 +93,7 @@ Urządzenia MeshCore Companion udostępniają usługę BLE z następującymi UUI
 Wysyłając polecenia do charakterystyki RX, określ typ zapisu:
 
 - **Write with Response** (domyślny): czeka na potwierdzenie od urządzenia
-- **Write without Response**: szybszy, ale bez potwierdzenia
+- **Write without Response**: zapis bez potwierdzenia GATT, dostępny tylko wtedy, gdy charakterystyka go obsługuje
 
 **Specyfika platformy**:
 
@@ -101,7 +101,7 @@ Wysyłając polecenia do charakterystyki RX, określ typ zapisu:
 - **iOS**: użyj `CBCharacteristicWriteType.withResponse` lub `.withoutResponse`
 - **Python (bleak)**: użyj `write_gatt_char()` z `response=True` lub `False`
 
-**Zalecenie**: dla niezawodności używaj write with response.
+W sprawdzonej implementacji ESP32 charakterystyka RX udostępnia Write with Response. Sprawdź właściwości GATT urządzenia przed wyborem trybu zapisu. Potwierdzenie GATT nie zastępuje odpowiedzi protokołu `PACKET_OK` lub `PACKET_ERROR`.
 
 ### MTU (Maximum Transmission Unit)
 
@@ -166,7 +166,7 @@ Pierwszy bajt określa typ pakietu (patrz [Parsowanie odpowiedzi](#parsowanie-od
 
 ### 1. App Start
 
-**Cel**: zainicjowanie komunikacji z urządzeniem. Musi zostać wysłane jako pierwsze po połączeniu.
+**Cel**: zgłoszenie nazwy aplikacji i pobranie ustawień urządzenia. Po połączeniu wyślij również `CMD_DEVICE_QUERY`, aby wybrać wersję formatu odbieranych wiadomości.
 
 **Format polecenia**:
 ```
@@ -243,7 +243,7 @@ Bytes 34-49: Secret (16 bytes)
 
 **Nazwa kanału**:
 - Kodowana w UTF-8
-- Maksymalnie 32 bajty
+- Pole ma 32 bajty, ale firmware zachowuje najwyżej 31 bajtów nazwy i końcowe zero
 - Dopełniana bajtami null (0x00), jeśli krótsza
 
 **Pole Secret** (16 bajtów):
@@ -251,7 +251,7 @@ Bytes 34-49: Secret (16 bytes)
 - Nie używaj klucza złożonego z samych zer. Tworzy on kanał ze znanym kluczem AES i takim samym hashem na każdym urządzeniu. Jego wiadomości może odczytać każdy, kto zna ten klucz. Firmware pomija puste, nienazwane kanały przy odbiorze, ale nazwany kanał z zerowym kluczem będzie odbierać taki ruch.
 - Wbudowany kanał „Public” używa znanego klucza `izOH6cXN6mrJ5e26oRXNcg==` w base64, czyli `8b3387e9c5cdea6ac9e5edbaa115cd72` w zapisie hex.
 
-**Przykład** (utworzenie kanału „YourChannelName” pod indeksem 1 z sekretem):
+**Przykład** (utworzenie kanału „SMS” pod indeksem 1; pokazano początek ramki):
 ```
 20 01 53 4D 53 00 00 ... (name padded to 32 bytes)
     [16 bytes of secret]
@@ -283,7 +283,7 @@ Bytes 7+: Message Text (UTF-8, variable length)
 03 00 01 D2 02 96 49 48 65 6C 6C 6F
 ```
 
-**Odpowiedź**: `PACKET_MSG_SENT` (0x06) po powodzeniu
+**Odpowiedź**: `PACKET_OK` (0x00) po przyjęciu wiadomości do wysłania albo `PACKET_ERROR` (0x01) w razie błędu. Wiadomości kanałowe nie mają indywidualnego potwierdzenia dostarczenia od każdego odbiorcy.
 
 ---
 
@@ -296,10 +296,12 @@ Bytes 7+: Message Text (UTF-8, variable length)
 Byte 0:                         0x3E
 Byte 1:                         Channel Index (0 .. max_channels-1)
 Byte 2:                         Path Length (0xFF = flood, otherwise actual path length)
-Bytes 3 .. 2+path_len:          Path (omitted when path_len == 0xFF)
+Bytes 3 .. 2+path_bytes:        Path (omitted when path_len == 0xFF)
 Next 2 bytes (little-endian):   Data Type (`data_type`, uint16)
 Remaining bytes:                Binary payload (variable length)
 ```
+
+Dla trasy bezpośredniej `path_bytes = (path_len & 0x3F) * ((path_len >> 6) + 1)`. Wartość `path_len` koduje liczbę wpisów i ich rozmiar, a nie samą długość w bajtach. Całe polecenie musi zmieścić się w `MAX_FRAME_SIZE` (176 bajtów w tym firmware). Długa ścieżka może więc zmniejszyć dostępne miejsce na payload poniżej 165 bajtów.
 
 **Przykład** (flood, `DATA_TYPE_DEV`, payload `A1 B2 C3`, kanał 1):
 ```
@@ -371,7 +373,7 @@ Wartość `0xFF` ma więc inne znaczenie przy wysyłaniu i odbieraniu. Przy odbi
 **Pseudokod parsowania**:
 ```python
 def parse_channel_data_recv(data):
-    if len(data) < 9:
+    if len(data) < 9 or data[0] != 0x1B:
         return None
     snr_byte = data[1]
     snr = (snr_byte if snr_byte < 128 else snr_byte - 256) / 4.0
@@ -445,7 +447,7 @@ Byte 0: 0x14
     - Używany jako domyślny publiczny czat grupowy
 2. **Kanały hashtagowe**
     - Klucz jest wyprowadzany z nazwy kanału, więc zna go każdy, kto zna nazwę
-    - To pierwsze 16 bajtów `sha256("#test")`
+    - Klucz to pierwsze 16 bajtów SHA-256 pełnej nazwy kanału, np. `sha256("#test")`
     - Na przykład kanał hashtagowy `#test` ma klucz: `9cd8fcf22a47333b591d96a2b848b73f`
     - Używane jako publiczny czat grupowy oparty na temacie, oddzielny od domyślnego kanału publicznego
 3. **Kanały prywatne**
@@ -495,8 +497,8 @@ Bytes 1-6: Public Key Prefix (6 bytes, hex)
 Byte 7: Path Length
 Byte 8: Text Type
 Bytes 9-12: Timestamp (32-bit little-endian)
-Bytes 13-16: Signature (4 bytes, only if txt_type == 2)
-Bytes 17+: Message Text (UTF-8)
+Bytes 13-16: Author public key prefix (only if txt_type == 2)
+Bytes 13+ or 17+: Message Text (UTF-8; after optional prefix)
 ```
 
 **Format V3** (`PACKET_CONTACT_MSG_RECV_V3`, 0x10):
@@ -508,47 +510,44 @@ Bytes 4-9: Public Key Prefix (6 bytes, hex)
 Byte 10: Path Length
 Byte 11: Text Type
 Bytes 12-15: Timestamp (32-bit little-endian)
-Bytes 16-19: Signature (4 bytes, only if txt_type == 2)
-Bytes 20+: Message Text (UTF-8)
+Bytes 16-19: Author public key prefix (only if txt_type == 2)
+Bytes 16+ or 20+: Message Text (UTF-8; after optional prefix)
 ```
 
 **Pseudokod parsowania**:
 ```python
 def parse_contact_message(data):
-    packet_type = data[0]
-    offset = 1
-
-    # Sprawdź, czy to format V3
-    if packet_type == 0x10:  # V3
-        snr_byte = data[offset]
-        snr = ((snr_byte if snr_byte < 128 else snr_byte - 256) / 4.0)
-        offset += 3  # Pomiń SNR + zarezerwowane
+    if not data or data[0] not in (0x07, 0x10):
+        return None
+    is_v3 = data[0] == 0x10
+    offset = 4 if is_v3 else 1
+    if len(data) < offset + 12:
+        return None
 
     pubkey_prefix = data[offset:offset+6].hex()
-    offset += 6
-
-    path_len = data[offset]
-    txt_type = data[offset + 1]
-    offset += 2
-
-    timestamp = int.from_bytes(data[offset:offset+4], 'little')
-    offset += 4
-
-    # Jeśli txt_type == 2, pomiń 4-bajtowy podpis
+    path_len = data[offset + 6]
+    txt_type = data[offset + 7]
+    timestamp = int.from_bytes(data[offset+8:offset+12], 'little')
+    offset += 12
+    author_prefix = None
     if txt_type == 2:
+        if len(data) < offset + 4:
+            return None
+        author_prefix = data[offset:offset+4].hex()
         offset += 4
-
-    message = data[offset:].decode('utf-8')
 
     return {
         'pubkey_prefix': pubkey_prefix,
+        'author_prefix': author_prefix,
         'path_len': path_len,
         'txt_type': txt_type,
         'timestamp': timestamp,
-        'message': message,
-        'snr': snr if packet_type == 0x10 else None
+        'message': data[offset:].decode('utf-8'),
+        'snr': int.from_bytes(data[1:2], 'little', signed=True) / 4.0 if is_v3 else None
     }
 ```
+
+W formacie `txt_type == 2` dodatkowe cztery bajty wskazują autora wiadomości przekazanej przez room serwer. To prefiks klucza publicznego, nie podpis kryptograficzny.
 
 ### Format wiadomości kanałowej
 
@@ -577,26 +576,20 @@ Bytes 11+: Message Text (UTF-8)
 **Pseudokod parsowania**:
 ```python
 def parse_channel_message(data):
-    packet_type = data[0]
-    offset = 1
-
-    # Sprawdź, czy to format V3
-    if packet_type == 0x11:  # V3
-        snr_byte = data[offset]
-        snr = ((snr_byte if snr_byte < 128 else snr_byte - 256) / 4.0)
-        offset += 3  # Pomiń SNR + zarezerwowane
-
-    channel_idx = data[offset]
-    path_len = data[offset + 1]
-    txt_type = data[offset + 2]
-    timestamp = int.from_bytes(data[offset+3:offset+7], 'little')
-    message = data[offset+7:].decode('utf-8')
+    if not data or data[0] not in (0x08, 0x11):
+        return None
+    is_v3 = data[0] == 0x11
+    offset = 4 if is_v3 else 1
+    if len(data) < offset + 7:
+        return None
 
     return {
-        'channel_idx': channel_idx,
-        'timestamp': timestamp,
-        'message': message,
-        'snr': snr if packet_type == 0x11 else None
+        'channel_idx': data[offset],
+        'path_len': data[offset + 1],
+        'txt_type': data[offset + 2],
+        'timestamp': int.from_bytes(data[offset+3:offset+7], 'little'),
+        'message': data[offset+7:].decode('utf-8'),
+        'snr': int.from_bytes(data[1:2], 'little', signed=True) / 4.0 if is_v3 else None
     }
 ```
 
@@ -605,7 +598,9 @@ def parse_channel_message(data):
 Użyj polecenia `SEND_CHANNEL_MESSAGE` (patrz [Polecenia](#polecenia)).
 
 **Ważne**:
-- Wiadomości są ograniczone do 133 znaków zgodnie ze specyfikacją MeshCore
+- W kodzie `MAX_TEXT_LEN` wynosi 160 bajtów. Limit dotyczy danych UTF-8, nie liczby znaków.
+- W wiadomości kanałowej w tych 160 bajtach musi zmieścić się również prefiks `<nazwa nadawcy>: `. Dla nazwy o długości 24 bajtów pozostają 134 bajty tekstu. Polskie litery i emoji mogą zajmować kilka bajtów.
+- Całe polecenie musi też zmieścić się w ramce transportu. Dodatkowe pola polecenia zmniejszają miejsce na tekst.
 - Długie wiadomości powinny być dzielone na części
 - Dołącz wskaźnik części (np. „[1/3] treść wiadomości”)
 
@@ -632,7 +627,7 @@ O typie pakietu decyduje wartość bajtu, a nazwy stałych są jej aliasami. Sta
 | 0x03    | PACKET_CONTACT             | Informacje o kontakcie                     |
 | 0x04    | PACKET_CONTACT_END         | Koniec listy kontaktów                     |
 | 0x05    | PACKET_SELF_INFO           | Informacje o samym urządzeniu              |
-| 0x06    | PACKET_MSG_SENT            | Potwierdzenie wysłania wiadomości          |
+| 0x06    | PACKET_MSG_SENT            | Przyjęcie wiadomości bezpośredniej do wysłania |
 | 0x07    | PACKET_CONTACT_MSG_RECV    | Wiadomość od kontaktu (standardowa)        |
 | 0x08    | PACKET_CHANNEL_MSG_RECV    | Wiadomość kanałowa (standardowa)           |
 | 0x09    | PACKET_CURRENT_TIME        | Odpowiedź z aktualnym czasem               |
@@ -675,10 +670,10 @@ Bytes 34-49: Secret (16 bytes)
 **PACKET_DEVICE_INFO** (0x0D):
 ```
 Byte 0: 0x0D
-Byte 1: Firmware Version (uint8)
+Byte 1: Protocol revision reported by firmware (uint8)
 Bytes 2+: Variable length based on firmware version
 
-For firmware version >= 3:
+For protocol revision >= 3:
 Byte 2: Max Contacts Raw (uint8, actual = value * 2)
 Byte 3: Max Channels (uint8)
 Bytes 4-7: BLE PIN (32-bit little-endian)
@@ -689,23 +684,30 @@ Byte 80: Client repeat enabled/preferred (firmware v9+)
 Byte 81: Path hash mode (firmware v10+)
 ```
 
+Bajt 1 zawiera rewizję protokołu (`FIRMWARE_VER_CODE`), a nie numer wydania, np. `1.18.0`. Tekstowy numer wydania jest w polu Version.
+
 **Pseudokod parsowania**:
 ```python
 def parse_device_info(data):
-    if len(data) < 2:
+    if len(data) < 2 or data[0] != 0x0D:
+        return None
+    fw_ver = data[1]
+    min_length = 82 if fw_ver >= 10 else 81 if fw_ver >= 9 else 80 if fw_ver >= 3 else 2
+    if len(data) < min_length:
         return None
 
-    fw_ver = data[1]
     info = {'fw_ver': fw_ver}
-
-    if fw_ver >= 3 and len(data) >= 80:
+    if fw_ver >= 3:
         info['max_contacts'] = data[2] * 2
         info['max_channels'] = data[3]
         info['ble_pin'] = int.from_bytes(data[4:8], 'little')
-        info['fw_build'] = data[8:20].decode('utf-8').rstrip('\x00').strip()
-        info['model'] = data[20:60].decode('utf-8').rstrip('\x00').strip()
-        info['ver'] = data[60:80].decode('utf-8').rstrip('\x00').strip()
-
+        info['fw_build'] = data[8:20].decode('utf-8').rstrip('\x00')
+        info['model'] = data[20:60].decode('utf-8').rstrip('\x00')
+        info['ver'] = data[60:80].decode('utf-8').rstrip('\x00')
+    if fw_ver >= 9:
+        info['client_repeat'] = data[80] != 0
+    if fw_ver >= 10:
+        info['path_hash_mode'] = data[81]
     return info
 ```
 
@@ -720,16 +722,12 @@ Bytes 7-10: Total Storage (32-bit little-endian, KB)
 **Pseudokod parsowania**:
 ```python
 def parse_battery(data):
-    if len(data) < 3:
+    if len(data) < 3 or data[0] != 0x0C or 3 < len(data) < 11:
         return None
-
-    mv = int.from_bytes(data[1:3], 'little')
-    info = {'battery_mv': mv}
-
+    info = {'battery_mv': int.from_bytes(data[1:3], 'little')}
     if len(data) >= 11:
         info['used_kb'] = int.from_bytes(data[3:7], 'little')
         info['total_kb'] = int.from_bytes(data[7:11], 'little')
-
     return info
 ```
 
@@ -740,12 +738,12 @@ Byte 1: Advertisement Type
 Byte 2: TX Power
 Byte 3: Max TX Power
 Bytes 4-35: Public Key (32 bytes, hex)
-Bytes 36-39: Advertisement Latitude (32-bit little-endian, divided by 1e6)
-Bytes 40-43: Advertisement Longitude (32-bit little-endian, divided by 1e6)
+Bytes 36-39: Advertisement Latitude (signed int32 little-endian, divided by 1e6)
+Bytes 40-43: Advertisement Longitude (signed int32 little-endian, divided by 1e6)
 Byte 44: Multi ACKs
 Byte 45: Advertisement Location Policy
 Byte 46: Telemetry Mode (bitfield)
-Byte 47: Manual Add Contacts (bool)
+Byte 47: Manual Add Contacts (bit 0)
 Bytes 48-51: Radio Frequency (32-bit little-endian, divided by 1000.0)
 Bytes 52-55: Radio Bandwidth (32-bit little-endian, divided by 1000.0)
 Byte 56: Radio Spreading Factor
@@ -756,46 +754,29 @@ Bytes 58+: Device Name (UTF-8, variable length, no null terminator required)
 **Pseudokod parsowania**:
 ```python
 def parse_self_info(data):
-    if len(data) < 36:
+    if len(data) < 58 or data[0] != 0x05:
         return None
 
-    offset = 1
-    info = {
-        'adv_type': data[offset],
-        'tx_power': data[offset + 1],
-        'max_tx_power': data[offset + 2],
-        'public_key': data[offset + 3:offset + 35].hex()
+    telemetry_mode = data[46]
+    return {
+        'adv_type': data[1],
+        'tx_power': int.from_bytes(data[2:3], 'little', signed=True),
+        'max_tx_power': int.from_bytes(data[3:4], 'little', signed=True),
+        'public_key': data[4:36].hex(),
+        'adv_lat': int.from_bytes(data[36:40], 'little', signed=True) / 1e6,
+        'adv_lon': int.from_bytes(data[40:44], 'little', signed=True) / 1e6,
+        'multi_acks': data[44],
+        'adv_loc_policy': data[45],
+        'telemetry_mode_env': (telemetry_mode >> 4) & 0b11,
+        'telemetry_mode_loc': (telemetry_mode >> 2) & 0b11,
+        'telemetry_mode_base': telemetry_mode & 0b11,
+        'manual_add_contacts': (data[47] & 1) != 0,
+        'radio_freq': int.from_bytes(data[48:52], 'little') / 1000.0,
+        'radio_bw': int.from_bytes(data[52:56], 'little') / 1000.0,
+        'radio_sf': data[56],
+        'radio_cr': data[57],
+        'name': data[58:].decode('utf-8').rstrip('\x00')
     }
-    offset += 35
-
-    lat = int.from_bytes(data[offset:offset+4], 'little') / 1e6
-    lon = int.from_bytes(data[offset+4:offset+8], 'little') / 1e6
-    info['adv_lat'] = lat
-    info['adv_lon'] = lon
-    offset += 8
-
-    info['multi_acks'] = data[offset]
-    info['adv_loc_policy'] = data[offset + 1]
-    telemetry_mode = data[offset + 2]
-    info['telemetry_mode_env'] = (telemetry_mode >> 4) & 0b11
-    info['telemetry_mode_loc'] = (telemetry_mode >> 2) & 0b11
-    info['telemetry_mode_base'] = telemetry_mode & 0b11
-    info['manual_add_contacts'] = data[offset + 3] > 0
-    offset += 4
-
-    freq = int.from_bytes(data[offset:offset+4], 'little') / 1000.0
-    bw = int.from_bytes(data[offset+4:offset+8], 'little') / 1000.0
-    info['radio_freq'] = freq
-    info['radio_bw'] = bw
-    info['radio_sf'] = data[offset + 8]
-    info['radio_cr'] = data[offset + 9]
-    offset += 10
-
-    if offset < len(data):
-        name_bytes = data[offset:]
-        info['name'] = name_bytes.decode('utf-8').rstrip('\x00').strip()
-
-    return info
 ```
 
 **PACKET_MSG_SENT** (0x06):
@@ -809,8 +790,11 @@ Bytes 6-9: Suggested Timeout (32-bit little-endian, milliseconds)
 **PACKET_ACK** (0x82):
 ```
 Byte 0: 0x82
-Bytes 1-6: ACK Code (6 bytes, hex)
+Bytes 1-4: Expected ACK / message tag (uint32 little-endian)
+Bytes 5-8: Round-trip time (uint32 little-endian, milliseconds)
 ```
+
+To 9-bajtowe powiadomienie `PUSH_CODE_SEND_CONFIRMED`, a nie surowy pakiet ACK z radia. Pole ACK pozwala dopasować je do znacznika zwróconego wcześniej w `PACKET_MSG_SENT` dla wiadomości bezpośredniej. Czas obejmuje okres od wysłania wiadomości do odebrania potwierdzenia.
 
 ### Kody błędów
 
@@ -829,9 +813,9 @@ Bytes 1-6: ACK Code (6 bytes, hex)
 
 ### Obsługa ramek
 
-Implementacje BLE kolejkują i dostarczają jedną ramkę protokołu na jeden zapis/powiadomienie BLE na poziomie warstwy firmware.
+Firmware kolejkuje pełne ramki protokołu. Sposób ich dostarczenia przez BLE zależy też od implementacji transportu i wynegocjowanego MTU, szczególnie przy strumieniowym BLE UART na nRF52.
 
-- Aplikacje powinny traktować każdy zapis/powiadomienie charakterystyki jako dokładnie jedną ramkę protokołu companion
+- Nie zakładaj, że pojedyncze powiadomienie BLE zawsze zawiera całą ramkę; sprawdź sposób składania danych w bibliotece transportowej
 - Aplikacje powinny mimo to walidować długość ramki przed parsowaniem
 - Przyszłe transporty lub wersje firmware mogą się różnić, więc unikaj zakładania stałych rozmiarów payloadu dla odpowiedzi o zmiennej długości
 
@@ -856,7 +840,7 @@ Implementacje BLE kolejkują i dostarczają jedną ramkę protokołu na jeden za
      - `DEVICE_QUERY` → `PACKET_DEVICE_INFO`
      - `GET_CHANNEL` → `PACKET_CHANNEL_INFO`
      - `SET_CHANNEL` → `PACKET_OK` lub `PACKET_ERROR`
-     - `SEND_CHANNEL_MESSAGE` → `PACKET_MSG_SENT`
+     - `SEND_CHANNEL_MESSAGE` → `PACKET_OK` lub `PACKET_ERROR`
      - `GET_MESSAGE` → `PACKET_CHANNEL_MSG_RECV`, `PACKET_CONTACT_MSG_RECV`, `PACKET_CHANNEL_DATA_RECV` lub `PACKET_NO_MORE_MSGS`
      - `SEND_CHANNEL_DATA` → `PACKET_OK` lub `PACKET_ERROR`
      - `GET_BATTERY` → `PACKET_BATTERY`
@@ -893,7 +877,11 @@ tx_char = discover_characteristic(service, "6E400003-B5A3-F393-E0A9-E50E24DCCA9E
 # 4. Włącz powiadomienia na charakterystyce TX
 enable_notifications(tx_char, on_notification_received)
 
-# 5. Wyślij polecenie AppStart
+# 5. Wybierz format V3 odbieranych wiadomości
+send_command(rx_char, bytes([0x16, 0x03]))
+wait_for_response(PACKET_DEVICE_INFO)
+
+# 6. Pobierz ustawienia urządzenia
 send_command(rx_char, build_app_start())
 wait_for_response(PACKET_SELF_INFO)
 ```
@@ -929,18 +917,21 @@ command = build_channel_message(channel_index, message, timestamp)
 
 # 2. Wyślij polecenie
 send_command(rx_char, command)
-response = wait_for_response(PACKET_MSG_SENT)
+response = wait_for_response(PACKET_OK)
 ```
 
 ### Odbieranie wiadomości
 
 ```python
 def on_notification_received(data):
+    if not data:
+        return
     packet_type = data[0]
 
     if packet_type == PACKET_CHANNEL_MSG_RECV or packet_type == PACKET_CHANNEL_MSG_RECV_V3:
         message = parse_channel_message(data)
-        handle_channel_message(message)
+        if message is not None:
+            handle_channel_message(message)
     elif packet_type == PACKET_MESSAGES_WAITING:
         # Odpytaj o wiadomości
         send_command(rx_char, build_get_message())

@@ -4,7 +4,6 @@ description: Gotowe ustawienia radia MeshCore, API konfiguracji i zasady zgłasz
 order: 12
 sourceUrl: https://docs.meshcore.io/radio_presets
 createdAt: 10.11.2026
-updatedAt: 10.11.2026
 ---
 
 # Presety radiowe
