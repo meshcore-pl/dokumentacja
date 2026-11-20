@@ -7,7 +7,7 @@ Spolszczona dokumentacja [MeshCore](https://github.com/meshcore-dev/MeshCore) - 
 Node.js + Express, treść w Markdown (`docs/`) renderowana przez `marked` + `frontmatter-md`, widoki EJS.
 
 ## Wymagania
-- Node.js >= 20.19.0
+- Node.js >= 26.0.0
 - npm
 
 ## Uruchomienie

@@ -7,7 +7,7 @@ export default [
 		languageOptions: {
 			ecmaVersion: 'latest',
 			globals: {
-				...globals.node,
+				...globals.nodeBuiltin,
 			},
 		},
 		rules: {

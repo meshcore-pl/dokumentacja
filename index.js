@@ -1,8 +1,8 @@
 import './loadEnv.js';
-import fs from 'node:fs';
 import path from 'node:path';
 import express from 'express';
 import helmet from 'helmet';
+import pkg from './package.json' with { type: 'json' };
 
 // Middleware imports
 import timeout from './middlewares/timeout.js';
@@ -15,7 +15,7 @@ import ServiceWorkerRouter from './routes/ServiceWorker.js';
 import SitemapRouter from './routes/Sitemap.js';
 import IndexRouter from './routes/Index.js';
 
-const { version } = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const { version } = pkg;
 const { DOMAIN, NODE_ENV, PORT, CDN_SEFINEK_URL } = process.env;
 const isProd = NODE_ENV === 'production';
 if (!CDN_SEFINEK_URL) throw new Error('Missing required environment variable: CDN_SEFINEK_URL');
