@@ -1,6 +1,6 @@
 ---
 title: Format payloadu
-description: Typy payloadów przenoszonych wewnątrz pakietów MeshCore.
+description: Dokumentacja payloadów protokołu MeshCore: struktury advertów, wiadomości tekstowych, żądań, odpowiedzi, telemetrii oraz danych grupowych i kontrolnych.
 order: 7
 sourceUrl: https://docs.meshcore.io/payloads
 createdAt: 22.08.2026

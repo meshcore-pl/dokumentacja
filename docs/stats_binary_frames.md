@@ -1,7 +1,7 @@
 ---
 title: Struktury binarnych ramek statystyk
 navTitle: Ramki statystyk
-description: Struktury binarnych ramek dla poleceń statystyk radia companiona MeshCore.
+description: Format binarnych ramek statystyk MeshCore Companion: kody poleceń, układ pól i przykłady odczytu danych urządzenia, radia oraz liczników pakietów.
 order: 9
 sourceUrl: https://docs.meshcore.io/stats_binary_frames
 createdAt: 22.08.2026

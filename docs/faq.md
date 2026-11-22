@@ -1,6 +1,6 @@
 ---
 title: FAQ
-description: Najczęściej zadawane pytania i odpowiedzi dotyczące sieci MeshCore.
+description: Odpowiedzi na najczęstsze pytania o MeshCore: pierwsza konfiguracja urządzeń, administracja serwerem, obsługa T-Deck i rozwiązywanie problemów z siecią.
 order: 1
 sourceUrl: https://docs.meshcore.io/faq
 createdAt: 22.08.2026

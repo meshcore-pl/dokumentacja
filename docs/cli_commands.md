@@ -1,6 +1,6 @@
 ---
 title: Polecenia CLI
-description: Lista poleceń CLI wysyłanych do repeaterów, room serwerów i sensorów MeshCore.
+description: Polecenia CLI MeshCore dla repeaterów, room serwerów i sensorów. Poznaj składnię komend, konfigurację radia, zarządzanie urządzeniem i diagnostykę sieci.
 order: 2
 sourceUrl: https://docs.meshcore.io/cli_commands
 createdAt: 22.08.2026

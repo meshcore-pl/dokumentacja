@@ -1,6 +1,6 @@
 ---
 title: Protokół modemu KISS
-description: Standardowy firmware TNC KISS dla radiów LoRa MeshCore, kompatybilny z klientami KISS.
+description: Protokół modemu KISS MeshCore: konfiguracja portu szeregowego, format ramek, standardowe polecenia TNC oraz sterowanie radiem przez SetHardware.
 order: 5
 sourceUrl: https://docs.meshcore.io/kiss_modem_protocol
 createdAt: 22.08.2026

@@ -1,6 +1,6 @@
 ---
 title: Terminal Chat CLI
-description: Polecenia dostępne w klientach Terminal Chat MeshCore.
+description: Polecenia Terminal Chat CLI w MeshCore z opisami i przykładami użycia. Konfiguracja radia LoRa, nazwy i lokalizacji urządzenia oraz ustawianie zegara.
 order: 3
 sourceUrl: https://docs.meshcore.io/terminal_chat_cli
 createdAt: 22.08.2026

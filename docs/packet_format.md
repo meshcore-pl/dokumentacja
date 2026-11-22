@@ -1,6 +1,6 @@
 ---
 title: Format pakietu
-description: Opis formatu pakietu protokołu MeshCore.
+description: Poznaj format pakietu protokołu MeshCore: strukturę nagłówka, typy trasowania, kodowanie długości ścieżki oraz oznaczenia typów i wersji payloadu.
 order: 6
 sourceUrl: https://docs.meshcore.io/packet_format
 createdAt: 22.08.2026

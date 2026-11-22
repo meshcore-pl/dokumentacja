@@ -1,6 +1,6 @@
 ---
 title: Przydziały identyfikatorów
-description: Lista unikalnych numerów i identyfikatorów używanych w payloadach protokołu MeshCore.
+description: Przydziały identyfikatorów danych grupowych w protokole MeshCore. Sprawdź zajęte zakresy, numery do testów oraz zasady rezerwacji dla własnej aplikacji.
 order: 8
 sourceUrl: https://docs.meshcore.io/number_allocations
 createdAt: 22.08.2026

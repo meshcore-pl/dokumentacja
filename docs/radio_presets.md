@@ -1,6 +1,6 @@
 ---
 title: Presety radiowe
-description: Gotowe ustawienia radia MeshCore, API konfiguracji i zasady zgłaszania nowych presetów.
+description: Presety radiowe MeshCore: gotowe zestawy parametrów LoRa, pobieranie konfiguracji z API, format odpowiedzi JSON oraz zasady zgłaszania nowych ustawień.
 order: 12
 sourceUrl: https://docs.meshcore.io/radio_presets
 createdAt: 10.11.2026
