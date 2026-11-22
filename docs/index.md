@@ -4,7 +4,7 @@ description: Nieoficjalna dokumentacja MeshCore po polsku - polecenia CLI, proto
 order: 0
 sourceUrl: https://docs.meshcore.io
 createdAt: 1.11.2026
-updatedAt: 20.11.2026
+updatedAt: 22.11.2026
 ---
 
 # Wprowadzenie
@@ -17,8 +17,7 @@ Wieloskokowy routing (multi-hop) umożliwia komunikację nawet na duże odległo
 > Treść może różnić się od aktualnej wersji angielskiej - w razie wątpliwości sprawdź oryginał.
 
 ## Nazwy używane w dokumentacji
-Stosujemy nazwy przyjęte przez społeczność MeshCore Polska i używane w polskiej wersji aplikacji:
-Więcej pojęć i opisów ról znajdziesz we [wprowadzeniu MeshCore Polska](https://meshcorepolska.org/dokumentacja/meshcore/wprowadzenie).
+Używamy nazw z [Podstawowych pojęć MeshCore Polska](https://meshcorepolska.org/dokumentacja/meshcore/wprowadzenie#podstawowe-pojecia), zgodnych z polską wersją aplikacji, np. „room serwer”, „advert 0-hop” i „advert do wszystkich”. Polecenia CLI i identyfikatory protokołów pozostają bez zmian. Nazwy opcji spoza słownika sprawdzamy w polskim interfejsie aplikacji.
 
 ## Zacznij tutaj
 - [FAQ](./faq.md) - najczęściej zadawane pytania

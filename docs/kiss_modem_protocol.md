@@ -212,7 +212,7 @@ Wszystkie wartości w formacie little-endian.
 |---------|---------|----------------------------------------------------|
 | Airtime | 4 bajty | uint32_t, szacowany czas nadawania w milisekundach |
 
-### Poziom szumu (odpowiedź NoiseFloor)
+### Noise Floor (NF) - poziom szumu (odpowiedź NoiseFloor)
 
 Wszystkie wartości w formacie little-endian.
 
@@ -220,7 +220,7 @@ Wszystkie wartości w formacie little-endian.
 |-------------|---------|---------------------------|
 | Noise floor | 2 bajty | int16_t, dBm (ze znakiem) |
 
-Modem rekalibruje poziom szumu co 2 sekundy, z resetem AGC co 30 sekund.
+Modem rekalibruje Noise Floor (poziom szumu) co 2 sekundy, z resetem AGC co 30 sekund.
 
 ### Statystyki (odpowiedź Stats)
 

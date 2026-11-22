@@ -4,7 +4,7 @@ description: Odpowiedzi na najczęstsze pytania o MeshCore: pierwsza konfiguracj
 order: 1
 sourceUrl: https://docs.meshcore.io/faq
 createdAt: 22.08.2026
-updatedAt: 10.11.2026
+updatedAt: 22.11.2026
 ---
 
 # Najczęściej zadawane pytania
@@ -76,7 +76,7 @@ Odpowiedzi na najczęściej zadawane pytania dotyczące MeshCore.
     - [5.16. Czy istnieją materiały porównujące MeshCore z innymi systemami LoRa?](#516-czy-istnieja-materialy-porownujace-meshcore-z-innymi-systemami-lora)
 - [6. Rozwiązywanie problemów](#6-rozwiazywanie-problemow)
     - [6.1. Dlaczego data ostatniego kontaktu z węzłem jest nieprawidłowa?](#61-dlaczego-data-ostatniego-kontaktu-z-wezlem-jest-nieprawidlowa)
-    - [6.2. Dlaczego nie widzę węzła na liście kontaktów lub w Discover?](#62-dlaczego-nie-widze-wezla-na-liscie-kontaktow-lub-w-discover)
+    - [6.2. Dlaczego nie widzę węzła na liście kontaktów lub na ekranie Wykrywanie?](#62-dlaczego-nie-widze-wezla-na-liscie-kontaktow-lub-na-ekranie-wykrywanie)
     - [6.3. Jak połączyć się z repeaterem przez BLE (Bluetooth)?](#63-jak-polaczyc-sie-z-repeaterem-przez-ble-bluetooth)
     - [6.4. Mój companion nie pojawia się przez Bluetooth?](#64-moj-companion-nie-pojawia-sie-przez-bluetooth)
     - [6.5. Nie mogę połączyć się przez Bluetooth, jaki jest kod parowania Bluetooth?](#65-nie-moge-polaczyc-sie-przez-bluetooth-jaki-jest-kod-parowania-bluetooth)
@@ -203,7 +203,7 @@ Jeśli lokalna społeczność uzgodni zmianę presetu, zgłoś ją na kanale [#m
 ### 2.4. Czym jest „advert” w MeshCore?
 Advert to pakiet, w którym węzeł rozgłasza informacje o sobie. Odpowiada funkcji „announce” w Reticulum i „node info” w Meshtastic.
 
-Po naciśnięciu przycisku advertu urządzenie wysyła przez LoRa swoją nazwę, pozycję i klucz publiczny. Podpis cyfrowy chroni te informacje przed podszywaniem się pod węzeł. W aplikacji dostępne są dwa warianty: „Advert 0-hop” i „Advert do wszystkich” (Flood Routed).
+Po naciśnięciu przycisku advertu urządzenie wysyła przez LoRa swoją nazwę, pozycję i klucz publiczny. Podpis cyfrowy chroni te informacje przed podszywaniem się pod węzeł. W menu aplikacji warianty wysyłania nazywają się „Advert · 0-hop” i „Advert · Do wszystkich”. W dokumentacji używamy nazw „advert 0-hop” i „advert do wszystkich”.
 
 - **Advert 0-hop** - dociera tylko do urządzeń w bezpośrednim zasięgu. Repeatery nie przekazują go dalej.
 - **Advert do wszystkich** - repeatery przekazują go dalej, dzięki czemu dociera poza bezpośredni zasięg radiowy.
@@ -298,7 +298,7 @@ Repeatery z firmware 1.14+ przekazują dalej pakiety wysłane z 1-, 2- lub 3-baj
 O rozmiarze hasha ścieżki decyduje nadawca pakietu, np. companion wysyłający wiadomość lub repeater rozgłaszający advert.
 
 #### 3.9.3. Jak zmienić rozmiar hasha ścieżki mojego companiona?
-W firmware 1.14+ i aplikacji MeshCore 1.41.0+ rozmiar hasha ścieżki ustawisz w `Ustawienia` (ikona koła zębatego) -> `Ustawienia eksperymentalne`.
+W firmware 1.14+ rozmiar hasha ścieżki ustawisz w aplikacji MeshCore. W wersji 1.51.1 przejdź do `Ustawienia` (ikona koła zębatego) -> sekcja `Ustawienia sieci` -> `Domyślny rozmiar hasha ścieżki`. W starszych wersjach aplikacji opcja znajdowała się w `Ustawienia eksperymentalne`.
 
 Dopóki zdecydowana większość repeaterów w Twojej regionalnej sieci mesh nie zostanie zaktualizowana do firmware 1.14+, zaleca się pozostawienie companiona przy domyślnym trybie 1-bajtowym, ponieważ repeatery ze starszym firmware niż 1.14 po cichu odrzucają wiadomości z większymi hashami ścieżki.
 
@@ -428,8 +428,8 @@ Aby zrobić zrzut ekranu na T-Deck, przytrzymaj lewy górny róg ekranu. Zrzut e
 
 ### 5.1. Czym są BW, SF i CR?
 - **BW (bandwidth)** to szerokość pasma. Szersze pasmo pozwala przesyłać dane szybciej, ale zwykle zmniejsza czułość odbiornika.
-- **SF (spreading factor)** to współczynnik rozpraszania. Wyższy SF wydłuża transmisję i ułatwia odbiór słabego sygnału. Niższy SF skraca czas nadawania, ale wymaga lepszych warunków radiowych.
-- **CR (coding rate)** określa udział bitów danych i bitów korekcji błędów. Więcej bitów korekcyjnych zwiększa odporność na błędy kosztem czasu transmisji.
+- **Współczynnik rozpraszania (SF, Spreading Factor)** wpływa na czas transmisji i możliwość odbioru słabego sygnału. Wyższy SF wydłuża transmisję i ułatwia odbiór słabego sygnału. Niższy SF skraca czas nadawania, ale wymaga lepszych warunków radiowych.
+- **Współczynnik kodowania (CR, Coding Rate)** określa udział bitów danych i bitów korekcji błędów. Więcej bitów korekcyjnych zwiększa odporność na błędy kosztem czasu transmisji.
 
 W MeshCore ustawienia CR od 5 do 8 odpowiadają współczynnikom 4/5, 4/6, 4/7 i 4/8. Przykładowo przy CR7 na 4 bity danych przypadają 3 bity korekcyjne. Poprawne wartości opisuje też [dokumentacja LoRa w Zephyr](https://docs.zephyrproject.org/latest/doxygen/html/group__lora__interface.html).
 
@@ -534,11 +534,11 @@ Może się to zmienić w przyszłości, jeśli MeshCore stworzy firmware klienta
 [Źródło](https://discord.com/channels/826570251612323860/1330643963501351004/1354780032140054659)
 
 ### 5.12. Jak dodać węzeł do [Mapy MeshCore](https://map.meshcore.io)?
-Aby dodać radio BLE Companion, połącz się z radiem BLE Companion z poziomu aplikacji MeshCore na smartfonie. W aplikacji stuknij ikonę menu `3 kropki` w prawym górnym rogu, następnie stuknij `Internet Map`. Ponownie stuknij ikonę menu `3 kropki` i wybierz `Add me to the Map`
+Aby dodać radio BLE Companion, połącz się z nim w aplikacji MeshCore na smartfonie. Otwórz menu trzech kropek w prawym górnym rogu i wybierz `Mapa internetowa`. Na ekranie mapy ponownie otwórz menu trzech kropek w prawym górnym rogu i wybierz `Dodaj mnie do mapy`.
 
-Aby dodać repeatera lub room serwer do mapy, przejdź do listy kontaktów, stuknij `3 kropki` obok repeatera lub room serwera, który chcesz dodać do Internet Map, stuknij `Share`, a następnie `Upload to Internet Map`.
+Aby dodać repeatera lub room serwer do mapy, przejdź do listy kontaktów, otwórz menu trzech kropek obok wybranego urządzenia, wybierz `Udostępnij`, a następnie `Prześlij na Mapę Internetową`.
 
-Możesz użyć tego samego companiona (tego samego klucza publicznego), którego użyłeś do dodania swoich repeaterów lub room serwerów, aby usunąć je z Internet Map.
+Możesz użyć tego samego companiona (tego samego klucza publicznego), którego użyłeś do dodania swoich repeaterów lub room serwerów, aby usunąć je z mapy internetowej.
 
 ### 5.13. Czy mogę użyć Raspberry Pi do aktualizacji radia MeshCore?
 Raspberry Pi może wgrać firmware do urządzenia LoRa przez port szeregowy USB. Numery wersji i nazwy plików poniżej są przykładami. Pobierz aktualny firmware dla swojej płytki i wybranej roli urządzenia.
@@ -633,7 +633,9 @@ Oto lista materiałów porównawczych dotyczących MeshCore:
 ### 6.1. Dlaczego data ostatniego kontaktu z węzłem jest nieprawidłowa?
 Nieprawidłowy czas na jednym z urządzeń może sprawić, że kontakt wygląda na dawno nieaktywny. Sprawdź zegar swojego urządzenia i zdalnego węzła. Sposoby synchronizacji opisano poniżej.
 
-### 6.2. Dlaczego nie widzę węzła na liście kontaktów lub w Discover?
+### 6.2. Dlaczego nie widzę węzła na liście kontaktów lub na ekranie Wykrywanie?
+
+Ekran `Wykrywanie` otworzysz przez menu trzech kropek -> `Odkrywaj kontakty`.
 
 - Jeśli Twoim klientem jest T-Deck, może nie mieć ustawionego czasu (brak zainstalowanego GPS, brak sygnału GPS lub nieprawidłowa prędkość transmisji GPS).
 - Jeśli używasz klienta na Androida lub iOS, inny klient, repeater lub room serwer mogą mieć nieprawidłowy czas.
@@ -656,14 +658,14 @@ Heltec V3 ma niewielką antenę cewkową do Wi-Fi i Bluetooth. W niektórych war
 
 **A: Jeśli możesz połączyć się z urządzeniem z poziomu aplikacji MeshCore**
 1. Przejdź do ikony koła zębatego (Ustawienia) w prawym górnym rogu
-2. Kliknij przycisk `Export Settings`, wybierz `Select All` i potwierdź. To zapisze konfigurację Twojego węzła
-3. Teraz wybierz opcję `Factory Reset`
+2. Kliknij przycisk `Eksportuj konfigurację`, wybierz `Wybierz wszystko` i potwierdź. To zapisze konfigurację Twojego węzła
+3. Teraz wybierz opcję `Przywróć ustawienia fabryczne`
 4. Potwierdź, że chcesz zresetować urządzenie
 5. Przejdź do ustawień systemowych Bluetooth i usuń parowanie z urządzeniem, aby móc połączyć się ponownie
 6. Połącz urządzenie w aplikacji i wprowadź PIN
 7. Przejdź do ikony koła zębatego (Ustawienia) w prawym górnym rogu
-8. Kliknij `Import Settings` i wybierz plik z kroku 2, kliknij `Select All` i potwierdź
-9. Znajdź przycisk `Reboot` na liście ustawień
+8. Kliknij `Importuj konfigurację`, wybierz plik z kroku 2, zaznacz wszystkie dane do przywrócenia i potwierdź
+9. Znajdź przycisk `Uruchom ponownie` na liście ustawień
 
 **B: Jeśli nie możesz połączyć się z aplikacją**
 1. Podłącz kabel USB do swojego urządzenia
@@ -725,7 +727,7 @@ Dla urządzeń opartych na ESP32 (np. Heltec V3):
 
 1. Na <https://flasher.meshcore.io> pobierz wersję **niescaloną (non-merged)** firmware dla swojego urządzenia ESP32 (np. `Heltec_v3_repeater-v1.6.2-4449fd3.bin`, bez `"merged"` w nazwie pliku).
 2. W aplikacji MeshCore zaloguj się zdalnie z uprawnieniami administratora do repeatera, który chcesz zaktualizować.
-3. Przejdź do zakładki Command Line, wpisz `start ota` i wciśnij enter.
+3. Otwórz `Wiersz poleceń`, wpisz `start ota` i wciśnij enter.
 4. Powinieneś zobaczyć `OK`, potwierdzające, że urządzenie repeatera jest teraz w trybie OTA.
 5. Polecenie `start ota` na urządzeniu opartym na ESP32 uruchamia hotspot Wi-Fi o nazwie `MeshCore OTA`.
 6. Połącz swój telefon lub komputer z hotspotem „MeshCore OTA”.

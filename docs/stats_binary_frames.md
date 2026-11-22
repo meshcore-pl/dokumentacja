@@ -80,7 +80,7 @@ struct StatsCore {
 |--------|---------|----------|---------------|-----------------------------------------|-----------------------------------|
 | 0      | 1       | uint8_t  | response_code | Zawsze `0x18` (24)                      | -                                 |
 | 1      | 1       | uint8_t  | stats_type    | Zawsze `0x01` (STATS_TYPE_RADIO)        | -                                 |
-| 2      | 2       | int16_t  | noise_floor   | Poziom szumu radia w dBm                | od -140 do +10                    |
+| 2      | 2       | int16_t  | noise_floor   | Noise Floor (NF), poziom szumu radia w dBm | od -140 do +10                    |
 | 4      | 1       | int8_t   | last_rssi     | Ostatnia siła odbieranego sygnału w dBm | od -128 do +127                   |
 | 5      | 1       | int8_t   | last_snr      | SNR przeskalowane przez 4               | podziel przez 4,0, aby uzyskać dB |
 | 6      | 4       | uint32_t | tx_air_secs   | Skumulowany czas nadawania w sekundach  | 0 - 4 294 967 295                 |

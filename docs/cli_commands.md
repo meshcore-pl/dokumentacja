@@ -574,29 +574,29 @@ Zegar jest aktualizowany tylko wtedy, gdy odebrany czas jest późniejszy od bie
 - `set dutycycle <value>`
 
 **Parametry:**
-- `value`: procent cyklu pracy (1-100)
+- `value`: duty cycle w procentach (1-100)
 
 **Domyślnie:** `50%` (odpowiednik współczynnika czasu nadawania 1.0)
 
 **Przykłady:**
-- `set dutycycle 100` - brak limitu cyklu pracy
-- `set dutycycle 50` - cykl pracy 50% (domyślnie)
-- `set dutycycle 10` - cykl pracy 10%
-- `set dutycycle 1` - cykl pracy 1%
+- `set dutycycle 100` - brak limitu duty cycle
+- `set dutycycle 50` - duty cycle 50% (domyślnie)
+- `set dutycycle 10` - duty cycle 10%
+- `set dutycycle 1` - duty cycle 1%
 
 > **Uwaga:** dodane w firmware v1.15.0
 
 ---
 
-#### Podgląd lub zmiana współczynnika czasu nadawania (limit cyklu pracy)
-> **Przestarzałe** od firmware v1.15.0. Zamiast tego użyj [`get/set dutycycle`](#podglad-lub-zmiana-limitu-cyklu-pracy-duty-cycle).
+#### Podgląd lub zmiana współczynnika czasu nadawania (limit duty cycle)
+> **Przestarzałe** od firmware v1.15.0. Zamiast tego użyj [`get/set dutycycle`](#podglad-lub-zmiana-limitu-duty-cycle).
 
 **Użycie:**
 - `get af`
 - `set af <value>`
 
 **Parametry:**
-- `value`: współczynnik czasu nadawania (0-9). Po każdej transmisji repeater wymusza okres ciszy w przybliżeniu równy czasowi nadawania na antenie pomnożonemu przez tę wartość. Daje to długoterminowy cykl pracy w przybliżeniu równy 1 podzielonemu przez (1 plus ta wartość). Na przykład:
+- `value`: współczynnik czasu nadawania (0-9). Po każdej transmisji repeater wymusza okres ciszy w przybliżeniu równy czasowi nadawania na antenie pomnożonemu przez tę wartość. Daje to długoterminowy duty cycle w przybliżeniu równy 1 podzielonemu przez (1 plus ta wartość). Na przykład:
   - `af = 1` → ~50% duty
   - `af = 2` → ~33% duty
   - `af = 3` → ~25% duty
