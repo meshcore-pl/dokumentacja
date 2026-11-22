@@ -214,11 +214,6 @@
 	color: var(--text-faint);
 }
 
-#search-input::-webkit-search-cancel-button, #search-input::-webkit-search-decoration {
-	appearance: none;
-	-webkit-appearance: none;
-}
-
 #topbar__search-results {
 	position: absolute;
 	top: calc(100% + 6px);
