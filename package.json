@@ -15,6 +15,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "indexnow": "node global/IndexNow.js",
     "m": "ncu -u && npm install && npm update",
     "pull": "git pull origin main && git submodule update --init",
     "update": "npm run pull && npm ci --omit=dev && pm2 restart mcd"
