@@ -61,14 +61,15 @@ const build = (domain, entries) => {
 
 const render = (domain, entries) => build(domain, entries).xml;
 
-// getEntries(domain) may be sync or async. In production the result is cached per domain: the first request waits for the build, later ones get
-// the cached copy instantly and an expired copy is served stale while a single background rebuild runs. Express adds ETag and answers 304 on
-// If-None-Match / If-Modified-Since (Last-Modified = newest lastmod), HEAD works through the route.
+// getEntries(domain, req) may be sync or async. The domain is res.locals.domain (multi-site apps) or app.locals.domain. In production the result is
+// cached per domain: the first request waits for the build, later ones get the cached copy instantly and an expired copy is served stale while a
+// single background rebuild runs. Express adds ETag and answers 304 on If-None-Match / If-Modified-Since (Last-Modified = newest lastmod),
+// HEAD works through the route.
 const createSitemap = (getEntries, { ttl = DEFAULT_TTL } = {}) => {
 	const cache = new Map();
 
-	const refresh = (domain, state) => {
-		state.pending ??= Promise.resolve(getEntries(domain))
+	const refresh = (domain, req, state) => {
+		state.pending ??= Promise.resolve(getEntries(domain, req))
 			.then(entries => {
 				Object.assign(state, build(domain, entries), { at: Date.now() });
 			})
@@ -79,21 +80,21 @@ const createSitemap = (getEntries, { ttl = DEFAULT_TTL } = {}) => {
 		return state.pending;
 	};
 
-	const get = async domain => {
-		if (!isProd) return build(domain, await getEntries(domain));
+	const get = async (domain, req) => {
+		if (!isProd) return build(domain, await getEntries(domain, req));
 
 		let state = cache.get(domain);
 		if (!state) cache.set(domain, state = { xml: null, lastmod: null, at: 0, pending: null });
 
-		if (!state.xml) await refresh(domain, state);
-		else if (Date.now() - state.at >= ttl) refresh(domain, state).catch(err => console.error(`[sitemap] ${domain}: ${err.message}`));
+		if (!state.xml) await refresh(domain, req, state);
+		else if (Date.now() - state.at >= ttl) refresh(domain, req, state).catch(err => console.error(`[sitemap] ${domain}: ${err.message}`));
 
 		return state;
 	};
 
 	return async (req, res, next) => {
 		try {
-			const { xml, lastmod } = await get(req.app.locals.domain);
+			const { xml, lastmod } = await get(res.locals?.domain ?? req.app.locals.domain, req);
 			res.set(HEADERS);
 			if (lastmod) res.set('Last-Modified', lastmod.toUTCString());
 			res.send(xml);
