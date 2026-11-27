@@ -260,6 +260,10 @@ html {
 	transition: opacity .16s ease, color .14s ease;
 }
 
+.heading-anchor::after {
+	content: '#';
+}
+
 .heading-anchor:hover {
 	color: var(--accent);
 	text-decoration: none;

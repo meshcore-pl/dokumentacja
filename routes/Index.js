@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import HttpError from '../utils/httpError.js';
 import { getState } from '../utils/docs.js';
+import buildSeo from '../utils/seo.js';
 
 const router = Router();
 
@@ -13,12 +14,27 @@ const renderPage = (req, res, slug) => {
 
 	const { prev, next } = neighbours.get(page.slug) || NO_NEIGHBOURS;
 
+	const meta = {
+		title: page.seoTitle || `${page.title} | MeshCore Docs`,
+		description: page.description || `${page.title} - dokumentacja MeshCore.`,
+		canonical: `/${page.slug}`,
+		breadcrumbs: page.slug ? [{ name: 'Dokumentacja MeshCore', url: '/' }, { name: page.title, url: `/${page.slug}` }] : undefined,
+		articleTitle: page.title,
+		datePublished: page.createdAt?.toISOString(),
+		dateModified: page.date?.toISOString(),
+		sourceUrl: page.sourceUrl,
+	};
+
 	res.vary('X-Docs-Ajax');
 	if (req.get('X-Docs-Ajax')) {
 		return res.json({
 			slug: page.slug,
 			title: page.title,
-			description: page.description,
+			pageTitle: meta.title,
+			description: meta.description,
+			datePublished: meta.datePublished,
+			dateModified: meta.dateModified,
+			schema: buildSeo(req.app.locals.domain, meta).jsonLd,
 			html: page.html,
 			toc: page.toc,
 			updatedAt: page.updatedAt,
@@ -27,7 +43,7 @@ const renderPage = (req, res, slug) => {
 		});
 	}
 
-	res.render('page.ejs', { navPages, page, prev, next });
+	res.render('page.ejs', { navPages, page, prev, next, meta });
 };
 
 router.get('/', (req, res) => renderPage(req, res, ''));

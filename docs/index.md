@@ -1,5 +1,6 @@
 ---
 title: Wprowadzenie
+seoTitle: Dokumentacja MeshCore po polsku | MeshCore Docs
 description: Nieoficjalna dokumentacja MeshCore po polsku - polecenia CLI, protokół Companion, format pakietów, kody QR i FAQ dotyczące sieci mesh LoRa.
 order: 0
 sourceUrl: https://docs.meshcore.io

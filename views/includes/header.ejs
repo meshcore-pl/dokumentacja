@@ -1,28 +1,11 @@
-<!DOCTYPE html>
+<!DOCTYPE html> <% const seo = buildSeo(domain, { ...locals, title }); %>
 <html lang="pl">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><%= title %></title>
-
-	<!-- Primary meta -->
-	<% if (locals.description) { %><meta name="description" content="<%= description %>"><% } %>
-	<% if (locals.canonical) { %><link rel="canonical" href="<%= domain %><%= canonical %>"><% } %>
+	<%- include('../../global/views/seo-head.ejs', { seo }) %>
 	<meta name="theme-color" content="#0a0c11">
 	<meta name="color-scheme" content="dark">
-
-	<!-- Open Graph -->
-	<meta property="og:type" content="website">
-	<meta property="og:site_name" content="MeshCore Docs">
-	<meta property="og:locale" content="pl_PL">
-	<meta property="og:title" content="<%= title %>">
-	<% if (locals.description) { %><meta property="og:description" content="<%= description %>"><% } %>
-	<% if (locals.canonical) { %><meta property="og:url" content="<%= domain %><%= canonical %>"><% } %>
-	<meta property="og:image" content="<%= domain %>/logo/android-chrome-512x512.png">
-	<meta property="og:image:width" content="512">
-	<meta property="og:image:height" content="512">
-	<meta property="og:image:alt" content="Logo MeshCore Polska">
-	<meta name="twitter:card" content="summary">
 
 	<!-- JavaScript -->
 	<link rel="preconnect" href="<%= cdn %>" crossorigin>

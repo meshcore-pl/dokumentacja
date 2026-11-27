@@ -9,6 +9,8 @@ import timeout from './middlewares/timeout.js';
 import logger from './global/middlewares/morgan.js';
 import limiter from './middlewares/ratelimit.js';
 import HttpError from './utils/httpError.js';
+import noindex from './global/middlewares/noindex.js';
+import buildSeo from './utils/seo.js';
 
 // Routes
 import ServiceWorkerRouter from './routes/ServiceWorker.js';
@@ -27,13 +29,15 @@ const app = express();
 if (isProd) app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(import.meta.dirname, 'views'));
-app.locals.domain = DOMAIN;
+app.locals.domain = `${DOMAIN}${isProd ? '' : `:${PORT}`}`;
+app.locals.buildSeo = buildSeo;
 app.locals.cdn = CDN_SEFINEK_URL;
 app.locals.version = version;
 
 // Use middlewares
 app.use(helmet({
 	crossOriginResourcePolicy: false,
+	referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 	contentSecurityPolicy: {
 		directives: {
 			scriptSrc: ['\'self\'', CDN_SEFINEK_URL, 'https://static.cloudflareinsights.com'],
@@ -47,6 +51,7 @@ app.use(helmet({
 }));
 app.use(express.static(path.join(import.meta.dirname, 'public')));
 app.use(logger);
+app.use('/api', noindex);
 if (isProd) app.use(limiter);
 app.use(timeout());
 

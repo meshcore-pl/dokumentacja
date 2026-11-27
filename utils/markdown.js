@@ -61,7 +61,7 @@ const createRenderer = resolveSlug => {
 	renderer.heading = token => {
 		const id = getHeadingId(token);
 		const content = renderer.parser.parseInline(token.tokens);
-		return `<h${token.depth} id="${id}">${content}<a class="heading-anchor" href="#${id}" aria-label="Link do tej sekcji">#</a></h${token.depth}>\n`;
+		return `<h${token.depth} id="${id}">${content}<a class="heading-anchor" href="#${id}" aria-label="Link do tej sekcji"></a></h${token.depth}>\n`;
 	};
 
 	const baseLink = renderer.link.bind(renderer);

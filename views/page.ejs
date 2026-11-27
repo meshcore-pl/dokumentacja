@@ -1,8 +1,4 @@
-<%- include('includes/header.ejs', {
-	title: `${page.title} | MeshCore Docs`,
-	description: page.description || `${page.title} - dokumentacja MeshCore.`,
-	canonical: page.slug ? `/${page.slug}` : '/'
-}) %>
+<%- include('includes/header.ejs', meta) %>
 
 <div id="docs-layout" class="<%= page.toc.length > 1 ? '' : 'docs-layout--no-toc' %>">
 	<aside id="docs-sidebar">

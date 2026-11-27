@@ -589,7 +589,7 @@ Zegar jest aktualizowany tylko wtedy, gdy odebrany czas jest późniejszy od bie
 ---
 
 #### Podgląd lub zmiana współczynnika czasu nadawania (limit duty cycle)
-> **Przestarzałe** od firmware v1.15.0. Zamiast tego użyj [`get/set dutycycle`](#podglad-lub-zmiana-limitu-duty-cycle).
+> **Przestarzałe** od firmware v1.15.0. Zamiast tego użyj [`get/set dutycycle`](#podglad-lub-zmiana-limitu-cyklu-pracy-duty-cycle).
 
 **Użycie:**
 - `get af`

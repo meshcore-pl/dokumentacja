@@ -271,8 +271,7 @@ const setMetaTag = (selector, attr, value) => {
 };
 
 const applyMeta = (data, path) => {
-	const title = `${data.title} | MeshCore Docs`;
-	const description = data.description || `${data.title} - dokumentacja MeshCore.`;
+	const { pageTitle: title, description } = data;
 	const canonicalUrl = location.origin + path;
 
 	document.title = title;
@@ -281,6 +280,13 @@ const applyMeta = (data, path) => {
 	setMetaTag('meta[property="og:description"]', 'content', description);
 	setMetaTag('meta[property="og:url"]', 'content', canonicalUrl);
 	setMetaTag('link[rel="canonical"]', 'href', canonicalUrl);
+	setMetaTag('meta[name="twitter:title"]', 'content', title);
+	setMetaTag('meta[name="twitter:description"]', 'content', description);
+	setMetaTag('meta[property="article:published_time"]', 'content', data.datePublished);
+	setMetaTag('meta[property="article:modified_time"]', 'content', data.dateModified);
+
+	const schema = document.querySelector('script[type="application/ld+json"][data-seo]');
+	if (schema) schema.textContent = data.schema;
 };
 
 const setActiveNav = slug => {
